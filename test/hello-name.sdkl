@@ -1,0 +1,3 @@
+println("What's your name?")
+local name = io.get("my name is "); -- finish the word
+println("oh, hello " .. name .. "!")
