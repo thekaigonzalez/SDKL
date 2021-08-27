@@ -10,6 +10,6 @@ end -- wend
 
 os.name() - "Darwin" "Linux" "Windows" "BSD"
 
-io.gets() ** ON UNIX ** - Gets input using readline
+io.get() ** ON UNIX ** - Gets input using readline
 
 You can now compile SDKL into Bytecode and run using sdkl-bytes!!!
