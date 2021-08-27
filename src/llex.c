@@ -41,7 +41,7 @@ static const char *const sdklX_tokens [] = {
     "and", "break", "do", "else", "elif",
     "wend", "false", "for", "func", "goto", "if",
     "in", "local", "null", "not", "or", "repeat",
-    "return", "execute", "true", "until", "while",
+    "return", "run", "true", "until", "while",
     "//", "..", "...", "==", ">=", "<=", "~=",
     "<<", ">>", "::", "<eof>",
     "<number>", "<integer>", "<name>", "<string>"
