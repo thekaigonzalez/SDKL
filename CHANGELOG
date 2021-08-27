@@ -4,12 +4,12 @@ lua.h -> SDKL.h & all others
 
 liblua.a -> libsdkl.a
 
-then -- execute
-
 print & println
 
 end -- wend
 
 os.name() - "Darwin" "Linux" "Windows" "BSD"
+
+io.gets() ** ON UNIX ** - Gets input using readline
 
 You can now compile SDKL into Bytecode and run using sdkl-bytes!!!
