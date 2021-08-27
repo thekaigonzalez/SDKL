@@ -1,5 +1,4 @@
-# Makefile for building Lua
-
+# Makefile for building SDKL
 
 # Your platform. See PLATS for possible values.
 PLAT= guess
