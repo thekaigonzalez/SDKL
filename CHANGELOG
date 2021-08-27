@@ -1,0 +1,15 @@
+remove os.print & os.write :(
+
+lua.h -> SDKL.h & all others
+
+liblua.a -> libsdkl.a
+
+then -- execute
+
+print & println
+
+end -- wend
+
+os.name() - "Darwin" "Linux" "Windows" "BSD"
+
+You can now compile SDKL into Bytecode and run using sdkl-bytes!!!
