@@ -1,0 +1,6 @@
+func loadfile_ex(f)
+  return loadfile(f)
+end
+
+print(loadfile_ex("./inc.sdkl")()("hello")) -- hi to stdout.
+-- see inc.sdkl

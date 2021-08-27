@@ -1,0 +1,1 @@
+print(loadfile("./tinc.sdkl")().unknown_attribute)

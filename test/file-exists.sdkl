@@ -1,0 +1,9 @@
+func evaluate_path(p)
+  if io.open(p) == nil then
+   return "not a path"
+  else
+   return "is a path"
+  end
+end
+
+println(evaluate_path("./"))

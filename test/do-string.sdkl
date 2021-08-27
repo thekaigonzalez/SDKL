@@ -1,0 +1,7 @@
+func do_string(s)
+  load(s)()
+end
+
+
+do_string("println('hello')")
+

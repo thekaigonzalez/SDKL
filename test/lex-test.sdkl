@@ -1,0 +1,15 @@
+func var() 
+local a = 129
+
+println("This is a variable.")
+println("his name is a.")
+println("A is " .. tostring(a))
+println("now i'm going to declare it out of scope.")
+end
+
+var()
+
+
+if a == null then
+  println("where'd a go? it used to be 129 now it's NULL!")
+end

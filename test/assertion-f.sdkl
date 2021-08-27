@@ -1,0 +1,5 @@
+func assert_func() 
+  assert(io.open("abc.txt") == null)-- works since file doesn't exist.
+end
+
+assert_func()
