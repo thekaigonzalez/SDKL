@@ -6,10 +6,11 @@
 
 #define liolib_c
 #define LUA_LIB
-
+#include "sextras.h"
 #include "lprefix.h"
-
-
+#ifdef SDKL_USE_EXTRAS
+#include <readline/readline.h>
+#endif
 #include <ctype.h>
 #include <errno.h>
 #include <locale.h>
@@ -448,6 +449,7 @@ static int nextc (RN *rn) {
 }
 
 
+
 /*
 ** Accept current char if it is in 'set' (of size 2)
 */
@@ -525,7 +527,8 @@ static int read_line (sdkl_State *L, FILE *f, int chop) {
     int i = 0;
     l_lockfile(f);  /* no memory errors can happen inside the lock */
     while (i < LUAL_BUFFERSIZE && (c = l_getc(f)) != EOF && c != '\n')
-      buff[i++] = c;  /* read up to end of line or buffer limit */
+      buff[i++] = c;  /* 
+read up to end of line or buffer limit */
     l_unlockfile(f);
     sdklL_addsize(&b, i);
   } while (c != EOF && c != '\n');  /* repeat until end of line */
@@ -617,6 +620,16 @@ static int io_read (sdkl_State *L) {
   return g_read(L, getiofile(L, IO_INPUT), 1);
 }
 
+/* a more modernized input using GNU readline */
+
+#if defined SDKL_USE_EXTRAS
+static int io_inputf(sdkl_State* L)
+{
+  char* bbf = readline(sdklL_checkstring(L, 1));
+  sdkl_pushstring(L, bbf);
+  return 1;
+}
+#endif
 
 static int f_read (sdkl_State *L) {
   return g_read(L, tofile(L), 2);
@@ -749,6 +762,9 @@ static const sdklL_Reg iolib[] = {
   {"read", io_read},
   {"tmpfile", io_tmpfile},
   {"type", io_type},
+#if defined SDKL_USE_EXTRAS
+  {"get", io_inputf},
+#endif
   {"write", io_write},
   {NULL, NULL}
 };
@@ -764,6 +780,7 @@ static const sdklL_Reg meth[] = {
   {"flush", f_flush},
   {"seek", f_seek},
   {"close", f_close},
+ 
   {"setvbuf", f_setvbuf},
   {NULL, NULL}
 };

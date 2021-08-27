@@ -1,22 +1,20 @@
 # Makefile for building Lua
-# See ../doc/readme.html for installation and customization instructions.
 
-# == CHANGE THE SETTINGS BELOW TO SUIT YOUR ENVIRONMENT =======================
 
 # Your platform. See PLATS for possible values.
 PLAT= guess
 
 CC= gcc -std=gnu99
-CFLAGS= -O2 -Wall -Wextra -DLUA_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
-LDFLAGS= $(SYSLDFLAGS) $(MYLDFLAGS)
-LIBS= -lm $(SYSLIBS) $(MYLIBS)
+CFLAGS=  -O2 -Wall -Wextra -DLUA_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
+LDFLAGS=  $(SYSLDFLAGS) $(MYLDFLAGS)
+LIBS= -lreadline -lm $(SYSLIBS) $(MYLIBS)
 
 AR= ar rcu
 RANLIB= ranlib
 RM= rm -f
 UNAME= uname
 
-SYSCFLAGS=
+SYSCFLAGS= -DSDKL_USE_EXTRAS
 SYSLDFLAGS=
 SYSLIBS=
 

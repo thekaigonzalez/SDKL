@@ -76,6 +76,14 @@ static int sdklB_warn (sdkl_State *L) {
 }
 
 
+/* build a class */
+
+static int sdklB_newclass(sdkl_State* L)
+{
+ 
+}
+
+
 #define SPACECHARS	" \f\n\r\t\v"
 
 static const char *b_str2int (const char *s, int base, sdkl_Integer *pn) {
