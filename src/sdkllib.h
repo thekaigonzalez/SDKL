@@ -1,6 +1,6 @@
 /*
 ** $Id: sdkllib.h $
-** Lua standard libraries
+** SDKL standard libraries
 ** See Copyright Notice in sdkl.h
 */
 

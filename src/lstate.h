@@ -15,7 +15,7 @@
 
 
 /*
-** Some notes about garbage-collected objects: All objects in Lua must
+** Some notes about garbage-collected objects: All objects in SDKL must
 ** be kept somehow accessible until being freed, so all objects always
 ** belong to one (and only one) of these lists, using field 'next' of
 ** the 'CommonHeader' for the link:
@@ -157,7 +157,7 @@ typedef struct stringtable {
 /*
 ** Information about a call.
 ** About union 'u':
-** - field 'l' is used only for Lua functions;
+** - field 'l' is used only for SDKL functions;
 ** - field 'c' is used only for C functions.
 ** About union 'u2':
 ** - field 'funcidx' is used only by C functions while doing a
@@ -174,7 +174,7 @@ typedef struct CallInfo {
   StkId	top;  /* top for this function */
   struct CallInfo *previous, *next;  /* dynamic call link */
   union {
-    struct {  /* only for Lua functions */
+    struct {  /* only for SDKL functions */
       const Instruction *savedpc;
       volatile l_signalT trap;
       int nextraargs;  /* # of extra arguments in vararg functions */
@@ -222,7 +222,7 @@ typedef struct CallInfo {
 /*
 ** Field CIST_RECST stores the "recover status", used to keep the error
 ** status while closing to-be-closed variables in coroutines, so that
-** Lua can correctly resume after an yield from a __close method called
+** SDKL can correctly resume after an yield from a __close method called
 ** because of an error.  (Three bits are enough for error status.)
 */
 #define getcistrecst(ci)     (((ci)->callstatus >> CIST_RECST) & 7)
@@ -232,11 +232,11 @@ typedef struct CallInfo {
                                                   | ((st) << CIST_RECST)))
 
 
-/* active function is a Lua function */
-#define isLua(ci)	(!((ci)->callstatus & CIST_C))
+/* active function is a SDKL function */
+#define isSDKL(ci)	(!((ci)->callstatus & CIST_C))
 
-/* call is running Lua code (not a hook) */
-#define isLuacode(ci)	(!((ci)->callstatus & (CIST_C | CIST_HOOKED)))
+/* call is running SDKL code (not a hook) */
+#define isSDKLcode(ci)	(!((ci)->callstatus & (CIST_C | CIST_HOOKED)))
 
 /* assume that CIST_OAH has offset 0 and that 'v' is strictly 0/1 */
 #define setoah(st,v)	((st) = ((st) & ~CIST_OAH) | (v))
@@ -316,7 +316,7 @@ struct sdkl_State {
   GCObject *gclist;
   struct sdkl_State *twups;  /* list of threads with open upvalues */
   struct sdkl_longjmp *errorJmp;  /* current error recover point */
-  CallInfo base_ci;  /* CallInfo for first level (C calling Lua) */
+  CallInfo base_ci;  /* CallInfo for first level (C calling SDKL) */
   volatile sdkl_Hook hook;
   ptrdiff_t errfunc;  /* current error handling function (stack index) */
   l_uint32 nCcalls;  /* number of nested (non-yieldable | C)  calls */
@@ -379,8 +379,8 @@ union GCUnion {
 
 
 /*
-** macro to convert a Lua object into a GCObject
-** (The access to 'tt' tries to ensure that 'v' is actually a Lua object.)
+** macro to convert a SDKL object into a GCObject
+** (The access to 'tt' tries to ensure that 'v' is actually a SDKL object.)
 */
 #define obj2gco(v)	check_exp((v)->tt >= LUA_TSTRING, &(cast_u(v)->gc))
 

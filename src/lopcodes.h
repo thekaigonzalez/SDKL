@@ -1,6 +1,6 @@
 /*
 ** $Id: lopcodes.h $
-** Opcodes for Lua virtual machine
+** Opcodes for SDKL virtual machine
 ** See Copyright Notice in sdkl.h
 */
 

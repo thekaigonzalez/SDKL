@@ -29,8 +29,8 @@
 #define LUA_AUTHORS	"Kai D. Gonzalez"
 
 
-/* mark for precompiled code ('<esc>Lua') */
-#define LUA_SIGNATURE	"\x1bLua"
+/* mark for precompiled code ('<esc>SDKL') */
+#define LUA_SIGNATURE	"\x1bSDKL"
 
 /* option for multiple returns in 'sdkl_pcall' and 'sdkl_call' */
 #define LUA_MULTRET	(-1)
@@ -76,7 +76,7 @@ typedef struct sdkl_State sdkl_State;
 
 
 
-/* minimum Lua stack available to a C function */
+/* minimum SDKL stack available to a C function */
 #define LUA_MINSTACK	20
 
 
@@ -86,7 +86,7 @@ typedef struct sdkl_State sdkl_State;
 #define LUA_RIDX_LAST		LUA_RIDX_GLOBALS
 
 
-/* type of numbers in Lua */
+/* type of numbers in SDKL */
 typedef LUA_NUMBER sdkl_Number;
 
 
@@ -101,7 +101,7 @@ typedef LUA_KCONTEXT sdkl_KContext;
 
 
 /*
-** Type for C functions registered with Lua
+** Type for C functions registered with SDKL
 */
 typedef int (*sdkl_CFunction) (sdkl_State *L);
 
@@ -112,7 +112,7 @@ typedef int (*sdkl_KFunction) (sdkl_State *L, int status, sdkl_KContext ctx);
 
 
 /*
-** Type for functions that read/write blocks when loading/dumping Lua chunks
+** Type for functions that read/write blocks when loading/dumping SDKL chunks
 */
 typedef const char * (*sdkl_Reader) (sdkl_State *L, void *ud, size_t *sz);
 
@@ -245,7 +245,7 @@ LUA_API int   (sdkl_pushthread) (sdkl_State *L);
 
 
 /*
-** get functions (Lua -> stack)
+** get functions (SDKL -> stack)
 */
 LUA_API int (sdkl_getglobal) (sdkl_State *L, const char *name);
 LUA_API int (sdkl_gettable) (sdkl_State *L, int idx);
@@ -262,7 +262,7 @@ LUA_API int  (sdkl_getiuservalue) (sdkl_State *L, int idx, int n);
 
 
 /*
-** set functions (stack -> Lua)
+** set functions (stack -> SDKL)
 */
 LUA_API void  (sdkl_setglobal) (sdkl_State *L, const char *name);
 LUA_API void  (sdkl_settable) (sdkl_State *L, int idx);
@@ -276,7 +276,7 @@ LUA_API int   (sdkl_setiuservalue) (sdkl_State *L, int idx, int n);
 
 
 /*
-** 'load' and 'call' functions (load and run Lua code)
+** 'load' and 'call' functions (load and run SDKL code)
 */
 LUA_API void  (sdkl_callk) (sdkl_State *L, int nargs, int nresults,
                            sdkl_KContext ctx, sdkl_KFunction k);
@@ -471,7 +471,7 @@ struct sdkl_Debug {
   int event;
   const char *name;	/* (n) */
   const char *namewhat;	/* (n) 'global', 'local', 'field', 'method' */
-  const char *what;	/* (S) 'Lua', 'C', 'main', 'tail' */
+  const char *what;	/* (S) 'SDKL', 'C', 'main', 'tail' */
   const char *source;	/* (S) */
   size_t srclen;	/* (S) */
   int currentline;	/* (l) */
@@ -492,7 +492,7 @@ struct sdkl_Debug {
 
 
 /******************************************************************************
-* Copyright (C) 1994-2021 Lua.org, PUC-Rio.
+* Copyright (C) 1994-2021 SDKL.org, PUC-Rio.
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the

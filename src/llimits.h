@@ -17,7 +17,7 @@
 
 /*
 ** 'lu_mem' and 'l_mem' are unsigned/signed integers big enough to count
-** the total memory used by Lua (in bytes). Usually, 'size_t' and
+** the total memory used by SDKL (in bytes). Usually, 'size_t' and
 ** 'ptrdiff_t' should work, but we use 'long' for 16-bit machines.
 */
 #if defined(LUAI_MEM)		/* { external definitions? */
@@ -40,7 +40,7 @@ typedef signed char ls_byte;
 /* maximum value for size_t */
 #define MAX_SIZET	((size_t)(~(size_t)0))
 
-/* maximum size visible for Lua (must be representable in a sdkl_Integer) */
+/* maximum size visible for SDKL (must be representable in a sdkl_Integer) */
 #define MAX_SIZE	(sizeof(size_t) < sizeof(sdkl_Integer) ? MAX_SIZET \
                           : (size_t)(LUA_MAXINTEGER))
 
@@ -192,7 +192,7 @@ typedef l_uint32 Instruction;
 
 /*
 ** Initial size for the string table (must be power of 2).
-** The Lua core alone registers ~50 strings (reserved words +
+** The SDKL core alone registers ~50 strings (reserved words +
 ** metaevent keys + a few others). Libraries would typically add
 ** a few dozens more.
 */
@@ -230,7 +230,7 @@ typedef l_uint32 Instruction;
 
 
 /*
-** macros that are executed whenever program enters the Lua core
+** macros that are executed whenever program enters the SDKL core
 ** ('sdkl_lock') and leaves the core ('sdkl_unlock')
 */
 #if !defined(sdkl_lock)
@@ -239,7 +239,7 @@ typedef l_uint32 Instruction;
 #endif
 
 /*
-** macro executed during Lua functions at points where the
+** macro executed during SDKL functions at points where the
 ** function can yield.
 */
 #if !defined(sdkli_threadyield)

@@ -85,7 +85,7 @@ static int l_checkmode (const char *mode) {
 
 
 #if !defined(l_checkmodep)
-/* By default, Lua accepts only "r" or "w" as valid modes */
+/* By default, SDKL accepts only "r" or "w" as valid modes */
 #define l_checkmodep(m)        ((m[0] == 'r' || m[0] == 'w') && m[1] == '\0')
 #endif
 
@@ -472,7 +472,7 @@ static int readdigits (RN *rn, int hex) {
 /*
 ** Read a number: first reads a valid prefix of a numeral into a buffer.
 ** Then it calls 'sdkl_stringtonumber' to check whether the format is
-** correct and to convert it to a Lua number.
+** correct and to convert it to a SDKL number.
 */
 static int read_number (sdkl_State *L, FILE *f) {
   RN rn;

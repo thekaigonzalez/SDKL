@@ -1,6 +1,6 @@
 /*
 ** $Id: lundump.c $
-** load precompiled Lua chunks
+** load precompiled SDKL chunks
 ** See Copyright Notice in sdkl.h
 */
 

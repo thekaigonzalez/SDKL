@@ -57,7 +57,7 @@ struct Zio {
   const char *p;		/* current position in buffer */
   sdkl_Reader reader;		/* reader function */
   void *data;			/* additional data */
-  sdkl_State *L;			/* Lua state (for reader) */
+  sdkl_State *L;			/* SDKL state (for reader) */
 };
 
 

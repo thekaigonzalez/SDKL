@@ -1,6 +1,6 @@
 /*
 ** $Id: ldblib.c $
-** Interface from Lua to its debug API
+** Interface from SDKL to its debug API
 ** See Copyright Notice in sdkl.h
 */
 
@@ -309,8 +309,8 @@ static int db_upvaluejoin (sdkl_State *L) {
   int n1, n2;
   checkupval(L, 1, 2, &n1);
   checkupval(L, 3, 4, &n2);
-  sdklL_argcheck(L, !sdkl_iscfunction(L, 1), 1, "Lua function expected");
-  sdklL_argcheck(L, !sdkl_iscfunction(L, 3), 3, "Lua function expected");
+  sdklL_argcheck(L, !sdkl_iscfunction(L, 1), 1, "SDKL function expected");
+  sdklL_argcheck(L, !sdkl_iscfunction(L, 3), 3, "SDKL function expected");
   sdkl_upvaluejoin(L, 1, n1, 3, n2);
   return 0;
 }
@@ -386,7 +386,7 @@ static int db_sethook (sdkl_State *L) {
   checkstack(L, L1, 1);
   sdkl_pushthread(L1); sdkl_xmove(L1, L, 1);  /* key (thread) */
   sdkl_pushvalue(L, arg + 1);  /* value (hook function) */
-  sdkl_rawset(L, -3);  /* hooktable[L1] = new Lua hook */
+  sdkl_rawset(L, -3);  /* hooktable[L1] = new SDKL hook */
   sdkl_sethook(L1, func, mask, count);
   return 0;
 }

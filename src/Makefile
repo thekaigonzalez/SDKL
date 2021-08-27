@@ -34,7 +34,7 @@ PLATS= guess aix bsd c89 freebsd generic linux linux-readline macosx mingw posix
 
 LUA_A=	libsdkl.a
 CORE_O=	lapi.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o lmem.o lobject.o lopcodes.o lparser.o lstate.o lstring.o ltable.o ltm.o lundump.o lvm.o lzio.o
-LIB_O=	lauxlib.o lbaselib.o lcorolib.o ldblib.o liolib.o lmathlib.o loadlib.o loslib.o lstrlib.o ltablib.o lutf8lib.o linit.o
+LIB_O=	sdklauxillary.o lbaselib.o lcorolib.o ldblib.o liolib.o lmathlib.o loadlib.o loslib.o lstrlib.o ltablib.o lutf8lib.o linit.o
 BASE_O= $(CORE_O) $(LIB_O) $(MYOBJS)
 
 LUA_T=	sdkl
@@ -158,7 +158,7 @@ lcode.o:
 lapi.o: lapi.c lprefix.h sdkl.h sdklconf.h lapi.h llimits.h lstate.h \
  lobject.h ltm.h lzio.h lmem.h ldebug.h ldo.h lfunc.h lgc.h lstring.h \
  ltable.h lundump.h lvm.h
-lauxlib.o: lauxlib.c lprefix.h sdkl.h sdklconf.h sdklauxillary.h
+lauxlib.o: sdklauxillary.c lprefix.h sdkl.h sdklconf.h sdklauxillary.h
 lbaselib.o: lbaselib.c lprefix.h sdkl.h sdklconf.h sdklauxillary.h sdkllib.h
 lcode.o: lcode.c lprefix.h sdkl.h sdklconf.h lcode.h llex.h lobject.h \
  llimits.h lzio.h lmem.h lopcodes.h lparser.h ldebug.h lstate.h ltm.h \

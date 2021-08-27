@@ -1,6 +1,6 @@
 /*
 ** $Id: lctype.c $
-** 'ctype' functions for Lua
+** 'ctype' functions for SDKL
 ** See Copyright Notice in sdkl.h
 */
 

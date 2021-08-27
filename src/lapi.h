@@ -1,6 +1,6 @@
 /*
 ** $Id: lapi.h $
-** Auxiliary functions from Lua API
+** Auxiliary functions from SDKL API
 ** See Copyright Notice in sdkl.h
 */
 

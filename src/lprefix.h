@@ -1,6 +1,6 @@
 /*
 ** $Id: lprefix.h $
-** Definitions for Lua code that must come before any other header file
+** Definitions for SDKL code that must come before any other header file
 ** See Copyright Notice in sdkl.h
 */
 

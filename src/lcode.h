@@ -1,6 +1,6 @@
 /*
 ** $Id: lcode.h $
-** Code generator for Lua
+** Code generator for SDKL
 ** See Copyright Notice in sdkl.h
 */
 

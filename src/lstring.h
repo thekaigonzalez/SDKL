@@ -1,6 +1,6 @@
 /*
 ** $Id: lstring.h $
-** String table (keep all strings handled by Lua)
+** String table (keep all strings handled by SDKL)
 ** See Copyright Notice in sdkl.h
 */
 

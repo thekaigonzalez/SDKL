@@ -1,6 +1,6 @@
 /*
 ** $Id: lobject.c $
-** Some generic functions over Lua objects
+** Some generic functions over SDKL objects
 ** See Copyright Notice in sdkl.h
 */
 
@@ -148,7 +148,7 @@ static int isneg (const char **s) {
 
 /*
 ** {==================================================================
-** Lua's implementation for 'sdkl_strx2number'
+** SDKL's implementation for 'sdkl_strx2number'
 ** ===================================================================
 */
 
@@ -221,7 +221,7 @@ static sdkl_Number sdkl_strx2number (const char *s, char **endptr) {
 #endif
 
 /*
-** Convert string 's' to a Lua number (put in 'result'). Return NULL on
+** Convert string 's' to a SDKL number (put in 'result'). Return NULL on
 ** fail or the address of the ending '\0' on success. ('mode' == 'x')
 ** means a hexadecimal numeral.
 */
@@ -236,7 +236,7 @@ static const char *l_str2dloc (const char *s, sdkl_Number *result, int mode) {
 
 
 /*
-** Convert string 's' to a Lua number (put in 'result') handling the
+** Convert string 's' to a SDKL number (put in 'result') handling the
 ** current locale.
 ** This function accepts both the current locale or a dot as the radix
 ** mark. If the conversion fails, it may mean number has a dot but
@@ -369,7 +369,7 @@ static int tostringbuff (TValue *obj, char *buff) {
 
 
 /*
-** Convert a number object to a Lua string, replacing the value at 'obj'
+** Convert a number object to a SDKL string, replacing the value at 'obj'
 */
 void sdklO_tostring (sdkl_State *L, TValue *obj) {
   char buff[MAXNUMBER2STR];
@@ -465,7 +465,7 @@ static void addnum2buff (BuffFS *buff, TValue *num) {
 
 /*
 ** this function handles only '%d', '%c', '%f', '%p', '%s', and '%%'
-   conventional formats, plus Lua-specific '%I' and '%U'
+   conventional formats, plus SDKL-specific '%I' and '%U'
 */
 const char *sdklO_pushvfstring (sdkl_State *L, const char *fmt, va_list argp) {
   BuffFS buff;  /* holds last part of the result */

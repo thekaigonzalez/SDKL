@@ -1,6 +1,6 @@
 /*
 ** $Id: lobject.h $
-** Type definitions for Lua objects
+** Type definitions for SDKL objects
 ** See Copyright Notice in sdkl.h
 */
 
@@ -44,7 +44,7 @@
 
 
 /*
-** Union of all Lua values
+** Union of all SDKL values
 */
 typedef union Value {
   struct GCObject *gc;    /* collectable objects */
@@ -56,7 +56,7 @@ typedef union Value {
 
 
 /*
-** Tagged Values. This is the basic representation of values in Lua:
+** Tagged Values. This is the basic representation of values in SDKL:
 ** an actual value plus a tag with its type.
 */
 
@@ -136,7 +136,7 @@ typedef struct TValue {
 
 
 /*
-** Entries in a Lua stack. Field 'tbclist' forms a list of all
+** Entries in a SDKL stack. Field 'tbclist' forms a list of all
 ** to-be-closed variables active in this stack. Dummy entries are
 ** used when the distance between two tbc variables does not fit
 ** in an unsigned short. They are represented by delta==0, and
@@ -390,7 +390,7 @@ typedef struct TString {
 #define getstr(ts)  ((ts)->contents)
 
 
-/* get the actual string (array of bytes) from a Lua value */
+/* get the actual string (array of bytes) from a SDKL value */
 #define svalue(o)       getstr(tsvalue(o))
 
 /* get string length from 'TString *s' */
@@ -522,8 +522,8 @@ typedef struct LocVar {
 ** Associates the absolute line source for a given instruction ('pc').
 ** The array 'lineinfo' gives, for each instruction, the difference in
 ** lines from the previous instruction. When that difference does not
-** fit into a byte, Lua saves the absolute line for that instruction.
-** (Lua also saves the absolute line periodically, to speed up the
+** fit into a byte, SDKL saves the absolute line for that instruction.
+** (SDKL also saves the absolute line periodically, to speed up the
 ** computation of a line number: we can use binary search in the
 ** absolute-line array, but we must traverse the 'lineinfo' array
 ** linearly to compute a line.)
@@ -574,7 +574,7 @@ typedef struct Proto {
 
 
 /* Variant tags for functions */
-#define LUA_VLCL	makevariant(LUA_TFUNCTION, 0)  /* Lua closure */
+#define LUA_VLCL	makevariant(LUA_TFUNCTION, 0)  /* SDKL closure */
 #define LUA_VLCF	makevariant(LUA_TFUNCTION, 1)  /* light C function */
 #define LUA_VCCL	makevariant(LUA_TFUNCTION, 2)  /* C closure */
 
@@ -611,7 +611,7 @@ typedef struct Proto {
 
 
 /*
-** Upvalues for Lua closures
+** Upvalues for SDKL closures
 */
 typedef struct UpVal {
   CommonHeader;

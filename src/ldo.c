@@ -1,6 +1,6 @@
 /*
 ** $Id: ldo.c $
-** Stack and Call structure of Lua
+** Stack and Call structure of SDKL
 ** See Copyright Notice in sdkl.h
 */
 
@@ -45,8 +45,8 @@
 */
 
 /*
-** LUAI_THROW/LUAI_TRY define how Lua does exception handling. By
-** default, Lua handles errors with exceptions when compiling as
+** LUAI_THROW/LUAI_TRY define how SDKL does exception handling. By
+** default, SDKL handles errors with exceptions when compiling as
 ** C++ code, with _longjmp/_setjmp when asked to use them, and with
 ** longjmp/setjmp otherwise.
 */
@@ -167,7 +167,7 @@ static void correctstack (sdkl_State *L, StkId oldstack, StkId newstack) {
   for (ci = L->ci; ci != NULL; ci = ci->previous) {
     ci->top = (ci->top - oldstack) + newstack;
     ci->func = (ci->func - oldstack) + newstack;
-    if (isLua(ci))
+    if (isSDKL(ci))
       ci->u.l.trap = 1;  /* signal to update 'trap' in 'sdklV_execute' */
   }
 }
@@ -320,7 +320,7 @@ void sdklD_hook (sdkl_State *L, int event, int line,
       ci->u2.transferinfo.ftransfer = ftransfer;
       ci->u2.transferinfo.ntransfer = ntransfer;
     }
-    if (isLua(ci) && L->top < ci->top)
+    if (isSDKL(ci) && L->top < ci->top)
       L->top = ci->top;  /* protect entire activation register */
     sdklD_checkstack(L, LUA_MINSTACK);  /* ensure minimum stack size */
     if (ci->top < L->top + LUA_MINSTACK)
@@ -340,7 +340,7 @@ void sdklD_hook (sdkl_State *L, int event, int line,
 
 
 /*
-** Executes a call hook for Lua functions. This function is called
+** Executes a call hook for SDKL functions. This function is called
 ** whenever 'hookmask' is not zero, so it checks whether call hooks are
 ** active.
 */
@@ -358,7 +358,7 @@ void sdklD_hookcall (sdkl_State *L, CallInfo *ci) {
 
 
 /*
-** Executes a return hook for Lua and C functions and sets/corrects
+** Executes a return hook for SDKL and C functions and sets/corrects
 ** 'oldpc'. (Note that this correction is needed by the line hook, so it
 ** is done even when return hooks are off.)
 */
@@ -367,7 +367,7 @@ static void rethook (sdkl_State *L, CallInfo *ci, int nres) {
     StkId firstres = L->top - nres;  /* index of first result */
     int delta = 0;  /* correction for vararg functions */
     int ftransfer;
-    if (isLua(ci)) {
+    if (isSDKL(ci)) {
       Proto *p = ci_func(ci)->p;
       if (p->is_vararg)
         delta = ci->u.l.nextraargs + p->numparams + 1;
@@ -377,7 +377,7 @@ static void rethook (sdkl_State *L, CallInfo *ci, int nres) {
     sdklD_hook(L, LUA_HOOKRET, -1, ftransfer, nres);  /* call it */
     ci->func -= delta;
   }
-  if (isLua(ci = ci->previous))
+  if (isSDKL(ci = ci->previous))
     L->oldpc = pcRel(ci->u.l.savedpc, ci_func(ci)->p);  /* set 'oldpc' */
 }
 
@@ -498,10 +498,10 @@ void sdklD_pretailcall (sdkl_State *L, CallInfo *ci, StkId func, int narg1) {
 
 
 /*
-** Prepares the call to a function (C or Lua). For C functions, also do
+** Prepares the call to a function (C or SDKL). For C functions, also do
 ** the call. The function to be called is at '*func'.  The arguments
 ** are on the stack, right after the function.  Returns the CallInfo
-** to be executed, if it was a Lua function. Otherwise (a C function)
+** to be executed, if it was a SDKL function. Otherwise (a C function)
 ** returns NULL, with all the results on the stack, starting at the
 ** original function position.
 */
@@ -535,7 +535,7 @@ CallInfo *sdklD_precall (sdkl_State *L, StkId func, int nresults) {
       sdklD_poscall(L, ci, n);
       return NULL;
     }
-    case LUA_VLCL: {  /* Lua function */
+    case LUA_VLCL: {  /* SDKL function */
       CallInfo *ci;
       Proto *p = clLvalue(s2v(func))->p;
       int narg = cast_int(L->top - func) - 1;  /* number of real arguments */
@@ -563,7 +563,7 @@ CallInfo *sdklD_precall (sdkl_State *L, StkId func, int nresults) {
 
 
 /*
-** Call a function (C or Lua) through C. 'inc' can be 1 (increment
+** Call a function (C or SDKL) through C. 'inc' can be 1 (increment
 ** number of recursive invocations in the C stack) or nyci (the same
 ** plus increment number of non-yieldable calls).
 */
@@ -572,7 +572,7 @@ static void ccall (sdkl_State *L, StkId func, int nResults, int inc) {
   L->nCcalls += inc;
   if (l_unlikely(getCcalls(L) >= LUAI_MAXCCALLS))
     sdklE_checkcstack(L);
-  if ((ci = sdklD_precall(L, func, nResults)) != NULL) {  /* Lua function? */
+  if ((ci = sdklD_precall(L, func, nResults)) != NULL) {  /* SDKL function? */
     ci->callstatus = CIST_FRESH;  /* mark that it is a "fresh" execute */
     sdklV_execute(L, ci);  /* call it */
   }
@@ -678,9 +678,9 @@ static void unroll (sdkl_State *L, void *ud) {
   CallInfo *ci;
   UNUSED(ud);
   while ((ci = L->ci) != &L->base_ci) {  /* something in the stack */
-    if (!isLua(ci))  /* C function? */
+    if (!isSDKL(ci))  /* C function? */
       finishCcall(L, ci);  /* complete its execution */
-    else {  /* Lua function */
+    else {  /* SDKL function */
       sdklV_finishOp(L);  /* finish interrupted instruction */
       sdklV_execute(L, ci);  /* execute down to higher C 'boundary' */
     }
@@ -733,9 +733,9 @@ static void resume (sdkl_State *L, void *ud) {
     sdkl_assert(L->status == LUA_YIELD);
     L->status = LUA_OK;  /* mark that it is running (again) */
     sdklE_incCstack(L);  /* control the C stack */
-    if (isLua(ci)) {  /* yielded inside a hook? */
+    if (isSDKL(ci)) {  /* yielded inside a hook? */
       L->top = firstArg;  /* discard arguments */
-      sdklV_execute(L, ci);  /* just continue running Lua code */
+      sdklV_execute(L, ci);  /* just continue running SDKL code */
     }
     else {  /* 'common' yield */
       if (ci->u.c.k != NULL) {  /* does it have a continuation function? */
@@ -822,8 +822,8 @@ LUA_API int sdkl_yieldk (sdkl_State *L, int nresults, sdkl_KContext ctx,
   }
   L->status = LUA_YIELD;
   ci->u2.nyield = nresults;  /* save number of results */
-  if (isLua(ci)) {  /* inside a hook? */
-    sdkl_assert(!isLuacode(ci));
+  if (isSDKL(ci)) {  /* inside a hook? */
+    sdkl_assert(!isSDKLcode(ci));
     api_check(L, nresults == 0, "hooks cannot yield values");
     api_check(L, k == NULL, "hooks cannot continue after yielding");
   }

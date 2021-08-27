@@ -1,6 +1,6 @@
 /*
 ** $Id: sdklauxillary.h $
-** Auxiliary functions for building Lua libraries
+** Auxiliary functions for building SDKL libraries
 ** See Copyright Notice in sdkl.h
 */
 

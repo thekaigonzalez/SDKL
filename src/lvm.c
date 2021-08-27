@@ -1,6 +1,6 @@
 /*
 ** $Id: lvm.c $
-** Lua virtual machine
+** SDKL virtual machine
 ** See Copyright Notice in sdkl.h
 */
 
@@ -559,7 +559,7 @@ int sdklV_lessequal (sdkl_State *L, const TValue *l, const TValue *r) {
 
 
 /*
-** Main operation for equality of Lua values; return 't1 == t2'.
+** Main operation for equality of SDKL values; return 't1 == t2'.
 ** L == NULL means raw equality (no metamethods)
 */
 int sdklV_equalobj (sdkl_State *L, const TValue *t1, const TValue *t2) {
@@ -781,7 +781,7 @@ sdkl_Integer sdklV_shiftl (sdkl_Integer x, sdkl_Integer y) {
 
 
 /*
-** create a new Lua closure, push it in the stack, and initialize
+** create a new SDKL closure, push it in the stack, and initialize
 ** its upvalues.
 */
 static void pushclosure (sdkl_State *L, Proto *p, UpVal **encup, StkId base,
@@ -1156,7 +1156,7 @@ void sdklV_execute (sdkl_State *L, CallInfo *ci) {
     Instruction i;  /* instruction being executed */
     StkId ra;  /* instruction's A register */
     vmfetch();
-// low-level line tracing for debugging Lua
+// low-level line tracing for debugging SDKL
 // printf("line: %d\n", sdklG_getfuncline(cl->p, pcRel(pc, cl->p)));
     sdkl_assert(base == ci->func + 1);
     sdkl_assert(base <= L->top && L->top < L->stack_last);
@@ -1623,7 +1623,7 @@ void sdklV_execute (sdkl_State *L, CallInfo *ci) {
         savepc(L);  /* in case of errors */
         if ((newci = sdklD_precall(L, ra, nresults)) == NULL)
           updatetrap(ci);  /* C call; nothing else to be done */
-        else {  /* Lua call: run function in this same C frame */
+        else {  /* SDKL call: run function in this same C frame */
           ci = newci;
           ci->callstatus = 0;  /* call re-uses 'sdklV_execute' */
           goto startfunc;
@@ -1718,7 +1718,7 @@ void sdklV_execute (sdkl_State *L, CallInfo *ci) {
               setnilvalue(s2v(L->top++));  /* complete missing results */
           }
         }
-       ret:  /* return from a Lua function */
+       ret:  /* return from a SDKL function */
         if (ci->callstatus & CIST_FRESH)
           return;  /* end this frame */
         else {

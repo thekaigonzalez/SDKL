@@ -1,6 +1,6 @@
 /*
 ** $Id: lparser.c $
-** Lua Parser
+** SDKL Parser
 ** See Copyright Notice in sdkl.h
 */
 
@@ -1512,7 +1512,7 @@ static void exp1 (LexState *ls) {
 
 /*
 ** Fix for instruction at position 'pc' to jump to 'dest'.
-** (Jump addresses are relative in Lua). 'back' true means
+** (Jump addresses are relative in SDKL). 'back' true means
 ** a back jump.
 */
 static void fixforjump (FuncState *fs, int pc, int dest, int back) {

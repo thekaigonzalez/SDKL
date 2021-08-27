@@ -1,6 +1,6 @@
 /*
 ** $Id: sdklc.c $
-** Lua compiler (saves bytecodes to files; also lists bytecodes)
+** SDKL compiler (saves bytecodes to files; also lists bytecodes)
 ** See Copyright Notice in sdkl.h
 */
 

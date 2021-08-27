@@ -1,6 +1,6 @@
 /*
 ** $Id: lcode.c $
-** Code generator for Lua
+** Code generator for SDKL
 ** See Copyright Notice in sdkl.h
 */
 
@@ -30,7 +30,7 @@
 #include "lvm.h"
 
 
-/* Maximum number of registers in a Lua function (must fit in 8 bits) */
+/* Maximum number of registers in a SDKL function (must fit in 8 bits) */
 #define MAXREGS		255
 
 
@@ -161,7 +161,7 @@ static int getjump (FuncState *fs, int pc) {
 
 /*
 ** Fix jump instruction at position 'pc' to jump to 'dest'.
-** (Jump addresses are relative in Lua)
+** (Jump addresses are relative in SDKL)
 */
 static void fixjump (FuncState *fs, int pc, int dest) {
   Instruction *jmp = &fs->f->code[pc];

@@ -33,7 +33,7 @@ fprintf(stdout,
 "help: Please read the following below before using. \n"
 "SDKL is licensed under the MIT license, no warranty is given for this Software.\n"
 "\n"
-"SDKL is a Programming language inspired off of the Lua Programming language. you can use everything in lua like SDKL.\n"
+"SDKL is a Programming language inspired off of the SDKL Programming language. you can use everything in lua like SDKL.\n"
 "Here's some mods to check out\n"
 "- os: Operating System. Mastere de ways!\n"
 "- io: IO. Stream functionalitieees\n");

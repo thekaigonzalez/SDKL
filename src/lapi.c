@@ -1,6 +1,6 @@
 /*
 ** $Id: lapi.c $
-** Lua API
+** SDKL API
 ** See Copyright Notice in sdkl.h
 */
 
@@ -33,8 +33,8 @@
 
 
 const char sdkl_ident[] =
-  "$LuaVersion: " LUA_COPYRIGHT " $"
-  "$LuaAuthors: " LUA_AUTHORS " $";
+  "$SDKLVersion: " LUA_COPYRIGHT " $"
+  "$SDKLAuthors: " LUA_AUTHORS " $";
 
 
 
@@ -626,7 +626,7 @@ LUA_API int sdkl_pushthread (sdkl_State *L) {
 
 
 /*
-** get functions (Lua -> stack)
+** get functions (SDKL -> stack)
 */
 
 
@@ -814,7 +814,7 @@ LUA_API int sdkl_getiuservalue (sdkl_State *L, int idx, int n) {
 
 
 /*
-** set functions (stack -> Lua)
+** set functions (stack -> SDKL)
 */
 
 /*
@@ -985,7 +985,7 @@ LUA_API int sdkl_setiuservalue (sdkl_State *L, int idx, int n) {
 
 
 /*
-** 'load' and 'call' functions (run Lua code)
+** 'load' and 'call' functions (run SDKL code)
 */
 
 
@@ -998,7 +998,7 @@ LUA_API void sdkl_callk (sdkl_State *L, int nargs, int nresults,
                         sdkl_KContext ctx, sdkl_KFunction k) {
   StkId func;
   sdkl_lock(L);
-  api_check(L, k == NULL || !isLua(L->ci),
+  api_check(L, k == NULL || !isSDKL(L->ci),
     "cannot use continuations inside hooks");
   api_checknelems(L, nargs+1);
   api_check(L, L->status == LUA_OK, "cannot do calls on non-normal thread");
@@ -1039,7 +1039,7 @@ LUA_API int sdkl_pcallk (sdkl_State *L, int nargs, int nresults, int errfunc,
   int status;
   ptrdiff_t func;
   sdkl_lock(L);
-  api_check(L, k == NULL || !isLua(L->ci),
+  api_check(L, k == NULL || !isSDKL(L->ci),
     "cannot use continuations inside hooks");
   api_checknelems(L, nargs+1);
   api_check(L, L->status == LUA_OK, "cannot do calls on non-normal thread");
@@ -1357,7 +1357,7 @@ static const char *aux_upvalue (TValue *fi, int n, TValue **val,
       if (owner) *owner = obj2gco(f);
       return "";
     }
-    case LUA_VLCL: {  /* Lua closure */
+    case LUA_VLCL: {  /* SDKL closure */
       LClosure *f = clLvalue(fi);
       TString *name;
       Proto *p = f->p;
@@ -1410,7 +1410,7 @@ static UpVal **getupvalref (sdkl_State *L, int fidx, int n, LClosure **pf) {
   static const UpVal *const nullup = NULL;
   LClosure *f;
   TValue *fi = index2value(L, fidx);
-  api_check(L, ttisLclosure(fi), "Lua function expected");
+  api_check(L, ttisLclosure(fi), "SDKL function expected");
   f = clLvalue(fi);
   if (pf) *pf = f;
   if (1 <= n && n <= f->p->sizeupvalues)

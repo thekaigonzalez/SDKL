@@ -1,6 +1,6 @@
 /*
 ** $Id: lauxlib.c $
-** Auxiliary functions for building Lua libraries
+** Auxiliary functions for building SDKL libraries
 ** See Copyright Notice in sdkl.h
 */
 
@@ -18,7 +18,7 @@
 
 
 /*
-** This file uses only the official API of Lua.
+** This file uses only the official API of SDKL.
 ** Any function declared here could be written as an application function.
 */
 
@@ -106,7 +106,7 @@ static void pushfuncname (sdkl_State *L, sdkl_Debug *ar) {
     sdkl_pushfstring(L, "%s '%s'", ar->namewhat, ar->name);  /* use it */
   else if (*ar->what == 'm')  /* main? */
       sdkl_pushliteral(L, "main chunk");
-  else if (*ar->what != 'C')  /* for Lua functions, use <file:line> */
+  else if (*ar->what != 'C')  /* for SDKL functions, use <file:line> */
     sdkl_pushfstring(L, "function <%s:%d>", ar->short_src, ar->linedefined);
   else  /* nothing left... */
     sdkl_pushliteral(L, "?");
@@ -243,7 +243,7 @@ LUALIB_API int sdklL_error (sdkl_State *L, const char *fmt, ...) {
 
 
 LUALIB_API int sdklL_fileresult (sdkl_State *L, int stat, const char *fname) {
-  int en = errno;  /* calls to Lua API may change this value */
+  int en = errno;  /* calls to SDKL API may change this value */
   if (stat) {
     sdkl_pushboolean(L, 1);
     return 1;
@@ -374,7 +374,7 @@ LUALIB_API int sdklL_checkoption (sdkl_State *L, int arg, const char *def,
 ** Ensures the stack has at least 'space' extra slots, raising an error
 ** if it cannot fulfill the request. (The error handling needs a few
 ** extra slots to format the error message. In case of an error without
-** this extra space, Lua will generate the same 'stack overflow' error,
+** this extra space, SDKL will generate the same 'stack overflow' error,
 ** but without 'msg'.)
 */
 LUALIB_API void sdklL_checkstack (sdkl_State *L, int space, const char *msg) {
@@ -1021,9 +1021,9 @@ static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
 static int panic (sdkl_State *L) {
   const char *msg = sdkl_tostring(L, -1);
   if (msg == NULL) msg = "error object is not a string";
-  sdkl_writestringerror("PANIC: unprotected error in call to Lua API (%s)\n",
+  sdkl_writestringerror("PANIC: unprotected error in call to SDKL API (%s)\n",
                         msg);
-  return 0;  /* return to Lua to abort */
+  return 0;  /* return to SDKL to abort */
 }
 
 
@@ -1079,7 +1079,7 @@ static void warnfcont (void *ud, const char *message, int tocont) {
 static void warnfon (void *ud, const char *message, int tocont) {
   if (checkcontrol((sdkl_State *)ud, message, tocont))  /* control message? */
     return;  /* nothing else to be done */
-  sdkl_writestringerror("%s", "Lua warning: ");  /* start a new warning */
+  sdkl_writestringerror("%s", "SDKL warning: ");  /* start a new warning */
   warnfcont(ud, message, tocont);  /* finish processing */
 }
 
@@ -1099,7 +1099,7 @@ LUALIB_API void sdklL_checkversion_ (sdkl_State *L, sdkl_Number ver, size_t sz) 
   if (sz != LUAL_NUMSIZES)  /* check numeric types */
     sdklL_error(L, "core and library have incompatible numeric types");
   else if (v != ver)
-    sdklL_error(L, "version mismatch: app. needs %f, Lua core provides %f",
+    sdklL_error(L, "version mismatch: app. needs %f, SDKL core provides %f",
                   (LUAI_UACNUMBER)ver, (LUAI_UACNUMBER)v);
 }
 

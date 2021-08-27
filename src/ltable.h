@@ -1,6 +1,6 @@
 /*
 ** $Id: ltable.h $
-** Lua tables (hash)
+** SDKL tables (hash)
 ** See Copyright Notice in sdkl.h
 */
 

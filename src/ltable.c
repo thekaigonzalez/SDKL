@@ -1,6 +1,6 @@
 /*
 ** $Id: ltable.c $
-** Lua tables (hash)
+** SDKL tables (hash)
 ** See Copyright Notice in sdkl.h
 */
 
@@ -839,7 +839,7 @@ void sdklH_setint (sdkl_State *L, Table *t, sdkl_Integer key, TValue *value) {
 ** is larger or equal to 'i', but it cannot be equal because it is
 ** absent while 'i' is present; so 'j > i'.) Otherwise, 'j' is a
 ** boundary. ('j + 1' cannot be a present integer key because it is
-** not a valid integer in Lua.)
+** not a valid integer in SDKL.)
 */
 static sdkl_Unsigned hash_search (Table *t, sdkl_Unsigned j) {
   sdkl_Unsigned i;
@@ -881,7 +881,7 @@ static unsigned int binsearch (const TValue *array, unsigned int i,
 ** Try to find a boundary in table 't'. (A 'boundary' is an integer index
 ** such that t[i] is present and t[i+1] is absent, or 0 if t[1] is absent
 ** and 'maxinteger' if t[maxinteger] is present.)
-** (In the next explanation, we use Lua indices, that is, with base 1.
+** (In the next explanation, we use SDKL indices, that is, with base 1.
 ** The code itself uses base 0 when indexing the array part of the table.)
 ** The code starts with 'limit = t->alimit', a position in the array
 ** part that may be a boundary.

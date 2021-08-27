@@ -1,6 +1,6 @@
 /*
 ** $Id: loadlib.c $
-** Dynamic library loader for Lua
+** Dynamic library loader for SDKL
 ** See Copyright Notice in sdkl.h
 **
 ** This module contains an implementation of loadlib for Unix systems
@@ -37,7 +37,7 @@
 ** LUA_CSUBSEP is the character that replaces dots in submodule names
 ** when searching for a C loader.
 ** LUA_LSUBSEP is the character that replaces dots in submodule names
-** when searching for a Lua loader.
+** when searching for a SDKL loader.
 */
 #if !defined(LUA_CSUBSEP)
 #define LUA_CSUBSEP		LUA_DIRSEP
@@ -235,7 +235,7 @@ static sdkl_CFunction lsys_sym (sdkl_State *L, void *lib, const char *sym) {
 #define LIB_FAIL	"absent"
 
 
-#define DLMSG	"dynamic libraries not enabled; check your Lua installation"
+#define DLMSG	"dynamic libraries not enabled; check your SDKL installation"
 
 
 static void lsys_unloadlib (void *lib) {
@@ -268,7 +268,7 @@ static sdkl_CFunction lsys_sym (sdkl_State *L, void *lib, const char *sym) {
 
 /*
 ** LUA_PATH_VAR and LUA_CPATH_VAR are the names of the environment
-** variables that Lua check to set its paths.
+** variables that SDKL check to set its paths.
 */
 #if !defined(LUA_PATH_VAR)
 #define LUA_PATH_VAR    "LUA_PATH"
@@ -543,7 +543,7 @@ static int checkload (sdkl_State *L, int stat, const char *filename) {
 }
 
 
-static int searcher_Lua (sdkl_State *L) {
+static int searcher_SDKL (sdkl_State *L) {
   const char *filename;
   const char *name = sdklL_checkstring(L, 1);
   filename = findfile(L, name, "path", LUA_LSUBSEP);
@@ -710,7 +710,7 @@ static const sdklL_Reg ll_funcs[] = {
 
 static void createsearcherstable (sdkl_State *L) {
   static const sdkl_CFunction searchers[] =
-    {searcher_preload, searcher_Lua, searcher_C, searcher_Croot, NULL};
+    {searcher_preload, searcher_SDKL, searcher_C, searcher_Croot, NULL};
   int i;
   /* create 'searchers' table */
   sdkl_createtable(L, sizeof(searchers)/sizeof(searchers[0]) - 1, 0);

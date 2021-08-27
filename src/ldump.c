@@ -1,6 +1,6 @@
 /*
 ** $Id: ldump.c $
-** save precompiled Lua chunks
+** save precompiled SDKL chunks
 ** See Copyright Notice in sdkl.h
 */
 
@@ -208,7 +208,7 @@ static void dumpHeader (DumpState *D) {
 
 
 /*
-** dump Lua function as precompiled chunk
+** dump SDKL function as precompiled chunk
 */
 int sdklU_dump(sdkl_State *L, const Proto *f, sdkl_Writer w, void *data,
               int strip) {

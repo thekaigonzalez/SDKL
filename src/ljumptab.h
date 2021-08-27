@@ -1,6 +1,6 @@
 /*
 ** $Id: ljumptab.h $
-** Jump Table for the Lua interpreter
+** Jump Table for the SDKL interpreter
 ** See Copyright Notice in sdkl.h
 */
 

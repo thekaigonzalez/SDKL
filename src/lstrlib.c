@@ -63,7 +63,7 @@ static int str_len (sdkl_State *L) {
 /*
 ** translate a relative initial string position
 ** (negative means back from end): clip result to [1, inf).
-** The length of any string in Lua must fit in a sdkl_Integer,
+** The length of any string in SDKL must fit in a sdkl_Integer,
 ** so there are no overflows in the casts.
 ** The inverted comparison avoids a possible overflow
 ** computing '-pos'.
@@ -1126,7 +1126,7 @@ static void addquoted (sdklL_Buffer *b, const char *s, size_t len) {
 
 /*
 ** Serialize a floating-point number in such a way that it can be
-** scanned back by Lua. Use hexadecimal format for "common" numbers
+** scanned back by SDKL. Use hexadecimal format for "common" numbers
 ** (to preserve precision); inf, -inf, and NaN are handled separately.
 ** (NaN cannot be expressed as a numeral, so we write '(0/0)' for it.)
 */
@@ -1378,7 +1378,7 @@ typedef enum KOption {
   Kint,		/* signed integers */
   Kuint,	/* unsigned integers */
   Kfloat,	/* single-precision floating-point numbers */
-  Knumber,	/* Lua "native" floating-point numbers */
+  Knumber,	/* SDKL "native" floating-point numbers */
   Kdouble,	/* double-precision floating-point numbers */
   Kchar,	/* fixed-length strings */
   Kstring,	/* strings with prefixed length */
@@ -1505,7 +1505,7 @@ static KOption getdetails (Header *h, size_t totalsize,
 /*
 ** Pack integer 'n' with 'size' bytes and 'islittle' endianness.
 ** The final 'if' handles the case when 'size' is larger than
-** the size of a Lua integer, correcting the extra sign-extension
+** the size of a SDKL integer, correcting the extra sign-extension
 ** bytes if necessary (by default they would be zeros).
 */
 static void packint (sdklL_Buffer *b, sdkl_Unsigned n,
@@ -1583,7 +1583,7 @@ static int str_pack (sdkl_State *L) {
         sdklL_addsize(&b, size);
         break;
       }
-      case Knumber: {  /* Lua float */
+      case Knumber: {  /* SDKL float */
         sdkl_Number f = sdklL_checknumber(L, arg);  /* get argument */
         char *buff = sdklL_prepbuffsize(&b, sizeof(f));
         /* move 'f' to final result, correcting endianness if needed */
@@ -1662,9 +1662,9 @@ static int str_packsize (sdkl_State *L) {
 
 /*
 ** Unpack an integer with 'size' bytes and 'islittle' endianness.
-** If size is smaller than the size of a Lua integer and integer
+** If size is smaller than the size of a SDKL integer and integer
 ** is signed, must do sign extension (propagating the sign to the
-** higher bits); if size is larger than the size of a Lua integer,
+** higher bits); if size is larger than the size of a SDKL integer,
 ** it must check the unread bytes to see whether they do not cause an
 ** overflow.
 */
@@ -1687,7 +1687,7 @@ static sdkl_Integer unpackint (sdkl_State *L, const char *str,
     int mask = (!issigned || (sdkl_Integer)res >= 0) ? 0 : MC;
     for (i = limit; i < size; i++) {
       if (l_unlikely((unsigned char)str[islittle ? i : size - 1 - i] != mask))
-        sdklL_error(L, "%d-byte integer does not fit into Lua Integer", size);
+        sdklL_error(L, "%d-byte integer does not fit into SDKL Integer", size);
     }
   }
   return (sdkl_Integer)res;

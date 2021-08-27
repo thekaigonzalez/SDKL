@@ -67,7 +67,7 @@
 */
 
 /*
-** type to represent time_t in Lua
+** type to represent time_t in SDKL
 */
 #if !defined(LUA_NUMTIME)	/* { */
 
@@ -86,7 +86,7 @@
 
 #if !defined(l_gmtime)		/* { */
 /*
-** By default, Lua uses gmtime/localtime, except when POSIX is available,
+** By default, SDKL uses gmtime/localtime, except when POSIX is available,
 ** where it uses gmtime_r/localtime_r
 */
 
@@ -111,7 +111,7 @@
 /*
 ** {==================================================================
 ** Configuration for 'tmpnam':
-** By default, Lua uses tmpnam except when POSIX is available, where
+** By default, SDKL uses tmpnam except when POSIX is available, where
 ** it uses mkstemp.
 ** ===================================================================
 */

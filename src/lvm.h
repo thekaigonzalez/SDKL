@@ -1,6 +1,6 @@
 /*
 ** $Id: lvm.h $
-** Lua virtual machine
+** SDKL virtual machine
 ** See Copyright Notice in sdkl.h
 */
 

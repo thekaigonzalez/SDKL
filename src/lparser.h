@@ -1,6 +1,6 @@
 /*
 ** $Id: lparser.h $
-** Lua Parser
+** SDKL Parser
 ** See Copyright Notice in sdkl.h
 */
 

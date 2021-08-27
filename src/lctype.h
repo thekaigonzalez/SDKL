@@ -1,6 +1,6 @@
 /*
 ** $Id: lctype.h $
-** 'ctype' functions for Lua
+** 'ctype' functions for SDKL
 ** See Copyright Notice in sdkl.h
 */
 
@@ -13,7 +13,7 @@
 /*
 ** WARNING: the functions defined here do not necessarily correspond
 ** to the similar functions in the standard C ctype.h. They are
-** optimized for the specific needs of Lua.
+** optimized for the specific needs of SDKL.
 */
 
 #if !defined(LUA_USE_CTYPE)
@@ -52,7 +52,7 @@
 #define testprop(c,p)	(sdkli_ctype_[(c)+1] & (p))
 
 /*
-** 'lalpha' (Lua alphabetic) and 'lalnum' (Lua alphanumeric) both include '_'
+** 'lalpha' (SDKL alphabetic) and 'lalnum' (SDKL alphanumeric) both include '_'
 */
 #define lislalpha(c)	testprop(c, MASK(ALPHABIT))
 #define lislalnum(c)	testprop(c, (MASK(ALPHABIT) | MASK(DIGITBIT)))
@@ -64,7 +64,7 @@
 
 /*
 ** In ASCII, this 'ltolower' is correct for alphabetic characters and
-** for '.'. That is enough for Lua needs. ('check_exp' ensures that
+** for '.'. That is enough for SDKL needs. ('check_exp' ensures that
 ** the character either is an upper-case letter or is unchanged by
 ** the transformation, which holds for lower-case letters and '.'.)
 */

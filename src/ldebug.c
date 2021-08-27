@@ -31,7 +31,7 @@
 
 
 
-#define noLuaClosure(f)		((f) == NULL || (f)->c.tt == LUA_VCCL)
+#define noSDKLClosure(f)		((f) == NULL || (f)->c.tt == LUA_VCCL)
 
 
 static const char *funcnamefromcode (sdkl_State *L, CallInfo *ci,
@@ -39,7 +39,7 @@ static const char *funcnamefromcode (sdkl_State *L, CallInfo *ci,
 
 
 static int currentpc (CallInfo *ci) {
-  sdkl_assert(isLua(ci));
+  sdkl_assert(isSDKL(ci));
   return pcRel(ci->u.l.savedpc, ci_func(ci)->p);
 }
 
@@ -101,7 +101,7 @@ static int getcurrentline (CallInfo *ci) {
 
 
 /*
-** Set 'trap' for all active Lua frames.
+** Set 'trap' for all active SDKL frames.
 ** This function can be called during a signal, under "reasonable"
 ** assumptions. A new 'ci' is completely linked in the list before it
 ** becomes part of the "active" list, and we assume that pointers are
@@ -113,7 +113,7 @@ static int getcurrentline (CallInfo *ci) {
 */
 static void settraps (CallInfo *ci) {
   for (; ci != NULL; ci = ci->previous)
-    if (isLua(ci))
+    if (isSDKL(ci))
       ci->u.l.trap = 1;
 }
 
@@ -196,7 +196,7 @@ static const char *findvararg (CallInfo *ci, int n, StkId *pos) {
 const char *sdklG_findlocal (sdkl_State *L, CallInfo *ci, int n, StkId *pos) {
   StkId base = ci->func + 1;
   const char *name = NULL;
-  if (isLua(ci)) {
+  if (isSDKL(ci)) {
     if (n < 0)  /* access to vararg values? */
       return findvararg(ci, n, pos);
     else
@@ -206,7 +206,7 @@ const char *sdklG_findlocal (sdkl_State *L, CallInfo *ci, int n, StkId *pos) {
     StkId limit = (ci == L->ci) ? L->top : ci->next->func;
     if (limit - base >= n && n > 0) {  /* is 'n' inside 'ci' stack? */
       /* generic name for any valid slot */
-      name = isLua(ci) ? "(temporary)" : "(C temporary)";
+      name = isSDKL(ci) ? "(temporary)" : "(C temporary)";
     }
     else
       return NULL;  /* no name */
@@ -221,7 +221,7 @@ LUA_API const char *sdkl_getlocal (sdkl_State *L, const sdkl_Debug *ar, int n) {
   const char *name;
   sdkl_lock(L);
   if (ar == NULL) {  /* information about non-active function? */
-    if (!isLfunction(s2v(L->top - 1)))  /* not a Lua function? */
+    if (!isLfunction(s2v(L->top - 1)))  /* not a SDKL function? */
       name = NULL;
     else  /* consider live variables at function start (parameters) */
       name = sdklF_getlocalname(clLvalue(s2v(L->top - 1))->p, n, 0);
@@ -254,7 +254,7 @@ LUA_API const char *sdkl_setlocal (sdkl_State *L, const sdkl_Debug *ar, int n) {
 
 
 static void funcinfo (sdkl_Debug *ar, Closure *cl) {
-  if (noLuaClosure(cl)) {
+  if (noSDKLClosure(cl)) {
     ar->source = "=[C]";
     ar->srclen = LL("=[C]");
     ar->linedefined = -1;
@@ -273,7 +273,7 @@ static void funcinfo (sdkl_Debug *ar, Closure *cl) {
     }
     ar->linedefined = p->linedefined;
     ar->lastlinedefined = p->lastlinedefined;
-    ar->what = (ar->linedefined == 0) ? "main" : "Lua";
+    ar->what = (ar->linedefined == 0) ? "main" : "SDKL";
   }
   sdklO_chunkid(ar->short_src, ar->source, ar->srclen);
 }
@@ -288,7 +288,7 @@ static int nextline (const Proto *p, int currentline, int pc) {
 
 
 static void collectvalidlines (sdkl_State *L, Closure *f) {
-  if (noLuaClosure(f)) {
+  if (noSDKLClosure(f)) {
     setnilvalue(s2v(L->top));
     api_incr_top(L);
   }
@@ -316,8 +316,8 @@ static const char *getfuncname (sdkl_State *L, CallInfo *ci, const char **name) 
     *name = "__gc";
     return "metamethod";  /* report it as such */
   }
-  /* calling function is a known Lua function? */
-  else if (!(ci->callstatus & CIST_TAIL) && isLua(ci->previous))
+  /* calling function is a known SDKL function? */
+  else if (!(ci->callstatus & CIST_TAIL) && isSDKL(ci->previous))
     return funcnamefromcode(L, ci->previous, name);
   else return NULL;  /* no way to find a name */
 }
@@ -333,12 +333,12 @@ static int auxgetinfo (sdkl_State *L, const char *what, sdkl_Debug *ar,
         break;
       }
       case 'l': {
-        ar->currentline = (ci && isLua(ci)) ? getcurrentline(ci) : -1;
+        ar->currentline = (ci && isSDKL(ci)) ? getcurrentline(ci) : -1;
         break;
       }
       case 'u': {
         ar->nups = (f == NULL) ? 0 : f->c.nupvalues;
-        if (noLuaClosure(f)) {
+        if (noSDKLClosure(f)) {
           ar->isvararg = 1;
           ar->nparams = 0;
         }
@@ -586,7 +586,7 @@ static const char *getobjname (const Proto *p, int lastpc, int reg,
 
 /*
 ** Try to find a name for a function based on the code that called it.
-** (Only works when function was called by a Lua function.)
+** (Only works when function was called by a SDKL function.)
 ** Returns what the name is (e.g., "for iterator", "method",
 ** "metamethod") and sets '*name' to point to the name.
 */
@@ -679,7 +679,7 @@ static const char *varinfo (sdkl_State *L, const TValue *o) {
   const char *name = NULL;  /* to avoid warnings */
   CallInfo *ci = L->ci;
   const char *kind = NULL;
-  if (isLua(ci)) {
+  if (isSDKL(ci)) {
     kind = getupvalname(ci, o, &name);  /* check whether 'o' is an upvalue */
     if (!kind && isinstack(ci, o))  /* no? try a register */
       kind = getobjname(ci_func(ci)->p, currentpc(ci),
@@ -698,7 +698,7 @@ l_noret sdklG_typeerror (sdkl_State *L, const TValue *o, const char *op) {
 l_noret sdklG_callerror (sdkl_State *L, const TValue *o) {
   CallInfo *ci = L->ci;
   const char *name = NULL;  /* to avoid warnings */
-  const char *what = (isLua(ci)) ? funcnamefromcode(L, ci, &name) : NULL;
+  const char *what = (isSDKL(ci)) ? funcnamefromcode(L, ci, &name) : NULL;
   if (what != NULL) {
     const char *t = sdklT_objtypename(L, o);
     sdklG_runerror(L, "%s '%s' is not callable (a %s value)", what, name, t);
@@ -783,7 +783,7 @@ l_noret sdklG_runerror (sdkl_State *L, const char *fmt, ...) {
   va_start(argp, fmt);
   msg = sdklO_pushvfstring(L, fmt, argp);  /* format message */
   va_end(argp);
-  if (isLua(ci))  /* if Lua function, add source:line information */
+  if (isSDKL(ci))  /* if SDKL function, add source:line information */
     sdklG_addinfo(L, msg, ci_func(ci)->p->source, getcurrentline(ci));
   sdklG_errormsg(L);
 }
@@ -819,7 +819,7 @@ static int changedline (const Proto *p, int oldpc, int newpc) {
 
 
 /*
-** Traces the execution of a Lua function. Called before the execution
+** Traces the execution of a SDKL function. Called before the execution
 ** of each opcode, when debug is on. 'L->oldpc' stores the last
 ** instruction traced, to detect line changes. When entering a new
 ** function, 'npci' will be zero and will test as a new line whatever

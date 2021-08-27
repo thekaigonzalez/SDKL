@@ -1,6 +1,6 @@
 /*
 ** $Id: ldo.h $
-** Stack and Call structure of Lua
+** Stack and Call structure of SDKL
 ** See Copyright Notice in sdkl.h
 */
 
