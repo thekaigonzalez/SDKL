@@ -16,20 +16,20 @@
 #include <string.h>
 
 #ifdef __unix__
-# include <unistd.h> 
+# include <unistd.h>
 #endif
 #if defined _WIN32
 # include <windows.h>
-#define sleep(x) Sleep(1000 * (x))
+# define sleep(x) Sleep(1000 * (x))
 #endif
 
-#include "sdkl.h"
+# include "sdkl.h"
 
-#include "sdklauxillary.h"
-#include "sdkllib.h"
-static int help(sdkl_State* L)
+# include "sdklauxillary.h"
+# include "sdkllib.h"
+static int help(sdkl_State* L) /* use L */
 {
-fprintf(stdout,
+ fprintf(stdout,
 "help: Please read the following below before using. \n"
 "SDKL is licensed under the MIT license, no warranty is given for this Software.\n"
 "\n"
@@ -37,6 +37,7 @@ fprintf(stdout,
 "Here's some mods to check out\n"
 "- os: Operating System. Mastere de ways!\n"
 "- io: IO. Stream functionalitieees\n");
+sdkl_pushinteger(L, 1);
 return 1;
 }
 
