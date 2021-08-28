@@ -1,0 +1,3 @@
+func IsDirectoryError(estr)
+   return error("IsDirectoryError: " .. estr);
+wend
