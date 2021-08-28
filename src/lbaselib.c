@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if defined SDKL_USE_MACOSX || SDKL_USE_LINUX
+#if defined SDKL_USE_MACOSX || SDKL_USE_LINUX || SDKL_USE_EXTRAS // when building "all"
 # include <unistd.h>
 #endif
 #if defined _WIN32

@@ -25,7 +25,7 @@
 
 #define SDKL_VERSION	"SDKL " SDKL_VERSION_MAJOR "." SDKL_VERSION_MINOR
 #define SDKL_RELEASE	SDKL_VERSION "." SDKL_VERSION_RELEASE
-#define SDKL_COPYRIGHT	SDKL_RELEASE "  Copyright (C) 2021 Kai Gonzalez & Naruto_The9tailedFox#8496"
+#define SDKL_COPYRIGHT	SDKL_RELEASE "  Copyright (C) SDKL Team"
 #define SDKL_AUTHORS	"Kai D. Gonzalez"
 
 
