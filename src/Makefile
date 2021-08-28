@@ -4,10 +4,9 @@
 PLAT= guess
 
 CC= gcc -std=gnu99
-CFLAGS=  -O2 -Wall -Wextra -DSDKL_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
+CFLAGS=  -O2 -DSDKL_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
 LDFLAGS=  $(SYSLDFLAGS) $(MYLDFLAGS)
-LIBS= -lreadline -lm $(SYSLIBS) $(MYLIBS)
-
+LIBS= $(SYSLIBS) $(MYLIBS) -lm -lreadline -ldl
 AR= ar rcu
 RANLIB= ranlib
 RM= rm -f
@@ -120,7 +119,7 @@ linux-noreadline:
 	$(MAKE) $(ALL) SYSCFLAGS="-DSDKL_USE_LINUX" SYSLIBS="-Wl,-E -ldl"
 
 linux-readline:
-	$(MAKE) $(ALL) SYSCFLAGS="-DSDKL_USE_LINUX -DSDKL_USE_READLINE" SYSLIBS="-Wl,-E -ldl -lreadline"
+	$(MAKE) $(ALL) SYSCFLAGS="-DSDKL_USE_LINUX -DSDKL_USE_READLINE" SYSLIBS="-Wl,-E -ldl -lreadline -lm"
 
 Darwin macos macosx:
 	$(MAKE) $(ALL) SYSCFLAGS="-DSDKL_USE_MACOSX -DSDKL_USE_READLINE" SYSLIBS="-lreadline"

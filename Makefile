@@ -35,8 +35,8 @@ TO_LIB= libsdkl.a
 TO_MAN= sdkl.1 sdkl-bytes.1
 
 # SDKL version and release.
-V= 2.6
-R= $V.3
+V= 3.0
+R= $V.11
 
 # Targets start here.
 all:	$(PLAT)
