@@ -507,7 +507,7 @@ static int llex (LexState *ls, SemInfo *seminfo) {
       }
       case '!': {
         next(ls);
-        if (check_next1(ls, '=')) return TK_NE;  /* '~=' */
+        if (check_next1(ls, '=') || check_next1(ls, '!')) return TK_NE;  /* '!=' */
         else return '!';
       }
       case ':': {
@@ -519,7 +519,7 @@ static int llex (LexState *ls, SemInfo *seminfo) {
         read_string(ls, ls->current, seminfo);
         return TK_STRING;
       }
-      case '.': {  /* '.', '..', '...', or number */
+      case '.': {  /* '.', '.. (try +)', '...', or number */
         save_and_next(ls);
         if (check_next1(ls, '.')) {
           if (check_next1(ls, '.'))
