@@ -42,7 +42,7 @@ static const char *const sdklX_tokens [] = {
     "wend", "false", "for", "func", "goto", "ifeq",
     "in", "local", "null", "not", "or", "repeat",
     "return", "then", "true", "until", "while",
-    "//", "..", "...", "==", ">=", "<=", "~=",
+    "//", "=^", "..", "...", "==", ">=", "<=", "~=",
     "<<", ">>", "::", "<eof>",
     "<number>", "<integer>", "<name>", "<string>"
 };
@@ -111,7 +111,7 @@ static const char *txtToken (LexState *ls, int token) {
 static l_noret lexerror (LexState *ls, const char *msg, int token) {
   msg = sdklG_addinfo(ls->L, msg, ls->source, ls->linenumber);
   if (token)
-    sdklO_pushfstring(ls->L, "%s near %s", msg, txtToken(ls, token));
+    sdklO_pushfstring(ls->L, "%s near token %s", msg, txtToken(ls, token));
   sdklD_throw(ls->L, SDKL_ERRSYNTAX);
 }
 
@@ -454,12 +454,30 @@ static int llex (LexState *ls, SemInfo *seminfo) {
         next(ls);
         break;
       }
-      case '-': {  /* '-' or '--' (comment) */
+      case '-':
+	next(ls);
+	if (ls->current != '-') return '-'; /* backwards compatibility comment */
+	/* otherwise comment */
+	if (ls->current == '[') { /* l? */
+	   next(ls);
+	   size_t sep = skip_sep(ls);
+	   sdklZ_resetbuffer(ls->buff);
+	   if (sep >= 2) {
+		read_long_string(ls, NULL, sep);
+		sdklZ_resetbuffer(ls->buff);
+		break;
+	   }
+	}
+	 /* else short comment */
+        while (!currIsNewline(ls) && ls->current != EOZ)
+          next(ls);  /* skip until end of line (or end of file) */
+	break;
+      case '/': {  /* '-' or '--' (comment) */
         next(ls);
-        if (ls->current != '-') return '-';
+        if (ls->current != '/') return '/';
         /* else is a comment */
         next(ls);
-        if (ls->current == '[') {  /* long comment? */
+        if (ls->current == '*') {  /* long comment? */
           size_t sep = skip_sep(ls);
           sdklZ_resetbuffer(ls->buff);  /* 'skip_sep' may dirty the buffer */
           if (sep >= 2) {
@@ -500,10 +518,10 @@ static int llex (LexState *ls, SemInfo *seminfo) {
         else if (check_next1(ls, '>')) return TK_SHR;  /* '>>' */
         else return '>';
       }
-      case '/': {
+      case '%': {
         next(ls);
-        if (check_next1(ls, '/')) return TK_IDIV;  /* '//' */
-        else return '/';
+        if (check_next1(ls, '%')) return TK_IDIV;  /* '//' */
+        else return '%';
       }
       case '!': {
         next(ls);
