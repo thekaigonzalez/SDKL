@@ -39,7 +39,7 @@ w** Lexical Analyzer
 /* ORDER RESERVED */
 static const char *const sdklX_tokens [] = {
     "and", "break", "do", "else", "elif",
-    "wend", "false", "for", "func", "goto", "ifeq",
+    "wend", "false", "for", "func", "goto", "if",
     "in", "local", "null", "not", "or", "repeat",
     "return", "then", "true", "until", "while",
     "//", "=^", "..", "...", "==", ">=", "<=", "~=",
@@ -506,7 +506,7 @@ static int llex (LexState *ls, SemInfo *seminfo) {
       }
       case '=': {
         next(ls);
-        if (check_next1(ls, '=') || check_next1(ls, '^')) return TK_EQ;  /* '==' (=^ */
+        if (check_next1(ls, '=') || check_next1(ls, '^')) { next(ls); if (check_next1(ls, '=')) return TK_EQ; else return TK_EQ; }  /* '==' (=^ */
 	else return '=';
       }
       case '<': {
