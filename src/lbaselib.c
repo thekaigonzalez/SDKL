@@ -33,7 +33,7 @@ static int help(sdkl_State* L) /* use L */
 "help: Please read the following below before using. \n"
 "SDKL is licensed under the MIT license, no warranty is given for this Software.\n"
 "\n"
-"SDKL is a Programming language inspired off of the SDKL Programming language. you can use everything in lua like SDKL.\n"
+"SDKL is a Programming language inspired off of the Lua Programming language. you can use everything in lua like SDKL.\n"
 "Here's some mods to check out\n"
 "- os: Operating System. Mastere de ways!\n"
 "- io: IO. Stream functionalitieees\n");
@@ -41,6 +41,11 @@ sdkl_pushinteger(L, 1);
 return 1;
 }
 
+static int sdklB_class(sdkl_State* L)
+{
+  sdkl_newtable(L);
+  return 1;
+}
 
 static int sdklB_print (sdkl_State *L) {
   int n = sdkl_gettop(L);  /* number of arguments */
@@ -76,12 +81,7 @@ static int sdklB_warn (sdkl_State *L) {
 }
 
 
-/* build a class */
 
-static int sdklB_newclass(sdkl_State* L)
-{
- 
-}
 
 
 #define SPACECHARS	" \f\n\r\t\v"
@@ -534,6 +534,7 @@ static const sdklL_Reg base_funcs[] = {
   {"rawequal", sdklB_rawequal},
   {"rawlen", sdklB_rawlen},
   {"println", sdklB_print},
+  {"class", sdklB_class},
   {"exec", sdklB_load},
   {"execfile", sdklB_dofile},
   {"rawget", sdklB_rawget},
