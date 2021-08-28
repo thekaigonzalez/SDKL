@@ -1,0 +1,31 @@
+package.path = package.path .. "./"
+
+include "errors"
+
+--- Path Library
+
+Path = class();
+
+func Path:new(path)
+    Path.Path = path
+    return Path
+wend
+
+Path.self = Path.Path
+
+func Path:exists(p)
+   ifeq io.open(p) ~= nil then return true else return false
+wend
+
+func Path:write(p, b)
+   ifeq io.open(p) ~= nil then
+       local bp = io.open(p);
+       ifeq bp.read() == nil then
+           return IsDirectoryError(p .. " is a directory") 
+       else
+           return bp:write(b);
+       wend
+   wend
+  wend
+wend
+
