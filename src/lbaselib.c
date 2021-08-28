@@ -530,6 +530,7 @@ static const sdklL_Reg base_funcs[] = {
   {"pairs", sdklB_pairs},
   {"pcall", sdklB_pcall},
   {"print", sdklB_print},
+  {"typeid", sdklB_type},
   {"warn", sdklB_warn},
   {"rawequal", sdklB_rawequal},
   {"rawlen", sdklB_rawlen},
