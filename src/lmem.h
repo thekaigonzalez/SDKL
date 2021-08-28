@@ -14,7 +14,7 @@
 #include "sdkl.h"
 
 
-#define sdklM_error(L)	sdklD_throw(L, LUA_ERRMEM)
+#define sdklM_error(L)	sdklD_throw(L, SDKL_ERRMEM)
 
 
 /*
@@ -74,20 +74,20 @@
 #define sdklM_shrinkvector(L,v,size,fs,t) \
    ((v)=cast(t *, sdklM_shrinkvector_(L, v, &(size), fs, sizeof(t))))
 
-LUAI_FUNC l_noret sdklM_toobig (sdkl_State *L);
+SDKLI_FUNC l_noret sdklM_toobig (sdkl_State *L);
 
 /* not to be called directly */
-LUAI_FUNC void *sdklM_realloc_ (sdkl_State *L, void *block, size_t oldsize,
+SDKLI_FUNC void *sdklM_realloc_ (sdkl_State *L, void *block, size_t oldsize,
                                                           size_t size);
-LUAI_FUNC void *sdklM_saferealloc_ (sdkl_State *L, void *block, size_t oldsize,
+SDKLI_FUNC void *sdklM_saferealloc_ (sdkl_State *L, void *block, size_t oldsize,
                                                               size_t size);
-LUAI_FUNC void sdklM_free_ (sdkl_State *L, void *block, size_t osize);
-LUAI_FUNC void *sdklM_growaux_ (sdkl_State *L, void *block, int nelems,
+SDKLI_FUNC void sdklM_free_ (sdkl_State *L, void *block, size_t osize);
+SDKLI_FUNC void *sdklM_growaux_ (sdkl_State *L, void *block, int nelems,
                                int *size, int size_elem, int limit,
                                const char *what);
-LUAI_FUNC void *sdklM_shrinkvector_ (sdkl_State *L, void *block, int *nelem,
+SDKLI_FUNC void *sdklM_shrinkvector_ (sdkl_State *L, void *block, int *nelem,
                                     int final_n, int size_elem);
-LUAI_FUNC void *sdklM_malloc_ (sdkl_State *L, size_t size, int tag);
+SDKLI_FUNC void *sdklM_malloc_ (sdkl_State *L, size_t size, int tag);
 
 #endif
 

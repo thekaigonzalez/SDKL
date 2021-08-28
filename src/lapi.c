@@ -5,7 +5,7 @@
 */
 
 #define lapi_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
@@ -33,8 +33,8 @@
 
 
 const char sdkl_ident[] =
-  "$SDKLVersion: " LUA_COPYRIGHT " $"
-  "$SDKLAuthors: " LUA_AUTHORS " $";
+  "$SDKLVersion: " SDKL_COPYRIGHT " $"
+  "$SDKLAuthors: " SDKL_AUTHORS " $";
 
 
 
@@ -47,10 +47,10 @@ const char sdkl_ident[] =
 
 
 /* test for pseudo index */
-#define ispseudo(i)		((i) <= LUA_REGISTRYINDEX)
+#define ispseudo(i)		((i) <= SDKL_REGISTRYINDEX)
 
 /* test for upvalue */
-#define isupvalue(i)		((i) < LUA_REGISTRYINDEX)
+#define isupvalue(i)		((i) < SDKL_REGISTRYINDEX)
 
 
 static TValue *index2value (sdkl_State *L, int idx) {
@@ -65,10 +65,10 @@ static TValue *index2value (sdkl_State *L, int idx) {
     api_check(L, idx != 0 && -idx <= L->top - (ci->func + 1), "invalid index");
     return s2v(L->top + idx);
   }
-  else if (idx == LUA_REGISTRYINDEX)
+  else if (idx == SDKL_REGISTRYINDEX)
     return &G(L)->l_registry;
   else {  /* upvalues */
-    idx = LUA_REGISTRYINDEX - idx;
+    idx = SDKL_REGISTRYINDEX - idx;
     api_check(L, idx <= MAXUPVAL + 1, "upvalue index too large");
     if (ttislcf(s2v(ci->func)))  /* light C function? */
       return &G(L)->nilvalue;  /* it has no upvalues */
@@ -96,7 +96,7 @@ static StkId index2stack (sdkl_State *L, int idx) {
 }
 
 
-LUA_API int sdkl_checkstack (sdkl_State *L, int n) {
+SDKL_API int sdkl_checkstack (sdkl_State *L, int n) {
   int res;
   CallInfo *ci;
   sdkl_lock(L);
@@ -106,7 +106,7 @@ LUA_API int sdkl_checkstack (sdkl_State *L, int n) {
     res = 1;  /* yes; check is OK */
   else {  /* no; need to grow stack */
     int inuse = cast_int(L->top - L->stack) + EXTRA_STACK;
-    if (inuse > LUAI_MAXSTACK - n)  /* can grow without overflow? */
+    if (inuse > SDKLI_MAXSTACK - n)  /* can grow without overflow? */
       res = 0;  /* no */
     else  /* try to grow stack */
       res = sdklD_growstack(L, n, 0);
@@ -118,7 +118,7 @@ LUA_API int sdkl_checkstack (sdkl_State *L, int n) {
 }
 
 
-LUA_API void sdkl_xmove (sdkl_State *from, sdkl_State *to, int n) {
+SDKL_API void sdkl_xmove (sdkl_State *from, sdkl_State *to, int n) {
   int i;
   if (from == to) return;
   sdkl_lock(to);
@@ -134,7 +134,7 @@ LUA_API void sdkl_xmove (sdkl_State *from, sdkl_State *to, int n) {
 }
 
 
-LUA_API sdkl_CFunction sdkl_atpanic (sdkl_State *L, sdkl_CFunction panicf) {
+SDKL_API sdkl_CFunction sdkl_atpanic (sdkl_State *L, sdkl_CFunction panicf) {
   sdkl_CFunction old;
   sdkl_lock(L);
   old = G(L)->panic;
@@ -144,9 +144,9 @@ LUA_API sdkl_CFunction sdkl_atpanic (sdkl_State *L, sdkl_CFunction panicf) {
 }
 
 
-LUA_API sdkl_Number sdkl_version (sdkl_State *L) {
+SDKL_API sdkl_Number sdkl_version (sdkl_State *L) {
   UNUSED(L);
-  return LUA_VERSION_NUM;
+  return SDKL_VERSION_NUM;
 }
 
 
@@ -159,19 +159,19 @@ LUA_API sdkl_Number sdkl_version (sdkl_State *L) {
 /*
 ** convert an acceptable stack index into an absolute index
 */
-LUA_API int sdkl_absindex (sdkl_State *L, int idx) {
+SDKL_API int sdkl_absindex (sdkl_State *L, int idx) {
   return (idx > 0 || ispseudo(idx))
          ? idx
          : cast_int(L->top - L->ci->func) + idx;
 }
 
 
-LUA_API int sdkl_gettop (sdkl_State *L) {
+SDKL_API int sdkl_gettop (sdkl_State *L) {
   return cast_int(L->top - (L->ci->func + 1));
 }
 
 
-LUA_API void sdkl_settop (sdkl_State *L, int idx) {
+SDKL_API void sdkl_settop (sdkl_State *L, int idx) {
   CallInfo *ci;
   StkId func, newtop;
   ptrdiff_t diff;  /* difference for new top */
@@ -199,7 +199,7 @@ LUA_API void sdkl_settop (sdkl_State *L, int idx) {
 }
 
 
-LUA_API void sdkl_closeslot (sdkl_State *L, int idx) {
+SDKL_API void sdkl_closeslot (sdkl_State *L, int idx) {
   StkId level;
   sdkl_lock(L);
   level = index2stack(L, idx);
@@ -232,7 +232,7 @@ static void reverse (sdkl_State *L, StkId from, StkId to) {
 ** Let x = AB, where A is a prefix of length 'n'. Then,
 ** rotate x n == BA. But BA == (A^r . B^r)^r.
 */
-LUA_API void sdkl_rotate (sdkl_State *L, int idx, int n) {
+SDKL_API void sdkl_rotate (sdkl_State *L, int idx, int n) {
   StkId p, t, m;
   sdkl_lock(L);
   t = L->top - 1;  /* end of stack segment being rotated */
@@ -246,7 +246,7 @@ LUA_API void sdkl_rotate (sdkl_State *L, int idx, int n) {
 }
 
 
-LUA_API void sdkl_copy (sdkl_State *L, int fromidx, int toidx) {
+SDKL_API void sdkl_copy (sdkl_State *L, int fromidx, int toidx) {
   TValue *fr, *to;
   sdkl_lock(L);
   fr = index2value(L, fromidx);
@@ -255,13 +255,13 @@ LUA_API void sdkl_copy (sdkl_State *L, int fromidx, int toidx) {
   setobj(L, to, fr);
   if (isupvalue(toidx))  /* function upvalue? */
     sdklC_barrier(L, clCvalue(s2v(L->ci->func)), fr);
-  /* LUA_REGISTRYINDEX does not need gc barrier
+  /* SDKL_REGISTRYINDEX does not need gc barrier
      (collector revisits it before finishing collection) */
   sdkl_unlock(L);
 }
 
 
-LUA_API void sdkl_pushvalue (sdkl_State *L, int idx) {
+SDKL_API void sdkl_pushvalue (sdkl_State *L, int idx) {
   sdkl_lock(L);
   setobj2s(L, L->top, index2value(L, idx));
   api_incr_top(L);
@@ -275,60 +275,60 @@ LUA_API void sdkl_pushvalue (sdkl_State *L, int idx) {
 */
 
 
-LUA_API int sdkl_type (sdkl_State *L, int idx) {
+SDKL_API int sdkl_type (sdkl_State *L, int idx) {
   const TValue *o = index2value(L, idx);
-  return (isvalid(L, o) ? ttype(o) : LUA_TNONE);
+  return (isvalid(L, o) ? ttype(o) : SDKL_TNONE);
 }
 
 
-LUA_API const char *sdkl_typename (sdkl_State *L, int t) {
+SDKL_API const char *sdkl_typename (sdkl_State *L, int t) {
   UNUSED(L);
-  api_check(L, LUA_TNONE <= t && t < LUA_NUMTYPES, "invalid type");
+  api_check(L, SDKL_TNONE <= t && t < SDKL_NUMTYPES, "invalid type");
   return ttypename(t);
 }
 
 
-LUA_API int sdkl_iscfunction (sdkl_State *L, int idx) {
+SDKL_API int sdkl_iscfunction (sdkl_State *L, int idx) {
   const TValue *o = index2value(L, idx);
   return (ttislcf(o) || (ttisCclosure(o)));
 }
 
 
-LUA_API int sdkl_isinteger (sdkl_State *L, int idx) {
+SDKL_API int sdkl_isinteger (sdkl_State *L, int idx) {
   const TValue *o = index2value(L, idx);
   return ttisinteger(o);
 }
 
 
-LUA_API int sdkl_isnumber (sdkl_State *L, int idx) {
+SDKL_API int sdkl_isnumber (sdkl_State *L, int idx) {
   sdkl_Number n;
   const TValue *o = index2value(L, idx);
   return tonumber(o, &n);
 }
 
 
-LUA_API int sdkl_isstring (sdkl_State *L, int idx) {
+SDKL_API int sdkl_isstring (sdkl_State *L, int idx) {
   const TValue *o = index2value(L, idx);
   return (ttisstring(o) || cvt2str(o));
 }
 
 
-LUA_API int sdkl_isuserdata (sdkl_State *L, int idx) {
+SDKL_API int sdkl_isuserdata (sdkl_State *L, int idx) {
   const TValue *o = index2value(L, idx);
   return (ttisfulluserdata(o) || ttislightuserdata(o));
 }
 
 
-LUA_API int sdkl_rawequal (sdkl_State *L, int index1, int index2) {
+SDKL_API int sdkl_rawequal (sdkl_State *L, int index1, int index2) {
   const TValue *o1 = index2value(L, index1);
   const TValue *o2 = index2value(L, index2);
   return (isvalid(L, o1) && isvalid(L, o2)) ? sdklV_rawequalobj(o1, o2) : 0;
 }
 
 
-LUA_API void sdkl_arith (sdkl_State *L, int op) {
+SDKL_API void sdkl_arith (sdkl_State *L, int op) {
   sdkl_lock(L);
-  if (op != LUA_OPUNM && op != LUA_OPBNOT)
+  if (op != SDKL_OPUNM && op != SDKL_OPBNOT)
     api_checknelems(L, 2);  /* all other operations expect two operands */
   else {  /* for unary operations, add fake 2nd operand */
     api_checknelems(L, 1);
@@ -342,7 +342,7 @@ LUA_API void sdkl_arith (sdkl_State *L, int op) {
 }
 
 
-LUA_API int sdkl_compare (sdkl_State *L, int index1, int index2, int op) {
+SDKL_API int sdkl_compare (sdkl_State *L, int index1, int index2, int op) {
   const TValue *o1;
   const TValue *o2;
   int i = 0;
@@ -351,9 +351,9 @@ LUA_API int sdkl_compare (sdkl_State *L, int index1, int index2, int op) {
   o2 = index2value(L, index2);
   if (isvalid(L, o1) && isvalid(L, o2)) {
     switch (op) {
-      case LUA_OPEQ: i = sdklV_equalobj(L, o1, o2); break;
-      case LUA_OPLT: i = sdklV_lessthan(L, o1, o2); break;
-      case LUA_OPLE: i = sdklV_lessequal(L, o1, o2); break;
+      case SDKL_OPEQ: i = sdklV_equalobj(L, o1, o2); break;
+      case SDKL_OPLT: i = sdklV_lessthan(L, o1, o2); break;
+      case SDKL_OPLE: i = sdklV_lessequal(L, o1, o2); break;
       default: api_check(L, 0, "invalid option");
     }
   }
@@ -362,7 +362,7 @@ LUA_API int sdkl_compare (sdkl_State *L, int index1, int index2, int op) {
 }
 
 
-LUA_API size_t sdkl_stringtonumber (sdkl_State *L, const char *s) {
+SDKL_API size_t sdkl_stringtonumber (sdkl_State *L, const char *s) {
   size_t sz = sdklO_str2num(s, s2v(L->top));
   if (sz != 0)
     api_incr_top(L);
@@ -370,7 +370,7 @@ LUA_API size_t sdkl_stringtonumber (sdkl_State *L, const char *s) {
 }
 
 
-LUA_API sdkl_Number sdkl_tonumberx (sdkl_State *L, int idx, int *pisnum) {
+SDKL_API sdkl_Number sdkl_tonumberx (sdkl_State *L, int idx, int *pisnum) {
   sdkl_Number n = 0;
   const TValue *o = index2value(L, idx);
   int isnum = tonumber(o, &n);
@@ -380,7 +380,7 @@ LUA_API sdkl_Number sdkl_tonumberx (sdkl_State *L, int idx, int *pisnum) {
 }
 
 
-LUA_API sdkl_Integer sdkl_tointegerx (sdkl_State *L, int idx, int *pisnum) {
+SDKL_API sdkl_Integer sdkl_tointegerx (sdkl_State *L, int idx, int *pisnum) {
   sdkl_Integer res = 0;
   const TValue *o = index2value(L, idx);
   int isnum = tointeger(o, &res);
@@ -390,13 +390,13 @@ LUA_API sdkl_Integer sdkl_tointegerx (sdkl_State *L, int idx, int *pisnum) {
 }
 
 
-LUA_API int sdkl_toboolean (sdkl_State *L, int idx) {
+SDKL_API int sdkl_toboolean (sdkl_State *L, int idx) {
   const TValue *o = index2value(L, idx);
   return !l_isfalse(o);
 }
 
 
-LUA_API const char *sdkl_tolstring (sdkl_State *L, int idx, size_t *len) {
+SDKL_API const char *sdkl_tolstring (sdkl_State *L, int idx, size_t *len) {
   TValue *o;
   sdkl_lock(L);
   o = index2value(L, idx);
@@ -417,19 +417,19 @@ LUA_API const char *sdkl_tolstring (sdkl_State *L, int idx, size_t *len) {
 }
 
 
-LUA_API sdkl_Unsigned sdkl_rawlen (sdkl_State *L, int idx) {
+SDKL_API sdkl_Unsigned sdkl_rawlen (sdkl_State *L, int idx) {
   const TValue *o = index2value(L, idx);
   switch (ttypetag(o)) {
-    case LUA_VSHRSTR: return tsvalue(o)->shrlen;
-    case LUA_VLNGSTR: return tsvalue(o)->u.lnglen;
-    case LUA_VUSERDATA: return uvalue(o)->len;
-    case LUA_VTABLE: return sdklH_getn(hvalue(o));
+    case SDKL_VSHRSTR: return tsvalue(o)->shrlen;
+    case SDKL_VLNGSTR: return tsvalue(o)->u.lnglen;
+    case SDKL_VUSERDATA: return uvalue(o)->len;
+    case SDKL_VTABLE: return sdklH_getn(hvalue(o));
     default: return 0;
   }
 }
 
 
-LUA_API sdkl_CFunction sdkl_tocfunction (sdkl_State *L, int idx) {
+SDKL_API sdkl_CFunction sdkl_tocfunction (sdkl_State *L, int idx) {
   const TValue *o = index2value(L, idx);
   if (ttislcf(o)) return fvalue(o);
   else if (ttisCclosure(o))
@@ -440,20 +440,20 @@ LUA_API sdkl_CFunction sdkl_tocfunction (sdkl_State *L, int idx) {
 
 static void *touserdata (const TValue *o) {
   switch (ttype(o)) {
-    case LUA_TUSERDATA: return getudatamem(uvalue(o));
-    case LUA_TLIGHTUSERDATA: return pvalue(o);
+    case SDKL_TUSERDATA: return getudatamem(uvalue(o));
+    case SDKL_TLIGHTUSERDATA: return pvalue(o);
     default: return NULL;
   }
 }
 
 
-LUA_API void *sdkl_touserdata (sdkl_State *L, int idx) {
+SDKL_API void *sdkl_touserdata (sdkl_State *L, int idx) {
   const TValue *o = index2value(L, idx);
   return touserdata(o);
 }
 
 
-LUA_API sdkl_State *sdkl_tothread (sdkl_State *L, int idx) {
+SDKL_API sdkl_State *sdkl_tothread (sdkl_State *L, int idx) {
   const TValue *o = index2value(L, idx);
   return (!ttisthread(o)) ? NULL : thvalue(o);
 }
@@ -466,11 +466,11 @@ LUA_API sdkl_State *sdkl_tothread (sdkl_State *L, int idx) {
 ** a 'size_t'. (As the returned pointer is only informative, this
 ** conversion should not be a problem.)
 */
-LUA_API const void *sdkl_topointer (sdkl_State *L, int idx) {
+SDKL_API const void *sdkl_topointer (sdkl_State *L, int idx) {
   const TValue *o = index2value(L, idx);
   switch (ttypetag(o)) {
-    case LUA_VLCF: return cast_voidp(cast_sizet(fvalue(o)));
-    case LUA_VUSERDATA: case LUA_VLIGHTUSERDATA:
+    case SDKL_VLCF: return cast_voidp(cast_sizet(fvalue(o)));
+    case SDKL_VUSERDATA: case SDKL_VLIGHTUSERDATA:
       return touserdata(o);
     default: {
       if (iscollectable(o))
@@ -488,7 +488,7 @@ LUA_API const void *sdkl_topointer (sdkl_State *L, int idx) {
 */
 
 
-LUA_API void sdkl_pushnil (sdkl_State *L) {
+SDKL_API void sdkl_pushnil (sdkl_State *L) {
   sdkl_lock(L);
   setnilvalue(s2v(L->top));
   api_incr_top(L);
@@ -496,7 +496,7 @@ LUA_API void sdkl_pushnil (sdkl_State *L) {
 }
 
 
-LUA_API void sdkl_pushnumber (sdkl_State *L, sdkl_Number n) {
+SDKL_API void sdkl_pushnumber (sdkl_State *L, sdkl_Number n) {
   sdkl_lock(L);
   setfltvalue(s2v(L->top), n);
   api_incr_top(L);
@@ -504,7 +504,7 @@ LUA_API void sdkl_pushnumber (sdkl_State *L, sdkl_Number n) {
 }
 
 
-LUA_API void sdkl_pushinteger (sdkl_State *L, sdkl_Integer n) {
+SDKL_API void sdkl_pushinteger (sdkl_State *L, sdkl_Integer n) {
   sdkl_lock(L);
   setivalue(s2v(L->top), n);
   api_incr_top(L);
@@ -517,7 +517,7 @@ LUA_API void sdkl_pushinteger (sdkl_State *L, sdkl_Integer n) {
 ** 'len' == 0 (as 's' can be NULL in that case), due to later use of
 ** 'memcmp' and 'memcpy'.
 */
-LUA_API const char *sdkl_pushlstring (sdkl_State *L, const char *s, size_t len) {
+SDKL_API const char *sdkl_pushlstring (sdkl_State *L, const char *s, size_t len) {
   TString *ts;
   sdkl_lock(L);
   ts = (len == 0) ? sdklS_new(L, "") : sdklS_newlstr(L, s, len);
@@ -529,7 +529,7 @@ LUA_API const char *sdkl_pushlstring (sdkl_State *L, const char *s, size_t len) 
 }
 
 
-LUA_API const char *sdkl_pushstring (sdkl_State *L, const char *s) {
+SDKL_API const char *sdkl_pushstring (sdkl_State *L, const char *s) {
   sdkl_lock(L);
   if (s == NULL)
     setnilvalue(s2v(L->top));
@@ -546,7 +546,7 @@ LUA_API const char *sdkl_pushstring (sdkl_State *L, const char *s) {
 }
 
 
-LUA_API const char *sdkl_pushvfstring (sdkl_State *L, const char *fmt,
+SDKL_API const char *sdkl_pushvfstring (sdkl_State *L, const char *fmt,
                                       va_list argp) {
   const char *ret;
   sdkl_lock(L);
@@ -557,7 +557,7 @@ LUA_API const char *sdkl_pushvfstring (sdkl_State *L, const char *fmt,
 }
 
 
-LUA_API const char *sdkl_pushfstring (sdkl_State *L, const char *fmt, ...) {
+SDKL_API const char *sdkl_pushfstring (sdkl_State *L, const char *fmt, ...) {
   const char *ret;
   va_list argp;
   sdkl_lock(L);
@@ -570,7 +570,7 @@ LUA_API const char *sdkl_pushfstring (sdkl_State *L, const char *fmt, ...) {
 }
 
 
-LUA_API void sdkl_pushcclosure (sdkl_State *L, sdkl_CFunction fn, int n) {
+SDKL_API void sdkl_pushcclosure (sdkl_State *L, sdkl_CFunction fn, int n) {
   sdkl_lock(L);
   if (n == 0) {
     setfvalue(s2v(L->top), fn);
@@ -596,7 +596,7 @@ LUA_API void sdkl_pushcclosure (sdkl_State *L, sdkl_CFunction fn, int n) {
 }
 
 
-LUA_API void sdkl_pushboolean (sdkl_State *L, int b) {
+SDKL_API void sdkl_pushboolean (sdkl_State *L, int b) {
   sdkl_lock(L);
   if (b)
     setbtvalue(s2v(L->top));
@@ -607,7 +607,7 @@ LUA_API void sdkl_pushboolean (sdkl_State *L, int b) {
 }
 
 
-LUA_API void sdkl_pushlightuserdata (sdkl_State *L, void *p) {
+SDKL_API void sdkl_pushlightuserdata (sdkl_State *L, void *p) {
   sdkl_lock(L);
   setpvalue(s2v(L->top), p);
   api_incr_top(L);
@@ -615,7 +615,7 @@ LUA_API void sdkl_pushlightuserdata (sdkl_State *L, void *p) {
 }
 
 
-LUA_API int sdkl_pushthread (sdkl_State *L) {
+SDKL_API int sdkl_pushthread (sdkl_State *L) {
   sdkl_lock(L);
   setthvalue(L, s2v(L->top), L);
   api_incr_top(L);
@@ -654,10 +654,10 @@ static int auxgetstr (sdkl_State *L, const TValue *t, const char *k) {
 ** part of the registry.
 */
 #define getGtable(L)  \
-	(&hvalue(&G(L)->l_registry)->array[LUA_RIDX_GLOBALS - 1])
+	(&hvalue(&G(L)->l_registry)->array[SDKL_RIDX_GLOBALS - 1])
 
 
-LUA_API int sdkl_getglobal (sdkl_State *L, const char *name) {
+SDKL_API int sdkl_getglobal (sdkl_State *L, const char *name) {
   const TValue *G;
   sdkl_lock(L);
   G = getGtable(L);
@@ -665,7 +665,7 @@ LUA_API int sdkl_getglobal (sdkl_State *L, const char *name) {
 }
 
 
-LUA_API int sdkl_gettable (sdkl_State *L, int idx) {
+SDKL_API int sdkl_gettable (sdkl_State *L, int idx) {
   const TValue *slot;
   TValue *t;
   sdkl_lock(L);
@@ -680,13 +680,13 @@ LUA_API int sdkl_gettable (sdkl_State *L, int idx) {
 }
 
 
-LUA_API int sdkl_getfield (sdkl_State *L, int idx, const char *k) {
+SDKL_API int sdkl_getfield (sdkl_State *L, int idx, const char *k) {
   sdkl_lock(L);
   return auxgetstr(L, index2value(L, idx), k);
 }
 
 
-LUA_API int sdkl_geti (sdkl_State *L, int idx, sdkl_Integer n) {
+SDKL_API int sdkl_geti (sdkl_State *L, int idx, sdkl_Integer n) {
   TValue *t;
   const TValue *slot;
   sdkl_lock(L);
@@ -723,7 +723,7 @@ static Table *gettable (sdkl_State *L, int idx) {
 }
 
 
-LUA_API int sdkl_rawget (sdkl_State *L, int idx) {
+SDKL_API int sdkl_rawget (sdkl_State *L, int idx) {
   Table *t;
   const TValue *val;
   sdkl_lock(L);
@@ -735,7 +735,7 @@ LUA_API int sdkl_rawget (sdkl_State *L, int idx) {
 }
 
 
-LUA_API int sdkl_rawgeti (sdkl_State *L, int idx, sdkl_Integer n) {
+SDKL_API int sdkl_rawgeti (sdkl_State *L, int idx, sdkl_Integer n) {
   Table *t;
   sdkl_lock(L);
   t = gettable(L, idx);
@@ -743,7 +743,7 @@ LUA_API int sdkl_rawgeti (sdkl_State *L, int idx, sdkl_Integer n) {
 }
 
 
-LUA_API int sdkl_rawgetp (sdkl_State *L, int idx, const void *p) {
+SDKL_API int sdkl_rawgetp (sdkl_State *L, int idx, const void *p) {
   Table *t;
   TValue k;
   sdkl_lock(L);
@@ -753,7 +753,7 @@ LUA_API int sdkl_rawgetp (sdkl_State *L, int idx, const void *p) {
 }
 
 
-LUA_API void sdkl_createtable (sdkl_State *L, int narray, int nrec) {
+SDKL_API void sdkl_createtable (sdkl_State *L, int narray, int nrec) {
   Table *t;
   sdkl_lock(L);
   t = sdklH_new(L);
@@ -766,17 +766,17 @@ LUA_API void sdkl_createtable (sdkl_State *L, int narray, int nrec) {
 }
 
 
-LUA_API int sdkl_getmetatable (sdkl_State *L, int objindex) {
+SDKL_API int sdkl_getmetatable (sdkl_State *L, int objindex) {
   const TValue *obj;
   Table *mt;
   int res = 0;
   sdkl_lock(L);
   obj = index2value(L, objindex);
   switch (ttype(obj)) {
-    case LUA_TTABLE:
+    case SDKL_TTABLE:
       mt = hvalue(obj)->metatable;
       break;
-    case LUA_TUSERDATA:
+    case SDKL_TUSERDATA:
       mt = uvalue(obj)->metatable;
       break;
     default:
@@ -793,7 +793,7 @@ LUA_API int sdkl_getmetatable (sdkl_State *L, int objindex) {
 }
 
 
-LUA_API int sdkl_getiuservalue (sdkl_State *L, int idx, int n) {
+SDKL_API int sdkl_getiuservalue (sdkl_State *L, int idx, int n) {
   TValue *o;
   int t;
   sdkl_lock(L);
@@ -801,7 +801,7 @@ LUA_API int sdkl_getiuservalue (sdkl_State *L, int idx, int n) {
   api_check(L, ttisfulluserdata(o), "full userdata expected");
   if (n <= 0 || n > uvalue(o)->nuvalue) {
     setnilvalue(s2v(L->top));
-    t = LUA_TNONE;
+    t = SDKL_TNONE;
   }
   else {
     setobj2s(L, L->top, &uvalue(o)->uv[n - 1].uv);
@@ -838,7 +838,7 @@ static void auxsetstr (sdkl_State *L, const TValue *t, const char *k) {
 }
 
 
-LUA_API void sdkl_setglobal (sdkl_State *L, const char *name) {
+SDKL_API void sdkl_setglobal (sdkl_State *L, const char *name) {
   const TValue *G;
   sdkl_lock(L);  /* unlock done in 'auxsetstr' */
   G = getGtable(L);
@@ -846,7 +846,7 @@ LUA_API void sdkl_setglobal (sdkl_State *L, const char *name) {
 }
 
 
-LUA_API void sdkl_settable (sdkl_State *L, int idx) {
+SDKL_API void sdkl_settable (sdkl_State *L, int idx) {
   TValue *t;
   const TValue *slot;
   sdkl_lock(L);
@@ -862,13 +862,13 @@ LUA_API void sdkl_settable (sdkl_State *L, int idx) {
 }
 
 
-LUA_API void sdkl_setfield (sdkl_State *L, int idx, const char *k) {
+SDKL_API void sdkl_setfield (sdkl_State *L, int idx, const char *k) {
   sdkl_lock(L);  /* unlock done in 'auxsetstr' */
   auxsetstr(L, index2value(L, idx), k);
 }
 
 
-LUA_API void sdkl_seti (sdkl_State *L, int idx, sdkl_Integer n) {
+SDKL_API void sdkl_seti (sdkl_State *L, int idx, sdkl_Integer n) {
   TValue *t;
   const TValue *slot;
   sdkl_lock(L);
@@ -900,19 +900,19 @@ static void aux_rawset (sdkl_State *L, int idx, TValue *key, int n) {
 }
 
 
-LUA_API void sdkl_rawset (sdkl_State *L, int idx) {
+SDKL_API void sdkl_rawset (sdkl_State *L, int idx) {
   aux_rawset(L, idx, s2v(L->top - 2), 2);
 }
 
 
-LUA_API void sdkl_rawsetp (sdkl_State *L, int idx, const void *p) {
+SDKL_API void sdkl_rawsetp (sdkl_State *L, int idx, const void *p) {
   TValue k;
   setpvalue(&k, cast_voidp(p));
   aux_rawset(L, idx, &k, 1);
 }
 
 
-LUA_API void sdkl_rawseti (sdkl_State *L, int idx, sdkl_Integer n) {
+SDKL_API void sdkl_rawseti (sdkl_State *L, int idx, sdkl_Integer n) {
   Table *t;
   sdkl_lock(L);
   api_checknelems(L, 1);
@@ -924,7 +924,7 @@ LUA_API void sdkl_rawseti (sdkl_State *L, int idx, sdkl_Integer n) {
 }
 
 
-LUA_API int sdkl_setmetatable (sdkl_State *L, int objindex) {
+SDKL_API int sdkl_setmetatable (sdkl_State *L, int objindex) {
   TValue *obj;
   Table *mt;
   sdkl_lock(L);
@@ -937,7 +937,7 @@ LUA_API int sdkl_setmetatable (sdkl_State *L, int objindex) {
     mt = hvalue(s2v(L->top - 1));
   }
   switch (ttype(obj)) {
-    case LUA_TTABLE: {
+    case SDKL_TTABLE: {
       hvalue(obj)->metatable = mt;
       if (mt) {
         sdklC_objbarrier(L, gcvalue(obj), mt);
@@ -945,7 +945,7 @@ LUA_API int sdkl_setmetatable (sdkl_State *L, int objindex) {
       }
       break;
     }
-    case LUA_TUSERDATA: {
+    case SDKL_TUSERDATA: {
       uvalue(obj)->metatable = mt;
       if (mt) {
         sdklC_objbarrier(L, uvalue(obj), mt);
@@ -964,7 +964,7 @@ LUA_API int sdkl_setmetatable (sdkl_State *L, int objindex) {
 }
 
 
-LUA_API int sdkl_setiuservalue (sdkl_State *L, int idx, int n) {
+SDKL_API int sdkl_setiuservalue (sdkl_State *L, int idx, int n) {
   TValue *o;
   int res;
   sdkl_lock(L);
@@ -990,18 +990,18 @@ LUA_API int sdkl_setiuservalue (sdkl_State *L, int idx, int n) {
 
 
 #define checkresults(L,na,nr) \
-     api_check(L, (nr) == LUA_MULTRET || (L->ci->top - L->top >= (nr) - (na)), \
+     api_check(L, (nr) == SDKL_MULTRET || (L->ci->top - L->top >= (nr) - (na)), \
 	"results from function overflow current stack size")
 
 
-LUA_API void sdkl_callk (sdkl_State *L, int nargs, int nresults,
+SDKL_API void sdkl_callk (sdkl_State *L, int nargs, int nresults,
                         sdkl_KContext ctx, sdkl_KFunction k) {
   StkId func;
   sdkl_lock(L);
   api_check(L, k == NULL || !isSDKL(L->ci),
     "cannot use continuations inside hooks");
   api_checknelems(L, nargs+1);
-  api_check(L, L->status == LUA_OK, "cannot do calls on non-normal thread");
+  api_check(L, L->status == SDKL_OK, "cannot do calls on non-normal thread");
   checkresults(L, nargs, nresults);
   func = L->top - (nargs+1);
   if (k != NULL && yieldable(L)) {  /* need to prepare continuation? */
@@ -1033,7 +1033,7 @@ static void f_call (sdkl_State *L, void *ud) {
 
 
 
-LUA_API int sdkl_pcallk (sdkl_State *L, int nargs, int nresults, int errfunc,
+SDKL_API int sdkl_pcallk (sdkl_State *L, int nargs, int nresults, int errfunc,
                         sdkl_KContext ctx, sdkl_KFunction k) {
   struct CallS c;
   int status;
@@ -1042,7 +1042,7 @@ LUA_API int sdkl_pcallk (sdkl_State *L, int nargs, int nresults, int errfunc,
   api_check(L, k == NULL || !isSDKL(L->ci),
     "cannot use continuations inside hooks");
   api_checknelems(L, nargs+1);
-  api_check(L, L->status == LUA_OK, "cannot do calls on non-normal thread");
+  api_check(L, L->status == SDKL_OK, "cannot do calls on non-normal thread");
   checkresults(L, nargs, nresults);
   if (errfunc == 0)
     func = 0;
@@ -1069,7 +1069,7 @@ LUA_API int sdkl_pcallk (sdkl_State *L, int nargs, int nresults, int errfunc,
     sdklD_call(L, c.func, nresults);  /* do the call */
     ci->callstatus &= ~CIST_YPCALL;
     L->errfunc = ci->u.c.old_errfunc;
-    status = LUA_OK;  /* if it is here, there were no errors */
+    status = SDKL_OK;  /* if it is here, there were no errors */
   }
   adjustresults(L, nresults);
   sdkl_unlock(L);
@@ -1077,7 +1077,7 @@ LUA_API int sdkl_pcallk (sdkl_State *L, int nargs, int nresults, int errfunc,
 }
 
 
-LUA_API int sdkl_load (sdkl_State *L, sdkl_Reader reader, void *data,
+SDKL_API int sdkl_load (sdkl_State *L, sdkl_Reader reader, void *data,
                       const char *chunkname, const char *mode) {
   ZIO z;
   int status;
@@ -1085,12 +1085,12 @@ LUA_API int sdkl_load (sdkl_State *L, sdkl_Reader reader, void *data,
   if (!chunkname) chunkname = "?";
   sdklZ_init(L, &z, reader, data);
   status = sdklD_protectedparser(L, &z, chunkname, mode);
-  if (status == LUA_OK) {  /* no errors? */
+  if (status == SDKL_OK) {  /* no errors? */
     LClosure *f = clLvalue(s2v(L->top - 1));  /* get newly created function */
     if (f->nupvalues >= 1) {  /* does it have an upvalue? */
       /* get global table from registry */
       const TValue *gt = getGtable(L);
-      /* set global table as 1st upvalue of 'f' (may be LUA_ENV) */
+      /* set global table as 1st upvalue of 'f' (may be SDKL_ENV) */
       setobj(L, f->upvals[0]->v, gt);
       sdklC_barrier(L, f->upvals[0], gt);
     }
@@ -1100,7 +1100,7 @@ LUA_API int sdkl_load (sdkl_State *L, sdkl_Reader reader, void *data,
 }
 
 
-LUA_API int sdkl_dump (sdkl_State *L, sdkl_Writer writer, void *data, int strip) {
+SDKL_API int sdkl_dump (sdkl_State *L, sdkl_Writer writer, void *data, int strip) {
   int status;
   TValue *o;
   sdkl_lock(L);
@@ -1115,7 +1115,7 @@ LUA_API int sdkl_dump (sdkl_State *L, sdkl_Writer writer, void *data, int strip)
 }
 
 
-LUA_API int sdkl_status (sdkl_State *L) {
+SDKL_API int sdkl_status (sdkl_State *L) {
   return L->status;
 }
 
@@ -1123,7 +1123,7 @@ LUA_API int sdkl_status (sdkl_State *L) {
 /*
 ** Garbage-collection function
 */
-LUA_API int sdkl_gc (sdkl_State *L, int what, ...) {
+SDKL_API int sdkl_gc (sdkl_State *L, int what, ...) {
   va_list argp;
   int res = 0;
   global_State *g;
@@ -1131,29 +1131,29 @@ LUA_API int sdkl_gc (sdkl_State *L, int what, ...) {
   g = G(L);
   va_start(argp, what);
   switch (what) {
-    case LUA_GCSTOP: {
+    case SDKL_GCSTOP: {
       g->gcrunning = 0;
       break;
     }
-    case LUA_GCRESTART: {
+    case SDKL_GCRESTART: {
       sdklE_setdebt(g, 0);
       g->gcrunning = 1;
       break;
     }
-    case LUA_GCCOLLECT: {
+    case SDKL_GCCOLLECT: {
       sdklC_fullgc(L, 0);
       break;
     }
-    case LUA_GCCOUNT: {
+    case SDKL_GCCOUNT: {
       /* GC values are expressed in Kbytes: #bytes/2^10 */
       res = cast_int(gettotalbytes(g) >> 10);
       break;
     }
-    case LUA_GCCOUNTB: {
+    case SDKL_GCCOUNTB: {
       res = cast_int(gettotalbytes(g) & 0x3ff);
       break;
     }
-    case LUA_GCSTEP: {
+    case SDKL_GCSTEP: {
       int data = va_arg(argp, int);
       l_mem debt = 1;  /* =1 to signal that it did an actual step */
       lu_byte oldrunning = g->gcrunning;
@@ -1172,26 +1172,26 @@ LUA_API int sdkl_gc (sdkl_State *L, int what, ...) {
         res = 1;  /* signal it */
       break;
     }
-    case LUA_GCSETPAUSE: {
+    case SDKL_GCSETPAUSE: {
       int data = va_arg(argp, int);
       res = getgcparam(g->gcpause);
       setgcparam(g->gcpause, data);
       break;
     }
-    case LUA_GCSETSTEPMUL: {
+    case SDKL_GCSETSTEPMUL: {
       int data = va_arg(argp, int);
       res = getgcparam(g->gcstepmul);
       setgcparam(g->gcstepmul, data);
       break;
     }
-    case LUA_GCISRUNNING: {
+    case SDKL_GCISRUNNING: {
       res = g->gcrunning;
       break;
     }
-    case LUA_GCGEN: {
+    case SDKL_GCGEN: {
       int minormul = va_arg(argp, int);
       int majormul = va_arg(argp, int);
-      res = isdecGCmodegen(g) ? LUA_GCGEN : LUA_GCINC;
+      res = isdecGCmodegen(g) ? SDKL_GCGEN : SDKL_GCINC;
       if (minormul != 0)
         g->genminormul = minormul;
       if (majormul != 0)
@@ -1199,11 +1199,11 @@ LUA_API int sdkl_gc (sdkl_State *L, int what, ...) {
       sdklC_changemode(L, KGC_GEN);
       break;
     }
-    case LUA_GCINC: {
+    case SDKL_GCINC: {
       int pause = va_arg(argp, int);
       int stepmul = va_arg(argp, int);
       int stepsize = va_arg(argp, int);
-      res = isdecGCmodegen(g) ? LUA_GCGEN : LUA_GCINC;
+      res = isdecGCmodegen(g) ? SDKL_GCGEN : SDKL_GCINC;
       if (pause != 0)
         setgcparam(g->gcpause, pause);
       if (stepmul != 0)
@@ -1227,7 +1227,7 @@ LUA_API int sdkl_gc (sdkl_State *L, int what, ...) {
 */
 
 
-LUA_API int sdkl_error (sdkl_State *L) {
+SDKL_API int sdkl_error (sdkl_State *L) {
   TValue *errobj;
   sdkl_lock(L);
   errobj = s2v(L->top - 1);
@@ -1242,7 +1242,7 @@ LUA_API int sdkl_error (sdkl_State *L) {
 }
 
 
-LUA_API int sdkl_next (sdkl_State *L, int idx) {
+SDKL_API int sdkl_next (sdkl_State *L, int idx) {
   Table *t;
   int more;
   sdkl_lock(L);
@@ -1259,7 +1259,7 @@ LUA_API int sdkl_next (sdkl_State *L, int idx) {
 }
 
 
-LUA_API void sdkl_toclose (sdkl_State *L, int idx) {
+SDKL_API void sdkl_toclose (sdkl_State *L, int idx) {
   int nresults;
   StkId o;
   sdkl_lock(L);
@@ -1274,7 +1274,7 @@ LUA_API void sdkl_toclose (sdkl_State *L, int idx) {
 }
 
 
-LUA_API void sdkl_concat (sdkl_State *L, int n) {
+SDKL_API void sdkl_concat (sdkl_State *L, int n) {
   sdkl_lock(L);
   api_checknelems(L, n);
   if (n > 0)
@@ -1288,7 +1288,7 @@ LUA_API void sdkl_concat (sdkl_State *L, int n) {
 }
 
 
-LUA_API void sdkl_len (sdkl_State *L, int idx) {
+SDKL_API void sdkl_len (sdkl_State *L, int idx) {
   TValue *t;
   sdkl_lock(L);
   t = index2value(L, idx);
@@ -1298,7 +1298,7 @@ LUA_API void sdkl_len (sdkl_State *L, int idx) {
 }
 
 
-LUA_API sdkl_Alloc sdkl_getallocf (sdkl_State *L, void **ud) {
+SDKL_API sdkl_Alloc sdkl_getallocf (sdkl_State *L, void **ud) {
   sdkl_Alloc f;
   sdkl_lock(L);
   if (ud) *ud = G(L)->ud;
@@ -1308,7 +1308,7 @@ LUA_API sdkl_Alloc sdkl_getallocf (sdkl_State *L, void **ud) {
 }
 
 
-LUA_API void sdkl_setallocf (sdkl_State *L, sdkl_Alloc f, void *ud) {
+SDKL_API void sdkl_setallocf (sdkl_State *L, sdkl_Alloc f, void *ud) {
   sdkl_lock(L);
   G(L)->ud = ud;
   G(L)->frealloc = f;
@@ -1332,7 +1332,7 @@ void sdkl_warning (sdkl_State *L, const char *msg, int tocont) {
 
 
 
-LUA_API void *sdkl_newuserdatauv (sdkl_State *L, size_t size, int nuvalue) {
+SDKL_API void *sdkl_newuserdatauv (sdkl_State *L, size_t size, int nuvalue) {
   Udata *u;
   sdkl_lock(L);
   api_check(L, 0 <= nuvalue && nuvalue < USHRT_MAX, "invalid value");
@@ -1349,7 +1349,7 @@ LUA_API void *sdkl_newuserdatauv (sdkl_State *L, size_t size, int nuvalue) {
 static const char *aux_upvalue (TValue *fi, int n, TValue **val,
                                 GCObject **owner) {
   switch (ttypetag(fi)) {
-    case LUA_VCCL: {  /* C closure */
+    case SDKL_VCCL: {  /* C closure */
       CClosure *f = clCvalue(fi);
       if (!(cast_uint(n) - 1u < cast_uint(f->nupvalues)))
         return NULL;  /* 'n' not in [1, f->nupvalues] */
@@ -1357,7 +1357,7 @@ static const char *aux_upvalue (TValue *fi, int n, TValue **val,
       if (owner) *owner = obj2gco(f);
       return "";
     }
-    case LUA_VLCL: {  /* SDKL closure */
+    case SDKL_VLCL: {  /* SDKL closure */
       LClosure *f = clLvalue(fi);
       TString *name;
       Proto *p = f->p;
@@ -1373,7 +1373,7 @@ static const char *aux_upvalue (TValue *fi, int n, TValue **val,
 }
 
 
-LUA_API const char *sdkl_getupvalue (sdkl_State *L, int funcindex, int n) {
+SDKL_API const char *sdkl_getupvalue (sdkl_State *L, int funcindex, int n) {
   const char *name;
   TValue *val = NULL;  /* to avoid warnings */
   sdkl_lock(L);
@@ -1387,7 +1387,7 @@ LUA_API const char *sdkl_getupvalue (sdkl_State *L, int funcindex, int n) {
 }
 
 
-LUA_API const char *sdkl_setupvalue (sdkl_State *L, int funcindex, int n) {
+SDKL_API const char *sdkl_setupvalue (sdkl_State *L, int funcindex, int n) {
   const char *name;
   TValue *val = NULL;  /* to avoid warnings */
   GCObject *owner = NULL;  /* to avoid warnings */
@@ -1420,19 +1420,19 @@ static UpVal **getupvalref (sdkl_State *L, int fidx, int n, LClosure **pf) {
 }
 
 
-LUA_API void *sdkl_upvalueid (sdkl_State *L, int fidx, int n) {
+SDKL_API void *sdkl_upvalueid (sdkl_State *L, int fidx, int n) {
   TValue *fi = index2value(L, fidx);
   switch (ttypetag(fi)) {
-    case LUA_VLCL: {  /* sdkl closure */
+    case SDKL_VLCL: {  /* sdkl closure */
       return *getupvalref(L, fidx, n, NULL);
     }
-    case LUA_VCCL: {  /* C closure */
+    case SDKL_VCCL: {  /* C closure */
       CClosure *f = clCvalue(fi);
       if (1 <= n && n <= f->nupvalues)
         return &f->upvalue[n - 1];
       /* else */
     }  /* FALLTHROUGH */
-    case LUA_VLCF:
+    case SDKL_VLCF:
       return NULL;  /* light C functions have no upvalues */
     default: {
       api_check(L, 0, "function expected");
@@ -1442,7 +1442,7 @@ LUA_API void *sdkl_upvalueid (sdkl_State *L, int fidx, int n) {
 }
 
 
-LUA_API void sdkl_upvaluejoin (sdkl_State *L, int fidx1, int n1,
+SDKL_API void sdkl_upvaluejoin (sdkl_State *L, int fidx1, int n1,
                                             int fidx2, int n2) {
   LClosure *f1;
   UpVal **up1 = getupvalref(L, fidx1, n1, &f1);

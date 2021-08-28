@@ -5,7 +5,7 @@
 */
 
 #define ldblib_c
-#define LUA_LIB
+#define SDKL_LIB
 
 #include "lprefix.h"
 
@@ -39,7 +39,7 @@ static void checkstack (sdkl_State *L, sdkl_State *L1, int n) {
 
 
 static int db_getregistry (sdkl_State *L) {
-  sdkl_pushvalue(L, LUA_REGISTRYINDEX);
+  sdkl_pushvalue(L, SDKL_REGISTRYINDEX);
   return 1;
 }
 
@@ -55,7 +55,7 @@ static int db_getmetatable (sdkl_State *L) {
 
 static int db_setmetatable (sdkl_State *L) {
   int t = sdkl_type(L, 2);
-  sdklL_argexpected(L, t == LUA_TNIL || t == LUA_TTABLE, 2, "nil or table");
+  sdklL_argexpected(L, t == SDKL_TNIL || t == SDKL_TTABLE, 2, "nil or table");
   sdkl_settop(L, 2);
   sdkl_setmetatable(L, 1);
   return 1;  /* return 1st argument */
@@ -64,9 +64,9 @@ static int db_setmetatable (sdkl_State *L) {
 
 static int db_getuservalue (sdkl_State *L) {
   int n = (int)sdklL_optinteger(L, 2, 1);
-  if (sdkl_type(L, 1) != LUA_TUSERDATA)
+  if (sdkl_type(L, 1) != SDKL_TUSERDATA)
     sdklL_pushfail(L);
-  else if (sdkl_getiuservalue(L, 1, n) != LUA_TNONE) {
+  else if (sdkl_getiuservalue(L, 1, n) != SDKL_TNONE) {
     sdkl_pushboolean(L, 1);
     return 2;
   }
@@ -76,7 +76,7 @@ static int db_getuservalue (sdkl_State *L) {
 
 static int db_setuservalue (sdkl_State *L) {
   int n = (int)sdklL_optinteger(L, 3, 1);
-  sdklL_checktype(L, 1, LUA_TUSERDATA);
+  sdklL_checktype(L, 1, SDKL_TUSERDATA);
   sdklL_checkany(L, 2);
   sdkl_settop(L, 2);
   if (!sdkl_setiuservalue(L, 1, n))
@@ -258,7 +258,7 @@ static int db_setlocal (sdkl_State *L) {
 static int auxupvalue (sdkl_State *L, int get) {
   const char *name;
   int n = (int)sdklL_checkinteger(L, 2);  /* upvalue index */
-  sdklL_checktype(L, 1, LUA_TFUNCTION);  /* closure */
+  sdklL_checktype(L, 1, SDKL_TFUNCTION);  /* closure */
   name = get ? sdkl_getupvalue(L, 1, n) : sdkl_setupvalue(L, 1, n);
   if (name == NULL) return 0;
   sdkl_pushstring(L, name);
@@ -285,7 +285,7 @@ static int db_setupvalue (sdkl_State *L) {
 static void *checkupval (sdkl_State *L, int argf, int argnup, int *pnup) {
   void *id;
   int nup = (int)sdklL_checkinteger(L, argnup);  /* upvalue index */
-  sdklL_checktype(L, argf, LUA_TFUNCTION);  /* closure */
+  sdklL_checktype(L, argf, SDKL_TFUNCTION);  /* closure */
   id = sdkl_upvalueid(L, argf, nup);
   if (pnup) {
     sdklL_argcheck(L, id != NULL, argnup, "invalid upvalue index");
@@ -323,9 +323,9 @@ static int db_upvaluejoin (sdkl_State *L) {
 static void hookf (sdkl_State *L, sdkl_Debug *ar) {
   static const char *const hooknames[] =
     {"call", "return", "line", "count", "tail call"};
-  sdkl_getfield(L, LUA_REGISTRYINDEX, HOOKKEY);
+  sdkl_getfield(L, SDKL_REGISTRYINDEX, HOOKKEY);
   sdkl_pushthread(L);
-  if (sdkl_rawget(L, -2) == LUA_TFUNCTION) {  /* is there a hook function? */
+  if (sdkl_rawget(L, -2) == SDKL_TFUNCTION) {  /* is there a hook function? */
     sdkl_pushstring(L, hooknames[(int)ar->event]);  /* push event name */
     if (ar->currentline >= 0)
       sdkl_pushinteger(L, ar->currentline);  /* push current line */
@@ -341,10 +341,10 @@ static void hookf (sdkl_State *L, sdkl_Debug *ar) {
 */
 static int makemask (const char *smask, int count) {
   int mask = 0;
-  if (strchr(smask, 'c')) mask |= LUA_MASKCALL;
-  if (strchr(smask, 'r')) mask |= LUA_MASKRET;
-  if (strchr(smask, 'l')) mask |= LUA_MASKLINE;
-  if (count > 0) mask |= LUA_MASKCOUNT;
+  if (strchr(smask, 'c')) mask |= SDKL_MASKCALL;
+  if (strchr(smask, 'r')) mask |= SDKL_MASKRET;
+  if (strchr(smask, 'l')) mask |= SDKL_MASKLINE;
+  if (count > 0) mask |= SDKL_MASKCOUNT;
   return mask;
 }
 
@@ -354,9 +354,9 @@ static int makemask (const char *smask, int count) {
 */
 static char *unmakemask (int mask, char *smask) {
   int i = 0;
-  if (mask & LUA_MASKCALL) smask[i++] = 'c';
-  if (mask & LUA_MASKRET) smask[i++] = 'r';
-  if (mask & LUA_MASKLINE) smask[i++] = 'l';
+  if (mask & SDKL_MASKCALL) smask[i++] = 'c';
+  if (mask & SDKL_MASKRET) smask[i++] = 'r';
+  if (mask & SDKL_MASKLINE) smask[i++] = 'l';
   smask[i] = '\0';
   return smask;
 }
@@ -372,11 +372,11 @@ static int db_sethook (sdkl_State *L) {
   }
   else {
     const char *smask = sdklL_checkstring(L, arg+2);
-    sdklL_checktype(L, arg+1, LUA_TFUNCTION);
+    sdklL_checktype(L, arg+1, SDKL_TFUNCTION);
     count = (int)sdklL_optinteger(L, arg + 3, 0);
     func = hookf; mask = makemask(smask, count);
   }
-  if (!sdklL_getsubtable(L, LUA_REGISTRYINDEX, HOOKKEY)) {
+  if (!sdklL_getsubtable(L, SDKL_REGISTRYINDEX, HOOKKEY)) {
     /* table just created; initialize it */
     sdkl_pushliteral(L, "k");
     sdkl_setfield(L, -2, "__mode");  /** hooktable.__mode = "k" */
@@ -405,7 +405,7 @@ static int db_gethook (sdkl_State *L) {
   else if (hook != hookf)  /* external hook? */
     sdkl_pushliteral(L, "external hook");
   else {  /* hook table must exist */
-    sdkl_getfield(L, LUA_REGISTRYINDEX, HOOKKEY);
+    sdkl_getfield(L, SDKL_REGISTRYINDEX, HOOKKEY);
     checkstack(L, L1, 1);
     sdkl_pushthread(L1); sdkl_xmove(L1, L, 1);
     sdkl_rawget(L, -2);   /* 1st result = hooktable[L1] */
@@ -476,7 +476,7 @@ static const sdklL_Reg dblib[] = {
 };
 
 
-LUAMOD_API int sdklopen_debug (sdkl_State *L) {
+SDKLMOD_API int sdklopen_debug (sdkl_State *L) {
   sdklL_newlib(L, dblib);
   return 1;
 }

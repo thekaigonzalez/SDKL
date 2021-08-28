@@ -44,9 +44,9 @@ typedef struct Mbuffer {
 #define sdklZ_freebuffer(L, buff)	sdklZ_resizebuffer(L, buff, 0)
 
 
-LUAI_FUNC void sdklZ_init (sdkl_State *L, ZIO *z, sdkl_Reader reader,
+SDKLI_FUNC void sdklZ_init (sdkl_State *L, ZIO *z, sdkl_Reader reader,
                                         void *data);
-LUAI_FUNC size_t sdklZ_read (ZIO* z, void *b, size_t n);	/* read next n bytes */
+SDKLI_FUNC size_t sdklZ_read (ZIO* z, void *b, size_t n);	/* read next n bytes */
 
 
 
@@ -61,6 +61,6 @@ struct Zio {
 };
 
 
-LUAI_FUNC int sdklZ_fill (ZIO *z);
+SDKLI_FUNC int sdklZ_fill (ZIO *z);
 
 #endif

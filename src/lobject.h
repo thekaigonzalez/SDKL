@@ -19,21 +19,21 @@
 /*
 ** Extra types for collectable non-values
 */
-#define LUA_TUPVAL	LUA_NUMTYPES  /* upvalues */
-#define LUA_TPROTO	(LUA_NUMTYPES+1)  /* function prototypes */
-#define LUA_TDEADKEY	(LUA_NUMTYPES+2)  /* removed keys in tables */
+#define SDKL_TUPVAL	SDKL_NUMTYPES  /* upvalues */
+#define SDKL_TPROTO	(SDKL_NUMTYPES+1)  /* function prototypes */
+#define SDKL_TDEADKEY	(SDKL_NUMTYPES+2)  /* removed keys in tables */
 
 
 
 /*
-** number of all possible types (including LUA_TNONE but excluding DEADKEY)
+** number of all possible types (including SDKL_TNONE but excluding DEADKEY)
 */
-#define LUA_TOTALTYPES		(LUA_TPROTO + 2)
+#define SDKL_TOTALTYPES		(SDKL_TPROTO + 2)
 
 
 /*
 ** tags for Tagged Values have the following use of bits:
-** bits 0-3: actual tag (a LUA_T* constant)
+** bits 0-3: actual tag (a SDKL_T* constant)
 ** bits 4-5: variant bits
 ** bit 6: whether value is collectable
 */
@@ -167,27 +167,27 @@ typedef StackValue *StkId;
 */
 
 /* Standard nil */
-#define LUA_VNIL	makevariant(LUA_TNIL, 0)
+#define SDKL_VNIL	makevariant(SDKL_TNIL, 0)
 
 /* Empty slot (which might be different from a slot containing nil) */
-#define LUA_VEMPTY	makevariant(LUA_TNIL, 1)
+#define SDKL_VEMPTY	makevariant(SDKL_TNIL, 1)
 
 /* Value returned for a key not found in a table (absent key) */
-#define LUA_VABSTKEY	makevariant(LUA_TNIL, 2)
+#define SDKL_VABSTKEY	makevariant(SDKL_TNIL, 2)
 
 
 /* macro to test for (any kind of) nil */
-#define ttisnil(v)		checktype((v), LUA_TNIL)
+#define ttisnil(v)		checktype((v), SDKL_TNIL)
 
 
 /* macro to test for a standard nil */
-#define ttisstrictnil(o)	checktag((o), LUA_VNIL)
+#define ttisstrictnil(o)	checktag((o), SDKL_VNIL)
 
 
-#define setnilvalue(obj) settt_(obj, LUA_VNIL)
+#define setnilvalue(obj) settt_(obj, SDKL_VNIL)
 
 
-#define isabstkey(v)		checktag((v), LUA_VABSTKEY)
+#define isabstkey(v)		checktag((v), SDKL_VABSTKEY)
 
 
 /*
@@ -205,11 +205,11 @@ typedef StackValue *StkId;
 
 
 /* macro defining a value corresponding to an absent key */
-#define ABSTKEYCONSTANT		{NULL}, LUA_VABSTKEY
+#define ABSTKEYCONSTANT		{NULL}, SDKL_VABSTKEY
 
 
 /* mark an entry as empty */
-#define setempty(v)		settt_(v, LUA_VEMPTY)
+#define setempty(v)		settt_(v, SDKL_VEMPTY)
 
 
 
@@ -223,19 +223,19 @@ typedef StackValue *StkId;
 */
 
 
-#define LUA_VFALSE	makevariant(LUA_TBOOLEAN, 0)
-#define LUA_VTRUE	makevariant(LUA_TBOOLEAN, 1)
+#define SDKL_VFALSE	makevariant(SDKL_TBOOLEAN, 0)
+#define SDKL_VTRUE	makevariant(SDKL_TBOOLEAN, 1)
 
-#define ttisboolean(o)		checktype((o), LUA_TBOOLEAN)
-#define ttisfalse(o)		checktag((o), LUA_VFALSE)
-#define ttistrue(o)		checktag((o), LUA_VTRUE)
+#define ttisboolean(o)		checktype((o), SDKL_TBOOLEAN)
+#define ttisfalse(o)		checktag((o), SDKL_VFALSE)
+#define ttistrue(o)		checktag((o), SDKL_VTRUE)
 
 
 #define l_isfalse(o)	(ttisfalse(o) || ttisnil(o))
 
 
-#define setbfvalue(obj)		settt_(obj, LUA_VFALSE)
-#define setbtvalue(obj)		settt_(obj, LUA_VTRUE)
+#define setbfvalue(obj)		settt_(obj, SDKL_VFALSE)
+#define setbtvalue(obj)		settt_(obj, SDKL_VTRUE)
 
 /* }================================================================== */
 
@@ -246,15 +246,15 @@ typedef StackValue *StkId;
 ** ===================================================================
 */
 
-#define LUA_VTHREAD		makevariant(LUA_TTHREAD, 0)
+#define SDKL_VTHREAD		makevariant(SDKL_TTHREAD, 0)
 
-#define ttisthread(o)		checktag((o), ctb(LUA_VTHREAD))
+#define ttisthread(o)		checktag((o), ctb(SDKL_VTHREAD))
 
 #define thvalue(o)	check_exp(ttisthread(o), gco2th(val_(o).gc))
 
 #define setthvalue(L,obj,x) \
   { TValue *io = (obj); sdkl_State *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(LUA_VTHREAD)); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(SDKL_VTHREAD)); \
     checkliveness(L,io); }
 
 #define setthvalue2s(L,o,t)	setthvalue(L,s2v(o),t)
@@ -307,12 +307,12 @@ typedef struct GCObject {
 */
 
 /* Variant tags for numbers */
-#define LUA_VNUMINT	makevariant(LUA_TNUMBER, 0)  /* integer numbers */
-#define LUA_VNUMFLT	makevariant(LUA_TNUMBER, 1)  /* float numbers */
+#define SDKL_VNUMINT	makevariant(SDKL_TNUMBER, 0)  /* integer numbers */
+#define SDKL_VNUMFLT	makevariant(SDKL_TNUMBER, 1)  /* float numbers */
 
-#define ttisnumber(o)		checktype((o), LUA_TNUMBER)
-#define ttisfloat(o)		checktag((o), LUA_VNUMFLT)
-#define ttisinteger(o)		checktag((o), LUA_VNUMINT)
+#define ttisnumber(o)		checktype((o), SDKL_TNUMBER)
+#define ttisfloat(o)		checktag((o), SDKL_VNUMFLT)
+#define ttisinteger(o)		checktag((o), SDKL_VNUMINT)
 
 #define nvalue(o)	check_exp(ttisnumber(o), \
 	(ttisinteger(o) ? cast_num(ivalue(o)) : fltvalue(o)))
@@ -323,13 +323,13 @@ typedef struct GCObject {
 #define ivalueraw(v)	((v).i)
 
 #define setfltvalue(obj,x) \
-  { TValue *io=(obj); val_(io).n=(x); settt_(io, LUA_VNUMFLT); }
+  { TValue *io=(obj); val_(io).n=(x); settt_(io, SDKL_VNUMFLT); }
 
 #define chgfltvalue(obj,x) \
   { TValue *io=(obj); sdkl_assert(ttisfloat(io)); val_(io).n=(x); }
 
 #define setivalue(obj,x) \
-  { TValue *io=(obj); val_(io).i=(x); settt_(io, LUA_VNUMINT); }
+  { TValue *io=(obj); val_(io).i=(x); settt_(io, SDKL_VNUMINT); }
 
 #define chgivalue(obj,x) \
   { TValue *io=(obj); sdkl_assert(ttisinteger(io)); val_(io).i=(x); }
@@ -344,12 +344,12 @@ typedef struct GCObject {
 */
 
 /* Variant tags for strings */
-#define LUA_VSHRSTR	makevariant(LUA_TSTRING, 0)  /* short strings */
-#define LUA_VLNGSTR	makevariant(LUA_TSTRING, 1)  /* long strings */
+#define SDKL_VSHRSTR	makevariant(SDKL_TSTRING, 0)  /* short strings */
+#define SDKL_VLNGSTR	makevariant(SDKL_TSTRING, 1)  /* long strings */
 
-#define ttisstring(o)		checktype((o), LUA_TSTRING)
-#define ttisshrstring(o)	checktag((o), ctb(LUA_VSHRSTR))
-#define ttislngstring(o)	checktag((o), ctb(LUA_VLNGSTR))
+#define ttisstring(o)		checktype((o), SDKL_TSTRING)
+#define ttisshrstring(o)	checktag((o), ctb(SDKL_VSHRSTR))
+#define ttislngstring(o)	checktag((o), ctb(SDKL_VLNGSTR))
 
 #define tsvalueraw(v)	(gco2ts((v).gc))
 
@@ -394,7 +394,7 @@ typedef struct TString {
 #define svalue(o)       getstr(tsvalue(o))
 
 /* get string length from 'TString *s' */
-#define tsslen(s)	((s)->tt == LUA_VSHRSTR ? (s)->shrlen : (s)->u.lnglen)
+#define tsslen(s)	((s)->tt == SDKL_VSHRSTR ? (s)->shrlen : (s)->u.lnglen)
 
 /* get string length from 'TValue *o' */
 #define vslen(o)	tsslen(tsvalue(o))
@@ -413,12 +413,12 @@ typedef struct TString {
 ** Light userdata should be a variant of userdata, but for compatibility
 ** reasons they are also different types.
 */
-#define LUA_VLIGHTUSERDATA	makevariant(LUA_TLIGHTUSERDATA, 0)
+#define SDKL_VLIGHTUSERDATA	makevariant(SDKL_TLIGHTUSERDATA, 0)
 
-#define LUA_VUSERDATA		makevariant(LUA_TUSERDATA, 0)
+#define SDKL_VUSERDATA		makevariant(SDKL_TUSERDATA, 0)
 
-#define ttislightuserdata(o)	checktag((o), LUA_VLIGHTUSERDATA)
-#define ttisfulluserdata(o)	checktag((o), ctb(LUA_VUSERDATA))
+#define ttislightuserdata(o)	checktag((o), SDKL_VLIGHTUSERDATA)
+#define ttisfulluserdata(o)	checktag((o), ctb(SDKL_VUSERDATA))
 
 #define pvalue(o)	check_exp(ttislightuserdata(o), val_(o).p)
 #define uvalue(o)	check_exp(ttisfulluserdata(o), gco2u(val_(o).gc))
@@ -426,18 +426,18 @@ typedef struct TString {
 #define pvalueraw(v)	((v).p)
 
 #define setpvalue(obj,x) \
-  { TValue *io=(obj); val_(io).p=(x); settt_(io, LUA_VLIGHTUSERDATA); }
+  { TValue *io=(obj); val_(io).p=(x); settt_(io, SDKL_VLIGHTUSERDATA); }
 
 #define setuvalue(L,obj,x) \
   { TValue *io = (obj); Udata *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(LUA_VUSERDATA)); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(SDKL_VUSERDATA)); \
     checkliveness(L,io); }
 
 
 /* Ensures that addresses after this type are always fully aligned. */
 typedef union UValue {
   TValue uv;
-  LUAI_MAXALIGN;  /* ensures maximum alignment for udata bytes */
+  SDKLI_MAXALIGN;  /* ensures maximum alignment for udata bytes */
 } UValue;
 
 
@@ -469,7 +469,7 @@ typedef struct Udata0 {
   unsigned short nuvalue;  /* number of user values */
   size_t len;  /* number of bytes */
   struct Table *metatable;
-  union {LUAI_MAXALIGN;} bindata;
+  union {SDKLI_MAXALIGN;} bindata;
 } Udata0;
 
 
@@ -493,7 +493,7 @@ typedef struct Udata0 {
 ** ===================================================================
 */
 
-#define LUA_VPROTO	makevariant(LUA_TPROTO, 0)
+#define SDKL_VPROTO	makevariant(SDKL_TPROTO, 0)
 
 
 /*
@@ -570,18 +570,18 @@ typedef struct Proto {
 ** ===================================================================
 */
 
-#define LUA_VUPVAL	makevariant(LUA_TUPVAL, 0)
+#define SDKL_VUPVAL	makevariant(SDKL_TUPVAL, 0)
 
 
 /* Variant tags for functions */
-#define LUA_VLCL	makevariant(LUA_TFUNCTION, 0)  /* SDKL closure */
-#define LUA_VLCF	makevariant(LUA_TFUNCTION, 1)  /* light C function */
-#define LUA_VCCL	makevariant(LUA_TFUNCTION, 2)  /* C closure */
+#define SDKL_VLCL	makevariant(SDKL_TFUNCTION, 0)  /* SDKL closure */
+#define SDKL_VLCF	makevariant(SDKL_TFUNCTION, 1)  /* light C function */
+#define SDKL_VCCL	makevariant(SDKL_TFUNCTION, 2)  /* C closure */
 
-#define ttisfunction(o)		checktype(o, LUA_TFUNCTION)
-#define ttisLclosure(o)		checktag((o), ctb(LUA_VLCL))
-#define ttislcf(o)		checktag((o), LUA_VLCF)
-#define ttisCclosure(o)		checktag((o), ctb(LUA_VCCL))
+#define ttisfunction(o)		checktype(o, SDKL_TFUNCTION)
+#define ttisLclosure(o)		checktag((o), ctb(SDKL_VLCL))
+#define ttislcf(o)		checktag((o), SDKL_VLCF)
+#define ttisCclosure(o)		checktag((o), ctb(SDKL_VCCL))
 #define ttisclosure(o)         (ttisLclosure(o) || ttisCclosure(o))
 
 
@@ -596,17 +596,17 @@ typedef struct Proto {
 
 #define setclLvalue(L,obj,x) \
   { TValue *io = (obj); LClosure *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(LUA_VLCL)); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(SDKL_VLCL)); \
     checkliveness(L,io); }
 
 #define setclLvalue2s(L,o,cl)	setclLvalue(L,s2v(o),cl)
 
 #define setfvalue(obj,x) \
-  { TValue *io=(obj); val_(io).f=(x); settt_(io, LUA_VLCF); }
+  { TValue *io=(obj); val_(io).f=(x); settt_(io, SDKL_VLCF); }
 
 #define setclCvalue(L,obj,x) \
   { TValue *io = (obj); CClosure *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(LUA_VCCL)); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(SDKL_VCCL)); \
     checkliveness(L,io); }
 
 
@@ -662,15 +662,15 @@ typedef union Closure {
 ** ===================================================================
 */
 
-#define LUA_VTABLE	makevariant(LUA_TTABLE, 0)
+#define SDKL_VTABLE	makevariant(SDKL_TTABLE, 0)
 
-#define ttistable(o)		checktag((o), ctb(LUA_VTABLE))
+#define ttistable(o)		checktag((o), ctb(SDKL_VTABLE))
 
 #define hvalue(o)	check_exp(ttistable(o), gco2t(val_(o).gc))
 
 #define sethvalue(L,obj,x) \
   { TValue *io = (obj); Table *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(LUA_VTABLE)); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(SDKL_VTABLE)); \
     checkliveness(L,io); }
 
 #define sethvalue2s(L,o,h)	sethvalue(L,s2v(o),h)
@@ -740,13 +740,13 @@ typedef struct Table {
 #define keytt(node)		((node)->u.key_tt)
 #define keyval(node)		((node)->u.key_val)
 
-#define keyisnil(node)		(keytt(node) == LUA_TNIL)
-#define keyisinteger(node)	(keytt(node) == LUA_VNUMINT)
+#define keyisnil(node)		(keytt(node) == SDKL_TNIL)
+#define keyisinteger(node)	(keytt(node) == SDKL_VNUMINT)
 #define keyival(node)		(keyval(node).i)
-#define keyisshrstr(node)	(keytt(node) == ctb(LUA_VSHRSTR))
+#define keyisshrstr(node)	(keytt(node) == ctb(SDKL_VSHRSTR))
 #define keystrval(node)		(gco2ts(keyval(node).gc))
 
-#define setnilkey(node)		(keytt(node) = LUA_TNIL)
+#define setnilkey(node)		(keytt(node) = SDKL_TNIL)
 
 #define keyiscollectable(n)	(keytt(n) & BIT_ISCOLLECTABLE)
 
@@ -760,8 +760,8 @@ typedef struct Table {
 ** be found when searched in a special way. ('next' needs that to find
 ** keys removed from a table during a traversal.)
 */
-#define setdeadkey(node)	(keytt(node) = LUA_TDEADKEY)
-#define keyisdead(node)		(keytt(node) == LUA_TDEADKEY)
+#define setdeadkey(node)	(keytt(node) = SDKL_TDEADKEY)
+#define keyisdead(node)		(keytt(node) == SDKL_TDEADKEY)
 
 /* }================================================================== */
 
@@ -781,19 +781,19 @@ typedef struct Table {
 /* size of buffer for 'sdklO_utf8esc' function */
 #define UTF8BUFFSZ	8
 
-LUAI_FUNC int sdklO_utf8esc (char *buff, unsigned long x);
-LUAI_FUNC int sdklO_ceillog2 (unsigned int x);
-LUAI_FUNC int sdklO_rawarith (sdkl_State *L, int op, const TValue *p1,
+SDKLI_FUNC int sdklO_utf8esc (char *buff, unsigned long x);
+SDKLI_FUNC int sdklO_ceillog2 (unsigned int x);
+SDKLI_FUNC int sdklO_rawarith (sdkl_State *L, int op, const TValue *p1,
                              const TValue *p2, TValue *res);
-LUAI_FUNC void sdklO_arith (sdkl_State *L, int op, const TValue *p1,
+SDKLI_FUNC void sdklO_arith (sdkl_State *L, int op, const TValue *p1,
                            const TValue *p2, StkId res);
-LUAI_FUNC size_t sdklO_str2num (const char *s, TValue *o);
-LUAI_FUNC int sdklO_hexavalue (int c);
-LUAI_FUNC void sdklO_tostring (sdkl_State *L, TValue *obj);
-LUAI_FUNC const char *sdklO_pushvfstring (sdkl_State *L, const char *fmt,
+SDKLI_FUNC size_t sdklO_str2num (const char *s, TValue *o);
+SDKLI_FUNC int sdklO_hexavalue (int c);
+SDKLI_FUNC void sdklO_tostring (sdkl_State *L, TValue *obj);
+SDKLI_FUNC const char *sdklO_pushvfstring (sdkl_State *L, const char *fmt,
                                                        va_list argp);
-LUAI_FUNC const char *sdklO_pushfstring (sdkl_State *L, const char *fmt, ...);
-LUAI_FUNC void sdklO_chunkid (char *out, const char *source, size_t srclen);
+SDKLI_FUNC const char *sdklO_pushfstring (sdkl_State *L, const char *fmt, ...);
+SDKLI_FUNC void sdklO_chunkid (char *out, const char *source, size_t srclen);
 
 
 #endif

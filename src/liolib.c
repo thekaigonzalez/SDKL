@@ -5,7 +5,7 @@
 */
 
 #define liolib_c
-#define LUA_LIB
+#define SDKL_LIB
 #include "sextras.h"
 #include "lprefix.h"
 #ifdef SDKL_USE_EXTRAS
@@ -55,12 +55,12 @@ static int l_checkmode (const char *mode) {
 
 #if !defined(l_popen)		/* { */
 
-#if defined(LUA_USE_POSIX)	/* { */
+#if defined(SDKL_USE_POSIX)	/* { */
 
 #define l_popen(L,c,m)		(fflush(NULL), popen(c,m))
 #define l_pclose(L,file)	(pclose(file))
 
-#elif defined(LUA_USE_WINDOWS)	/* }{ */
+#elif defined(SDKL_USE_WINDOWS)	/* }{ */
 
 #define l_popen(L,c,m)		(_popen(c,m))
 #define l_pclose(L,file)	(_pclose(file))
@@ -95,7 +95,7 @@ static int l_checkmode (const char *mode) {
 
 #if !defined(l_getc)		/* { */
 
-#if defined(LUA_USE_POSIX)
+#if defined(SDKL_USE_POSIX)
 #define l_getc(f)		getc_unlocked(f)
 #define l_lockfile(f)		flockfile(f)
 #define l_unlockfile(f)		funlockfile(f)
@@ -116,7 +116,7 @@ static int l_checkmode (const char *mode) {
 
 #if !defined(l_fseek)		/* { */
 
-#if defined(LUA_USE_POSIX)	/* { */
+#if defined(SDKL_USE_POSIX)	/* { */
 
 #include <sys/types.h>
 
@@ -124,7 +124,7 @@ static int l_checkmode (const char *mode) {
 #define l_ftell(f)		ftello(f)
 #define l_seeknum		off_t
 
-#elif defined(LUA_USE_WINDOWS) && !defined(_CRTIMP_TYPEINFO) \
+#elif defined(SDKL_USE_WINDOWS) && !defined(_CRTIMP_TYPEINFO) \
    && defined(_MSC_VER) && (_MSC_VER >= 1400)	/* }{ */
 
 /* Windows (but not DDK) and Visual C++ 2005 or higher */
@@ -156,7 +156,7 @@ static int l_checkmode (const char *mode) {
 typedef sdklL_Stream LStream;
 
 
-#define tolstream(L)	((LStream *)sdklL_checkudata(L, 1, LUA_FILEHANDLE))
+#define tolstream(L)	((LStream *)sdklL_checkudata(L, 1, SDKL_FILEHANDLE))
 
 #define isclosed(p)	((p)->closef == NULL)
 
@@ -164,7 +164,7 @@ typedef sdklL_Stream LStream;
 static int io_type (sdkl_State *L) {
   LStream *p;
   sdklL_checkany(L, 1);
-  p = (LStream *)sdklL_testudata(L, 1, LUA_FILEHANDLE);
+  p = (LStream *)sdklL_testudata(L, 1, SDKL_FILEHANDLE);
   if (p == NULL)
     sdklL_pushfail(L);  /* not a file */
   else if (isclosed(p))
@@ -202,7 +202,7 @@ static FILE *tofile (sdkl_State *L) {
 static LStream *newprefile (sdkl_State *L) {
   LStream *p = (LStream *)sdkl_newuserdatauv(L, sizeof(LStream), 0);
   p->closef = NULL;  /* mark file handle as 'closed' */
-  sdklL_setmetatable(L, LUA_FILEHANDLE);
+  sdklL_setmetatable(L, SDKL_FILEHANDLE);
   return p;
 }
 
@@ -228,7 +228,7 @@ static int f_close (sdkl_State *L) {
 
 static int io_close (sdkl_State *L) {
   if (sdkl_isnone(L, 1))  /* no argument? */
-    sdkl_getfield(L, LUA_REGISTRYINDEX, IO_OUTPUT);  /* use default output */
+    sdkl_getfield(L, SDKL_REGISTRYINDEX, IO_OUTPUT);  /* use default output */
   return f_close(L);
 }
 
@@ -308,7 +308,7 @@ static int io_tmpfile (sdkl_State *L) {
 
 static FILE *getiofile (sdkl_State *L, const char *findex) {
   LStream *p;
-  sdkl_getfield(L, LUA_REGISTRYINDEX, findex);
+  sdkl_getfield(L, SDKL_REGISTRYINDEX, findex);
   p = (LStream *)sdkl_touserdata(L, -1);
   if (l_unlikely(isclosed(p)))
     sdklL_error(L, "default %s file is closed", findex + IOPREF_LEN);
@@ -325,10 +325,10 @@ static int g_iofile (sdkl_State *L, const char *f, const char *mode) {
       tofile(L);  /* check that it's a valid file handle */
       sdkl_pushvalue(L, 1);
     }
-    sdkl_setfield(L, LUA_REGISTRYINDEX, f);
+    sdkl_setfield(L, SDKL_REGISTRYINDEX, f);
   }
   /* return current value */
-  sdkl_getfield(L, LUA_REGISTRYINDEX, f);
+  sdkl_getfield(L, SDKL_REGISTRYINDEX, f);
   return 1;
 }
 
@@ -388,7 +388,7 @@ static int io_lines (sdkl_State *L) {
   int toclose;
   if (sdkl_isnone(L, 1)) sdkl_pushnil(L);  /* at least one argument */
   if (sdkl_isnil(L, 1)) {  /* no file name? */
-    sdkl_getfield(L, LUA_REGISTRYINDEX, IO_INPUT);  /* get default input */
+    sdkl_getfield(L, SDKL_REGISTRYINDEX, IO_INPUT);  /* get default input */
     sdkl_replace(L, 1);  /* put it at index 1 */
     tofile(L);  /* check that it's a valid file handle */
     toclose = 0;  /* do not close it after iteration */
@@ -526,7 +526,7 @@ static int read_line (sdkl_State *L, FILE *f, int chop) {
     char *buff = sdklL_prepbuffer(&b);  /* preallocate buffer space */
     int i = 0;
     l_lockfile(f);  /* no memory errors can happen inside the lock */
-    while (i < LUAL_BUFFERSIZE && (c = l_getc(f)) != EOF && c != '\n')
+    while (i < SDKLL_BUFFERSIZE && (c = l_getc(f)) != EOF && c != '\n')
       buff[i++] = c;  /* 
 read up to end of line or buffer limit */
     l_unlockfile(f);
@@ -544,11 +544,11 @@ static void read_all (sdkl_State *L, FILE *f) {
   size_t nr;
   sdklL_Buffer b;
   sdklL_buffinit(L, &b);
-  do {  /* read file in chunks of LUAL_BUFFERSIZE bytes */
+  do {  /* read file in chunks of SDKLL_BUFFERSIZE bytes */
     char *p = sdklL_prepbuffer(&b);
-    nr = fread(p, sizeof(char), LUAL_BUFFERSIZE, f);
+    nr = fread(p, sizeof(char), SDKLL_BUFFERSIZE, f);
     sdklL_addsize(&b, nr);
-  } while (nr == LUAL_BUFFERSIZE);
+  } while (nr == SDKLL_BUFFERSIZE);
   sdklL_pushresult(&b);  /* close buffer */
 }
 
@@ -576,10 +576,10 @@ static int g_read (sdkl_State *L, FILE *f, int first) {
   }
   else {
     /* ensure stack space for all results and for auxlib's buffer */
-    sdklL_checkstack(L, nargs+LUA_MINSTACK, "too many arguments");
+    sdklL_checkstack(L, nargs+SDKL_MINSTACK, "too many arguments");
     success = 1;
     for (n = first; nargs-- && success; n++) {
-      if (sdkl_type(L, n) == LUA_TNUMBER) {
+      if (sdkl_type(L, n) == SDKL_TNUMBER) {
         size_t l = (size_t)sdklL_checkinteger(L, n);
         success = (l == 0) ? test_eof(L, f) : read_chars(L, f, l);
       }
@@ -674,13 +674,13 @@ static int g_write (sdkl_State *L, FILE *f, int arg) {
   int nargs = sdkl_gettop(L) - arg;
   int status = 1;
   for (; nargs--; arg++) {
-    if (sdkl_type(L, arg) == LUA_TNUMBER) {
+    if (sdkl_type(L, arg) == SDKL_TNUMBER) {
       /* optimization: could be done exactly as for strings */
       int len = sdkl_isinteger(L, arg)
-                ? fprintf(f, LUA_INTEGER_FMT,
-                             (LUAI_UACINT)sdkl_tointeger(L, arg))
-                : fprintf(f, LUA_NUMBER_FMT,
-                             (LUAI_UACNUMBER)sdkl_tonumber(L, arg));
+                ? fprintf(f, SDKL_INTEGER_FMT,
+                             (SDKLI_UACINT)sdkl_tointeger(L, arg))
+                : fprintf(f, SDKL_NUMBER_FMT,
+                             (SDKLI_UACNUMBER)sdkl_tonumber(L, arg));
       status = status && (len > 0);
     }
     else {
@@ -731,7 +731,7 @@ static int f_setvbuf (sdkl_State *L) {
   static const char *const modenames[] = {"no", "full", "line", NULL};
   FILE *f = tofile(L);
   int op = sdklL_checkoption(L, 2, NULL, modenames);
-  sdkl_Integer sz = sdklL_optinteger(L, 3, LUAL_BUFFERSIZE);
+  sdkl_Integer sz = sdklL_optinteger(L, 3, SDKLL_BUFFERSIZE);
   int res = setvbuf(f, NULL, mode[op], (size_t)sz);
   return sdklL_fileresult(L, res == 0, NULL);
 }
@@ -799,7 +799,7 @@ static const sdklL_Reg metameth[] = {
 
 
 static void createmeta (sdkl_State *L) {
-  sdklL_newmetatable(L, LUA_FILEHANDLE);  /* metatable for file handles */
+  sdklL_newmetatable(L, SDKL_FILEHANDLE);  /* metatable for file handles */
   sdklL_setfuncs(L, metameth, 0);  /* add metamethods to new metatable */
   sdklL_newlibtable(L, meth);  /* create method table */
   sdklL_setfuncs(L, meth, 0);  /* add file methods to method table */
@@ -827,13 +827,13 @@ static void createstdfile (sdkl_State *L, FILE *f, const char *k,
   p->closef = &io_noclose;
   if (k != NULL) {
     sdkl_pushvalue(L, -1);
-    sdkl_setfield(L, LUA_REGISTRYINDEX, k);  /* add file to registry */
+    sdkl_setfield(L, SDKL_REGISTRYINDEX, k);  /* add file to registry */
   }
   sdkl_setfield(L, -2, fname);  /* add file to module */
 }
 
 
-LUAMOD_API int sdklopen_io (sdkl_State *L) {
+SDKLMOD_API int sdklopen_io (sdkl_State *L) {
   sdklL_newlib(L, iolib);  /* new module */
   createmeta(L);
   /* create (and set) default files */

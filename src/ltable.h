@@ -35,31 +35,31 @@
 #define nodefromval(v)	cast(Node *, (v))
 
 
-LUAI_FUNC const TValue *sdklH_getint (Table *t, sdkl_Integer key);
-LUAI_FUNC void sdklH_setint (sdkl_State *L, Table *t, sdkl_Integer key,
+SDKLI_FUNC const TValue *sdklH_getint (Table *t, sdkl_Integer key);
+SDKLI_FUNC void sdklH_setint (sdkl_State *L, Table *t, sdkl_Integer key,
                                                     TValue *value);
-LUAI_FUNC const TValue *sdklH_getshortstr (Table *t, TString *key);
-LUAI_FUNC const TValue *sdklH_getstr (Table *t, TString *key);
-LUAI_FUNC const TValue *sdklH_get (Table *t, const TValue *key);
-LUAI_FUNC void sdklH_newkey (sdkl_State *L, Table *t, const TValue *key,
+SDKLI_FUNC const TValue *sdklH_getshortstr (Table *t, TString *key);
+SDKLI_FUNC const TValue *sdklH_getstr (Table *t, TString *key);
+SDKLI_FUNC const TValue *sdklH_get (Table *t, const TValue *key);
+SDKLI_FUNC void sdklH_newkey (sdkl_State *L, Table *t, const TValue *key,
                                                     TValue *value);
-LUAI_FUNC void sdklH_set (sdkl_State *L, Table *t, const TValue *key,
+SDKLI_FUNC void sdklH_set (sdkl_State *L, Table *t, const TValue *key,
                                                  TValue *value);
-LUAI_FUNC void sdklH_finishset (sdkl_State *L, Table *t, const TValue *key,
+SDKLI_FUNC void sdklH_finishset (sdkl_State *L, Table *t, const TValue *key,
                                        const TValue *slot, TValue *value);
-LUAI_FUNC Table *sdklH_new (sdkl_State *L);
-LUAI_FUNC void sdklH_resize (sdkl_State *L, Table *t, unsigned int nasize,
+SDKLI_FUNC Table *sdklH_new (sdkl_State *L);
+SDKLI_FUNC void sdklH_resize (sdkl_State *L, Table *t, unsigned int nasize,
                                                     unsigned int nhsize);
-LUAI_FUNC void sdklH_resizearray (sdkl_State *L, Table *t, unsigned int nasize);
-LUAI_FUNC void sdklH_free (sdkl_State *L, Table *t);
-LUAI_FUNC int sdklH_next (sdkl_State *L, Table *t, StkId key);
-LUAI_FUNC sdkl_Unsigned sdklH_getn (Table *t);
-LUAI_FUNC unsigned int sdklH_realasize (const Table *t);
+SDKLI_FUNC void sdklH_resizearray (sdkl_State *L, Table *t, unsigned int nasize);
+SDKLI_FUNC void sdklH_free (sdkl_State *L, Table *t);
+SDKLI_FUNC int sdklH_next (sdkl_State *L, Table *t, StkId key);
+SDKLI_FUNC sdkl_Unsigned sdklH_getn (Table *t);
+SDKLI_FUNC unsigned int sdklH_realasize (const Table *t);
 
 
-#if defined(LUA_DEBUG)
-LUAI_FUNC Node *sdklH_mainposition (const Table *t, const TValue *key);
-LUAI_FUNC int sdklH_isdummy (const Table *t);
+#if defined(SDKL_DEBUG)
+SDKLI_FUNC Node *sdklH_mainposition (const Table *t, const TValue *key);
+SDKLI_FUNC int sdklH_isdummy (const Table *t);
 #endif
 
 

@@ -122,11 +122,11 @@
 
 
 /* Default Values for GC parameters */
-#define LUAI_GENMAJORMUL         100
-#define LUAI_GENMINORMUL         20
+#define SDKLI_GENMAJORMUL         100
+#define SDKLI_GENMINORMUL         20
 
 /* wait memory to double before starting new cycle */
-#define LUAI_GCPAUSE    200
+#define SDKLI_GCPAUSE    200
 
 /*
 ** some gc parameters are stored divided by 4 to allow a maximum value
@@ -135,10 +135,10 @@
 #define getgcparam(p)	((p) * 4)
 #define setgcparam(p,v)	((p) = (v) / 4)
 
-#define LUAI_GCMUL      100
+#define SDKLI_GCMUL      100
 
 /* how much to allocate before next GC step (log2) */
-#define LUAI_GCSTEPSIZE 13      /* 8 KB */
+#define SDKLI_GCSTEPSIZE 13      /* 8 KB */
 
 
 /*
@@ -174,16 +174,16 @@
 	(isblack(p) && iswhite(o)) ? \
 	sdklC_barrier_(L,obj2gco(p),obj2gco(o)) : cast_void(0))
 
-LUAI_FUNC void sdklC_fix (sdkl_State *L, GCObject *o);
-LUAI_FUNC void sdklC_freeallobjects (sdkl_State *L);
-LUAI_FUNC void sdklC_step (sdkl_State *L);
-LUAI_FUNC void sdklC_runtilstate (sdkl_State *L, int statesmask);
-LUAI_FUNC void sdklC_fullgc (sdkl_State *L, int isemergency);
-LUAI_FUNC GCObject *sdklC_newobj (sdkl_State *L, int tt, size_t sz);
-LUAI_FUNC void sdklC_barrier_ (sdkl_State *L, GCObject *o, GCObject *v);
-LUAI_FUNC void sdklC_barrierback_ (sdkl_State *L, GCObject *o);
-LUAI_FUNC void sdklC_checkfinalizer (sdkl_State *L, GCObject *o, Table *mt);
-LUAI_FUNC void sdklC_changemode (sdkl_State *L, int newmode);
+SDKLI_FUNC void sdklC_fix (sdkl_State *L, GCObject *o);
+SDKLI_FUNC void sdklC_freeallobjects (sdkl_State *L);
+SDKLI_FUNC void sdklC_step (sdkl_State *L);
+SDKLI_FUNC void sdklC_runtilstate (sdkl_State *L, int statesmask);
+SDKLI_FUNC void sdklC_fullgc (sdkl_State *L, int isemergency);
+SDKLI_FUNC GCObject *sdklC_newobj (sdkl_State *L, int tt, size_t sz);
+SDKLI_FUNC void sdklC_barrier_ (sdkl_State *L, GCObject *o, GCObject *v);
+SDKLI_FUNC void sdklC_barrierback_ (sdkl_State *L, GCObject *o);
+SDKLI_FUNC void sdklC_checkfinalizer (sdkl_State *L, GCObject *o, Table *mt);
+SDKLI_FUNC void sdklC_changemode (sdkl_State *L, int newmode);
 
 
 #endif

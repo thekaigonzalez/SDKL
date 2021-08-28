@@ -5,7 +5,7 @@
 */
 
 #define lcorolib_c
-#define LUA_LIB
+#define SDKL_LIB
 
 #include "lprefix.h"
 
@@ -37,7 +37,7 @@ static int auxresume (sdkl_State *L, sdkl_State *co, int narg) {
   }
   sdkl_xmove(L, co, narg);
   status = sdkl_resume(co, L, narg, &nres);
-  if (l_likely(status == LUA_OK || status == LUA_YIELD)) {
+  if (l_likely(status == SDKL_OK || status == SDKL_YIELD)) {
     if (l_unlikely(!sdkl_checkstack(L, nres + 1))) {
       sdkl_pop(co, nres);  /* remove results anyway */
       sdkl_pushliteral(L, "too many results to resume");
@@ -75,13 +75,13 @@ static int sdklB_auxwrap (sdkl_State *L) {
   int r = auxresume(L, co, sdkl_gettop(L));
   if (l_unlikely(r < 0)) {  /* error? */
     int stat = sdkl_status(co);
-    if (stat != LUA_OK && stat != LUA_YIELD) {  /* error in the coroutine? */
+    if (stat != SDKL_OK && stat != SDKL_YIELD) {  /* error in the coroutine? */
       stat = sdkl_resetthread(co);  /* close its tbc variables */
-      sdkl_assert(stat != LUA_OK);
+      sdkl_assert(stat != SDKL_OK);
       sdkl_xmove(co, L, 1);  /* copy error message */
     }
-    if (stat != LUA_ERRMEM &&  /* not a memory error and ... */
-        sdkl_type(L, -1) == LUA_TSTRING) {  /* ... error object is a string? */
+    if (stat != SDKL_ERRMEM &&  /* not a memory error and ... */
+        sdkl_type(L, -1) == SDKL_TSTRING) {  /* ... error object is a string? */
       sdklL_where(L, 1);  /* add extra info, if available */
       sdkl_insert(L, -2);
       sdkl_concat(L, 2);
@@ -94,7 +94,7 @@ static int sdklB_auxwrap (sdkl_State *L) {
 
 static int sdklB_cocreate (sdkl_State *L) {
   sdkl_State *NL;
-  sdklL_checktype(L, 1, LUA_TFUNCTION);
+  sdklL_checktype(L, 1, SDKL_TFUNCTION);
   NL = sdkl_newthread(L);
   sdkl_pushvalue(L, 1);  /* move function to top */
   sdkl_xmove(L, NL, 1);  /* move function from L to NL */
@@ -128,9 +128,9 @@ static int auxstatus (sdkl_State *L, sdkl_State *co) {
   if (L == co) return COS_RUN;
   else {
     switch (sdkl_status(co)) {
-      case LUA_YIELD:
+      case SDKL_YIELD:
         return COS_YIELD;
-      case LUA_OK: {
+      case SDKL_OK: {
         sdkl_Debug ar;
         if (sdkl_getstack(co, 0, &ar))  /* does it have frames? */
           return COS_NORM;  /* it is running */
@@ -173,7 +173,7 @@ static int sdklB_close (sdkl_State *L) {
   switch (status) {
     case COS_DEAD: case COS_YIELD: {
       status = sdkl_resetthread(co);
-      if (status == LUA_OK) {
+      if (status == SDKL_OK) {
         sdkl_pushboolean(L, 1);
         return 1;
       }
@@ -203,7 +203,7 @@ static const sdklL_Reg co_funcs[] = {
 
 
 
-LUAMOD_API int sdklopen_coroutine (sdkl_State *L) {
+SDKLMOD_API int sdklopen_coroutine (sdkl_State *L) {
   sdklL_newlib(L, co_funcs);
   return 1;
 }

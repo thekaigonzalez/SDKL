@@ -5,7 +5,7 @@
 */
 
 #define lmem_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 

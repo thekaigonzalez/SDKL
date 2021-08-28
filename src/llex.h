@@ -20,8 +20,8 @@
 #define FIRST_RESERVED	(UCHAR_MAX + 1)
 
 
-#if !defined(LUA_ENV)
-#define LUA_ENV		"_ENV"
+#if !defined(SDKL_ENV)
+#define SDKL_ENV		"_ENV"
 #endif
 
 
@@ -78,14 +78,14 @@ typedef struct LexState {
 } LexState;
 
 
-LUAI_FUNC void sdklX_init (sdkl_State *L);
-LUAI_FUNC void sdklX_setinput (sdkl_State *L, LexState *ls, ZIO *z,
+SDKLI_FUNC void sdklX_init (sdkl_State *L);
+SDKLI_FUNC void sdklX_setinput (sdkl_State *L, LexState *ls, ZIO *z,
                               TString *source, int firstchar);
-LUAI_FUNC TString *sdklX_newstring (LexState *ls, const char *str, size_t l);
-LUAI_FUNC void sdklX_next (LexState *ls);
-LUAI_FUNC int sdklX_lookahead (LexState *ls);
-LUAI_FUNC l_noret sdklX_syntaxerror (LexState *ls, const char *s);
-LUAI_FUNC const char *sdklX_token2str (LexState *ls, int token);
+SDKLI_FUNC TString *sdklX_newstring (LexState *ls, const char *str, size_t l);
+SDKLI_FUNC void sdklX_next (LexState *ls);
+SDKLI_FUNC int sdklX_lookahead (LexState *ls);
+SDKLI_FUNC l_noret sdklX_syntaxerror (LexState *ls, const char *s);
+SDKLI_FUNC const char *sdklX_token2str (LexState *ls, int token);
 
 
 #endif

@@ -5,7 +5,7 @@
 */
 
 #define ldo_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
@@ -35,7 +35,7 @@
 
 
 
-#define errorstatus(s)	((s) > LUA_YIELD)
+#define errorstatus(s)	((s) > SDKL_YIELD)
 
 
 /*
@@ -45,33 +45,33 @@
 */
 
 /*
-** LUAI_THROW/LUAI_TRY define how SDKL does exception handling. By
+** SDKLI_THROW/SDKLI_TRY define how SDKL does exception handling. By
 ** default, SDKL handles errors with exceptions when compiling as
 ** C++ code, with _longjmp/_setjmp when asked to use them, and with
 ** longjmp/setjmp otherwise.
 */
-#if !defined(LUAI_THROW)				/* { */
+#if !defined(SDKLI_THROW)				/* { */
 
-#if defined(__cplusplus) && !defined(LUA_USE_LONGJMP)	/* { */
+#if defined(__cplusplus) && !defined(SDKL_USE_LONGJMP)	/* { */
 
 /* C++ exceptions */
-#define LUAI_THROW(L,c)		throw(c)
-#define LUAI_TRY(L,c,a) \
+#define SDKLI_THROW(L,c)		throw(c)
+#define SDKLI_TRY(L,c,a) \
 	try { a } catch(...) { if ((c)->status == 0) (c)->status = -1; }
 #define sdkli_jmpbuf		int  /* dummy variable */
 
-#elif defined(LUA_USE_POSIX)				/* }{ */
+#elif defined(SDKL_USE_POSIX)				/* }{ */
 
 /* in POSIX, try _longjmp/_setjmp (more efficient) */
-#define LUAI_THROW(L,c)		_longjmp((c)->b, 1)
-#define LUAI_TRY(L,c,a)		if (_setjmp((c)->b) == 0) { a }
+#define SDKLI_THROW(L,c)		_longjmp((c)->b, 1)
+#define SDKLI_TRY(L,c,a)		if (_setjmp((c)->b) == 0) { a }
 #define sdkli_jmpbuf		jmp_buf
 
 #else							/* }{ */
 
 /* ISO C handling with long jumps */
-#define LUAI_THROW(L,c)		longjmp((c)->b, 1)
-#define LUAI_TRY(L,c,a)		if (setjmp((c)->b) == 0) { a }
+#define SDKLI_THROW(L,c)		longjmp((c)->b, 1)
+#define SDKLI_TRY(L,c,a)		if (setjmp((c)->b) == 0) { a }
 #define sdkli_jmpbuf		jmp_buf
 
 #endif							/* } */
@@ -90,15 +90,15 @@ struct sdkl_longjmp {
 
 void sdklD_seterrorobj (sdkl_State *L, int errcode, StkId oldtop) {
   switch (errcode) {
-    case LUA_ERRMEM: {  /* memory error? */
+    case SDKL_ERRMEM: {  /* memory error? */
       setsvalue2s(L, oldtop, G(L)->memerrmsg); /* reuse preregistered msg. */
       break;
     }
-    case LUA_ERRERR: {
+    case SDKL_ERRERR: {
       setsvalue2s(L, oldtop, sdklS_newliteral(L, "error in error handling"));
       break;
     }
-    case LUA_OK: {  /* special case only for closing upvalues */
+    case SDKL_OK: {  /* special case only for closing upvalues */
       setnilvalue(s2v(oldtop));  /* no error message */
       break;
     }
@@ -115,7 +115,7 @@ void sdklD_seterrorobj (sdkl_State *L, int errcode, StkId oldtop) {
 l_noret sdklD_throw (sdkl_State *L, int errcode) {
   if (L->errorJmp) {  /* thread has an error handler? */
     L->errorJmp->status = errcode;  /* set status */
-    LUAI_THROW(L, L->errorJmp);  /* jump to it */
+    SDKLI_THROW(L, L->errorJmp);  /* jump to it */
   }
   else {  /* thread has no error handler */
     global_State *g = G(L);
@@ -138,10 +138,10 @@ l_noret sdklD_throw (sdkl_State *L, int errcode) {
 int sdklD_rawrunprotected (sdkl_State *L, Pfunc f, void *ud) {
   l_uint32 oldnCcalls = L->nCcalls;
   struct sdkl_longjmp lj;
-  lj.status = LUA_OK;
+  lj.status = SDKL_OK;
   lj.previous = L->errorJmp;  /* chain new error handler */
   L->errorJmp = &lj;
-  LUAI_TRY(L, &lj,
+  SDKLI_TRY(L, &lj,
     (*f)(L, ud);
   );
   L->errorJmp = lj.previous;  /* restore old error handler */
@@ -174,7 +174,7 @@ static void correctstack (sdkl_State *L, StkId oldstack, StkId newstack) {
 
 
 /* some space for error handling */
-#define ERRORSTACKSIZE	(LUAI_MAXSTACK + 200)
+#define ERRORSTACKSIZE	(SDKLI_MAXSTACK + 200)
 
 
 /*
@@ -193,7 +193,7 @@ int sdklD_reallocstack (sdkl_State *L, int newsize, int raiseerror) {
   int i;
   StkId newstack = sdklM_reallocvector(L, NULL, 0,
                                       newsize + EXTRA_STACK, StackValue);
-  sdkl_assert(newsize <= LUAI_MAXSTACK || newsize == ERRORSTACKSIZE);
+  sdkl_assert(newsize <= SDKLI_MAXSTACK || newsize == ERRORSTACKSIZE);
   if (l_unlikely(newstack == NULL)) {  /* reallocation failed? */
     if (raiseerror)
       sdklM_error(L);
@@ -218,23 +218,23 @@ int sdklD_reallocstack (sdkl_State *L, int newsize, int raiseerror) {
 */
 int sdklD_growstack (sdkl_State *L, int n, int raiseerror) {
   int size = stacksize(L);
-  if (l_unlikely(size > LUAI_MAXSTACK)) {
+  if (l_unlikely(size > SDKLI_MAXSTACK)) {
     /* if stack is larger than maximum, thread is already using the
        extra space reserved for errors, that is, thread is handling
        a stack error; cannot grow further than that. */
     sdkl_assert(stacksize(L) == ERRORSTACKSIZE);
     if (raiseerror)
-      sdklD_throw(L, LUA_ERRERR);  /* error inside message handler */
+      sdklD_throw(L, SDKL_ERRERR);  /* error inside message handler */
     return 0;  /* if not 'raiseerror', just signal it */
   }
   else {
     int newsize = 2 * size;  /* tentative new size */
     int needed = cast_int(L->top - L->stack) + n;
-    if (newsize > LUAI_MAXSTACK)  /* cannot cross the limit */
-      newsize = LUAI_MAXSTACK;
+    if (newsize > SDKLI_MAXSTACK)  /* cannot cross the limit */
+      newsize = SDKLI_MAXSTACK;
     if (newsize < needed)  /* but must respect what was asked for */
       newsize = needed;
-    if (l_likely(newsize <= LUAI_MAXSTACK))
+    if (l_likely(newsize <= SDKLI_MAXSTACK))
       return sdklD_reallocstack(L, newsize, raiseerror);
     else {  /* stack overflow */
       /* add extra size to be able to handle the error message */
@@ -256,8 +256,8 @@ static int stackinuse (sdkl_State *L) {
   }
   sdkl_assert(lim <= L->stack_last);
   res = cast_int(lim - L->stack) + 1;  /* part of stack in use */
-  if (res < LUA_MINSTACK)
-    res = LUA_MINSTACK;  /* ensure a minimum size */
+  if (res < SDKL_MINSTACK)
+    res = SDKL_MINSTACK;  /* ensure a minimum size */
   return res;
 }
 
@@ -267,7 +267,7 @@ static int stackinuse (sdkl_State *L) {
 ** to twice the current use. (So, the final stack size is at most 2/3 the
 ** previous size, and half of its entries are empty.)
 ** As a particular case, if stack was handling a stack overflow and now
-** it is not, 'max' (limited by LUAI_MAXSTACK) will be smaller than
+** it is not, 'max' (limited by SDKLI_MAXSTACK) will be smaller than
 ** stacksize (equal to ERRORSTACKSIZE in this case), and so the stack
 ** will be reduced to a "regular" size.
 */
@@ -275,14 +275,14 @@ void sdklD_shrinkstack (sdkl_State *L) {
   int inuse = stackinuse(L);
   int nsize = inuse * 2;  /* proposed new size */
   int max = inuse * 3;  /* maximum "reasonable" size */
-  if (max > LUAI_MAXSTACK) {
-    max = LUAI_MAXSTACK;  /* respect stack limit */
-    if (nsize > LUAI_MAXSTACK)
-      nsize = LUAI_MAXSTACK;
+  if (max > SDKLI_MAXSTACK) {
+    max = SDKLI_MAXSTACK;  /* respect stack limit */
+    if (nsize > SDKLI_MAXSTACK)
+      nsize = SDKLI_MAXSTACK;
   }
   /* if thread is currently not handling a stack overflow and its
      size is larger than maximum "reasonable" size, shrink it */
-  if (inuse <= LUAI_MAXSTACK && stacksize(L) > max)
+  if (inuse <= SDKLI_MAXSTACK && stacksize(L) > max)
     sdklD_reallocstack(L, nsize, 0);  /* ok if that fails */
   else  /* don't change stack */
     condmovestack(L,{},{});  /* (change only for debugging) */
@@ -322,9 +322,9 @@ void sdklD_hook (sdkl_State *L, int event, int line,
     }
     if (isSDKL(ci) && L->top < ci->top)
       L->top = ci->top;  /* protect entire activation register */
-    sdklD_checkstack(L, LUA_MINSTACK);  /* ensure minimum stack size */
-    if (ci->top < L->top + LUA_MINSTACK)
-      ci->top = L->top + LUA_MINSTACK;
+    sdklD_checkstack(L, SDKL_MINSTACK);  /* ensure minimum stack size */
+    if (ci->top < L->top + SDKL_MINSTACK)
+      ci->top = L->top + SDKL_MINSTACK;
     L->allowhook = 0;  /* cannot call hooks inside a hook */
     ci->callstatus |= mask;
     sdkl_unlock(L);
@@ -346,9 +346,9 @@ void sdklD_hook (sdkl_State *L, int event, int line,
 */
 void sdklD_hookcall (sdkl_State *L, CallInfo *ci) {
   L->oldpc = 0;  /* set 'oldpc' for new function */
-  if (L->hookmask & LUA_MASKCALL) {  /* is call hook on? */
-    int event = (ci->callstatus & CIST_TAIL) ? LUA_HOOKTAILCALL
-                                             : LUA_HOOKCALL;
+  if (L->hookmask & SDKL_MASKCALL) {  /* is call hook on? */
+    int event = (ci->callstatus & CIST_TAIL) ? SDKL_HOOKTAILCALL
+                                             : SDKL_HOOKCALL;
     Proto *p = ci_func(ci)->p;
     ci->u.l.savedpc++;  /* hooks assume 'pc' is already incremented */
     sdklD_hook(L, event, -1, 1, p->numparams);
@@ -363,7 +363,7 @@ void sdklD_hookcall (sdkl_State *L, CallInfo *ci) {
 ** is done even when return hooks are off.)
 */
 static void rethook (sdkl_State *L, CallInfo *ci, int nres) {
-  if (L->hookmask & LUA_MASKRET) {  /* is return hook on? */
+  if (L->hookmask & SDKL_MASKRET) {  /* is return hook on? */
     StkId firstres = L->top - nres;  /* index of first result */
     int delta = 0;  /* correction for vararg functions */
     int ftransfer;
@@ -374,7 +374,7 @@ static void rethook (sdkl_State *L, CallInfo *ci, int nres) {
     }
     ci->func += delta;  /* if vararg, back to virtual 'func' */
     ftransfer = cast(unsigned short, firstres - ci->func);
-    sdklD_hook(L, LUA_HOOKRET, -1, ftransfer, nres);  /* call it */
+    sdklD_hook(L, SDKL_HOOKRET, -1, ftransfer, nres);  /* call it */
     ci->func -= delta;
   }
   if (isSDKL(ci = ci->previous))
@@ -419,7 +419,7 @@ static void moveresults (sdkl_State *L, StkId res, int nres, int wanted) {
         setobjs2s(L, res, L->top - nres);  /* move it to proper place */
       L->top = res + 1;
       return;
-    case LUA_MULTRET:
+    case SDKL_MULTRET:
       wanted = nres;  /* we want all results */
       break;
     default:  /* two/more results and/or to-be-closed variables */
@@ -433,7 +433,7 @@ static void moveresults (sdkl_State *L, StkId res, int nres, int wanted) {
           rethook(L, L->ci, nres);
         res = restorestack(L, savedres);  /* close and hook can move stack */
         wanted = decodeNresults(wanted);
-        if (wanted == LUA_MULTRET)
+        if (wanted == SDKL_MULTRET)
           wanted = nres;  /* we want all results */
       }
       break;
@@ -509,24 +509,24 @@ CallInfo *sdklD_precall (sdkl_State *L, StkId func, int nresults) {
   sdkl_CFunction f;
  retry:
   switch (ttypetag(s2v(func))) {
-    case LUA_VCCL:  /* C closure */
+    case SDKL_VCCL:  /* C closure */
       f = clCvalue(s2v(func))->f;
       goto Cfunc;
-    case LUA_VLCF:  /* light C function */
+    case SDKL_VLCF:  /* light C function */
       f = fvalue(s2v(func));
      Cfunc: {
       int n;  /* number of returns */
       CallInfo *ci;
-      checkstackGCp(L, LUA_MINSTACK, func);  /* ensure minimum stack size */
+      checkstackGCp(L, SDKL_MINSTACK, func);  /* ensure minimum stack size */
       L->ci = ci = next_ci(L);
       ci->nresults = nresults;
       ci->callstatus = CIST_C;
-      ci->top = L->top + LUA_MINSTACK;
+      ci->top = L->top + SDKL_MINSTACK;
       ci->func = func;
       sdkl_assert(ci->top <= L->stack_last);
-      if (l_unlikely(L->hookmask & LUA_MASKCALL)) {
+      if (l_unlikely(L->hookmask & SDKL_MASKCALL)) {
         int narg = cast_int(L->top - func) - 1;
-        sdklD_hook(L, LUA_HOOKCALL, -1, 1, narg);
+        sdklD_hook(L, SDKL_HOOKCALL, -1, 1, narg);
       }
       sdkl_unlock(L);
       n = (*f)(L);  /* do the actual call */
@@ -535,7 +535,7 @@ CallInfo *sdklD_precall (sdkl_State *L, StkId func, int nresults) {
       sdklD_poscall(L, ci, n);
       return NULL;
     }
-    case LUA_VLCL: {  /* SDKL function */
+    case SDKL_VLCL: {  /* SDKL function */
       CallInfo *ci;
       Proto *p = clLvalue(s2v(func))->p;
       int narg = cast_int(L->top - func) - 1;  /* number of real arguments */
@@ -570,7 +570,7 @@ CallInfo *sdklD_precall (sdkl_State *L, StkId func, int nresults) {
 static void ccall (sdkl_State *L, StkId func, int nResults, int inc) {
   CallInfo *ci;
   L->nCcalls += inc;
-  if (l_unlikely(getCcalls(L) >= LUAI_MAXCCALLS))
+  if (l_unlikely(getCcalls(L) >= SDKLI_MAXCCALLS))
     sdklE_checkcstack(L);
   if ((ci = sdklD_precall(L, func, nResults)) != NULL) {  /* SDKL function? */
     ci->callstatus = CIST_FRESH;  /* mark that it is a "fresh" execute */
@@ -614,8 +614,8 @@ void sdklD_callnoyield (sdkl_State *L, StkId func, int nResults) {
 */
 static int finishpcallk (sdkl_State *L,  CallInfo *ci) {
   int status = getcistrecst(ci);  /* get original status */
-  if (l_likely(status == LUA_OK))  /* no error? */
-    status = LUA_YIELD;  /* was interrupted by an yield */
+  if (l_likely(status == SDKL_OK))  /* no error? */
+    status = SDKL_YIELD;  /* was interrupted by an yield */
   else {  /* error */
     StkId func = restorestack(L, ci->u2.funcidx);
     L->allowhook = getoah(ci->callstatus);  /* restore 'allowhook' */
@@ -623,7 +623,7 @@ static int finishpcallk (sdkl_State *L,  CallInfo *ci) {
     func = restorestack(L, ci->u2.funcidx);  /* stack may be moved */
     sdklD_seterrorobj(L, status, func);
     sdklD_shrinkstack(L);   /* restore stack size in case of overflow */
-    setcistrecst(ci, LUA_OK);  /* clear original status */
+    setcistrecst(ci, SDKL_OK);  /* clear original status */
   }
   ci->callstatus &= ~CIST_YPCALL;
   L->errfunc = ci->u.c.old_errfunc;
@@ -644,7 +644,7 @@ static int finishpcallk (sdkl_State *L,  CallInfo *ci) {
 ** completes the job of the 'sdklD_call' that called the function.  In
 ** the call to 'adjustresults', we do not know the number of results
 ** of the function called by 'sdkl_callk'/'sdkl_pcallk', so we are
-** conservative and use LUA_MULTRET (always adjust).
+** conservative and use SDKL_MULTRET (always adjust).
 */
 static void finishCcall (sdkl_State *L, CallInfo *ci) {
   int n;  /* actual number of results from C function */
@@ -654,12 +654,12 @@ static void finishCcall (sdkl_State *L, CallInfo *ci) {
     /* don't need to reset CIST_CLSRET, as it will be set again anyway */
   }
   else {
-    int status = LUA_YIELD;  /* default if there were no errors */
+    int status = SDKL_YIELD;  /* default if there were no errors */
     /* must have a continuation and must be able to call it */
     sdkl_assert(ci->u.c.k != NULL && yieldable(L));
     if (ci->callstatus & CIST_YPCALL)   /* was inside a 'sdkl_pcallk'? */
       status = finishpcallk(L, ci);  /* finish it */
-    adjustresults(L, LUA_MULTRET);  /* finish 'sdkl_callk' */
+    adjustresults(L, SDKL_MULTRET);  /* finish 'sdkl_callk' */
     sdkl_unlock(L);
     n = (*ci->u.c.k)(L, status, ci->u.c.ctx);  /* call continuation */
     sdkl_lock(L);
@@ -712,7 +712,7 @@ static int resume_error (sdkl_State *L, const char *msg, int narg) {
   setsvalue2s(L, L->top, sdklS_new(L, msg));  /* push error message */
   api_incr_top(L);
   sdkl_unlock(L);
-  return LUA_ERRRUN;
+  return SDKL_ERRRUN;
 }
 
 
@@ -727,11 +727,11 @@ static void resume (sdkl_State *L, void *ud) {
   int n = *(cast(int*, ud));  /* number of arguments */
   StkId firstArg = L->top - n;  /* first argument */
   CallInfo *ci = L->ci;
-  if (L->status == LUA_OK)  /* starting a coroutine? */
-    ccall(L, firstArg - 1, LUA_MULTRET, 1);  /* just call its body */
+  if (L->status == SDKL_OK)  /* starting a coroutine? */
+    ccall(L, firstArg - 1, SDKL_MULTRET, 1);  /* just call its body */
   else {  /* resuming from previous yield */
-    sdkl_assert(L->status == LUA_YIELD);
-    L->status = LUA_OK;  /* mark that it is running (again) */
+    sdkl_assert(L->status == SDKL_YIELD);
+    L->status = SDKL_OK;  /* mark that it is running (again) */
     sdklE_incCstack(L);  /* control the C stack */
     if (isSDKL(ci)) {  /* yielded inside a hook? */
       L->top = firstArg;  /* discard arguments */
@@ -740,7 +740,7 @@ static void resume (sdkl_State *L, void *ud) {
     else {  /* 'common' yield */
       if (ci->u.c.k != NULL) {  /* does it have a continuation function? */
         sdkl_unlock(L);
-        n = (*ci->u.c.k)(L, LUA_YIELD, ci->u.c.ctx); /* call continuation */
+        n = (*ci->u.c.k)(L, SDKL_YIELD, ci->u.c.ctx); /* call continuation */
         sdkl_lock(L);
         api_checknelems(L, n);
       }
@@ -755,8 +755,8 @@ static void resume (sdkl_State *L, void *ud) {
 ** Unrolls a coroutine in protected mode while there are recoverable
 ** errors, that is, errors inside a protected call. (Any error
 ** interrupts 'unroll', and this loop protects it again so it can
-** continue.) Stops with a normal end (status == LUA_OK), an yield
-** (status == LUA_YIELD), or an unprotected error ('findpcall' doesn't
+** continue.) Stops with a normal end (status == SDKL_OK), an yield
+** (status == SDKL_YIELD), or an unprotected error ('findpcall' doesn't
 ** find a recover point).
 */
 static int precover (sdkl_State *L, int status) {
@@ -770,21 +770,21 @@ static int precover (sdkl_State *L, int status) {
 }
 
 
-LUA_API int sdkl_resume (sdkl_State *L, sdkl_State *from, int nargs,
+SDKL_API int sdkl_resume (sdkl_State *L, sdkl_State *from, int nargs,
                                       int *nresults) {
   int status;
   sdkl_lock(L);
-  if (L->status == LUA_OK) {  /* may be starting a coroutine */
+  if (L->status == SDKL_OK) {  /* may be starting a coroutine */
     if (L->ci != &L->base_ci)  /* not in base level? */
       return resume_error(L, "cannot resume non-suspended coroutine", nargs);
     else if (L->top - (L->ci->func + 1) == nargs)  /* no function? */
       return resume_error(L, "cannot resume dead coroutine", nargs);
   }
-  else if (L->status != LUA_YIELD)  /* ended with errors? */
+  else if (L->status != SDKL_YIELD)  /* ended with errors? */
     return resume_error(L, "cannot resume dead coroutine", nargs);
   L->nCcalls = (from) ? getCcalls(from) : 0;
   sdkli_userstateresume(L, nargs);
-  api_checknelems(L, (L->status == LUA_OK) ? nargs + 1 : nargs);
+  api_checknelems(L, (L->status == SDKL_OK) ? nargs + 1 : nargs);
   status = sdklD_rawrunprotected(L, resume, &nargs);
    /* continue running after recoverable errors */
   status = precover(L, status);
@@ -795,19 +795,19 @@ LUA_API int sdkl_resume (sdkl_State *L, sdkl_State *from, int nargs,
     sdklD_seterrorobj(L, status, L->top);  /* push error message */
     L->ci->top = L->top;
   }
-  *nresults = (status == LUA_YIELD) ? L->ci->u2.nyield
+  *nresults = (status == SDKL_YIELD) ? L->ci->u2.nyield
                                     : cast_int(L->top - (L->ci->func + 1));
   sdkl_unlock(L);
   return status;
 }
 
 
-LUA_API int sdkl_isyieldable (sdkl_State *L) {
+SDKL_API int sdkl_isyieldable (sdkl_State *L) {
   return yieldable(L);
 }
 
 
-LUA_API int sdkl_yieldk (sdkl_State *L, int nresults, sdkl_KContext ctx,
+SDKL_API int sdkl_yieldk (sdkl_State *L, int nresults, sdkl_KContext ctx,
                         sdkl_KFunction k) {
   CallInfo *ci;
   sdkli_userstateyield(L, nresults);
@@ -820,7 +820,7 @@ LUA_API int sdkl_yieldk (sdkl_State *L, int nresults, sdkl_KContext ctx,
     else
       sdklG_runerror(L, "attempt to yield from outside a coroutine");
   }
-  L->status = LUA_YIELD;
+  L->status = SDKL_YIELD;
   ci->u2.nyield = nresults;  /* save number of results */
   if (isSDKL(ci)) {  /* inside a hook? */
     sdkl_assert(!isSDKLcode(ci));
@@ -830,7 +830,7 @@ LUA_API int sdkl_yieldk (sdkl_State *L, int nresults, sdkl_KContext ctx,
   else {
     if ((ci->u.c.k = k) != NULL)  /* is there a continuation? */
       ci->u.c.ctx = ctx;  /* save context */
-    sdklD_throw(L, LUA_YIELD);
+    sdklD_throw(L, SDKL_YIELD);
   }
   sdkl_assert(ci->callstatus & CIST_HOOKED);  /* must be inside a hook */
   sdkl_unlock(L);
@@ -867,7 +867,7 @@ int sdklD_closeprotected (sdkl_State *L, ptrdiff_t level, int status) {
     struct CloseP pcl;
     pcl.level = restorestack(L, level); pcl.status = status;
     status = sdklD_rawrunprotected(L, &closepaux, &pcl);
-    if (l_likely(status == LUA_OK))  /* no more errors? */
+    if (l_likely(status == SDKL_OK))  /* no more errors? */
       return pcl.status;
     else {  /* an error occurred; restore saved state and repeat */
       L->ci = old_ci;
@@ -890,7 +890,7 @@ int sdklD_pcall (sdkl_State *L, Pfunc func, void *u,
   ptrdiff_t old_errfunc = L->errfunc;
   L->errfunc = ef;
   status = sdklD_rawrunprotected(L, func, u);
-  if (l_unlikely(status != LUA_OK)) {  /* an error occurred? */
+  if (l_unlikely(status != SDKL_OK)) {  /* an error occurred? */
     L->ci = old_ci;
     L->allowhook = old_allowhooks;
     status = sdklD_closeprotected(L, old_top, status);
@@ -919,7 +919,7 @@ static void checkmode (sdkl_State *L, const char *mode, const char *x) {
   if (mode && strchr(mode, x[0]) == NULL) {
     sdklO_pushfstring(L,
        "attempt to load a %s chunk (mode is '%s')", x, mode);
-    sdklD_throw(L, LUA_ERRSYNTAX);
+    sdklD_throw(L, SDKL_ERRSYNTAX);
   }
 }
 
@@ -928,7 +928,7 @@ static void f_parser (sdkl_State *L, void *ud) {
   LClosure *cl;
   struct SParser *p = cast(struct SParser *, ud);
   int c = zgetc(p->z);  /* read first character */
-  if (c == LUA_SIGNATURE[0]) {
+  if (c == SDKL_SIGNATURE[0]) {
     checkmode(L, p->mode, "binary");
     cl = sdklU_undump(L, p->z, p->name);
   }

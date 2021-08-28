@@ -16,20 +16,20 @@
 ** optimized for the specific needs of SDKL.
 */
 
-#if !defined(LUA_USE_CTYPE)
+#if !defined(SDKL_USE_CTYPE)
 
 #if 'A' == 65 && '0' == 48
 /* ASCII case: can use its own tables; faster and fixed */
-#define LUA_USE_CTYPE	0
+#define SDKL_USE_CTYPE	0
 #else
 /* must use standard C ctype */
-#define LUA_USE_CTYPE	1
+#define SDKL_USE_CTYPE	1
 #endif
 
 #endif
 
 
-#if !LUA_USE_CTYPE	/* { */
+#if !SDKL_USE_CTYPE	/* { */
 
 #include <limits.h>
 
@@ -74,7 +74,7 @@
 
 
 /* one entry for each character and for -1 (EOZ) */
-LUAI_DDEC(const lu_byte sdkli_ctype_[UCHAR_MAX + 2];)
+SDKLI_DDEC(const lu_byte sdkli_ctype_[UCHAR_MAX + 2];)
 
 
 #else			/* }{ */

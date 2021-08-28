@@ -68,35 +68,35 @@ typedef enum {
 
 #define ttypename(x)	sdklT_typenames_[(x) + 1]
 
-LUAI_DDEC(const char *const sdklT_typenames_[LUA_TOTALTYPES];)
+SDKLI_DDEC(const char *const sdklT_typenames_[SDKL_TOTALTYPES];)
 
 
-LUAI_FUNC const char *sdklT_objtypename (sdkl_State *L, const TValue *o);
+SDKLI_FUNC const char *sdklT_objtypename (sdkl_State *L, const TValue *o);
 
-LUAI_FUNC const TValue *sdklT_gettm (Table *events, TMS event, TString *ename);
-LUAI_FUNC const TValue *sdklT_gettmbyobj (sdkl_State *L, const TValue *o,
+SDKLI_FUNC const TValue *sdklT_gettm (Table *events, TMS event, TString *ename);
+SDKLI_FUNC const TValue *sdklT_gettmbyobj (sdkl_State *L, const TValue *o,
                                                        TMS event);
-LUAI_FUNC void sdklT_init (sdkl_State *L);
+SDKLI_FUNC void sdklT_init (sdkl_State *L);
 
-LUAI_FUNC void sdklT_callTM (sdkl_State *L, const TValue *f, const TValue *p1,
+SDKLI_FUNC void sdklT_callTM (sdkl_State *L, const TValue *f, const TValue *p1,
                             const TValue *p2, const TValue *p3);
-LUAI_FUNC void sdklT_callTMres (sdkl_State *L, const TValue *f,
+SDKLI_FUNC void sdklT_callTMres (sdkl_State *L, const TValue *f,
                             const TValue *p1, const TValue *p2, StkId p3);
-LUAI_FUNC void sdklT_trybinTM (sdkl_State *L, const TValue *p1, const TValue *p2,
+SDKLI_FUNC void sdklT_trybinTM (sdkl_State *L, const TValue *p1, const TValue *p2,
                               StkId res, TMS event);
-LUAI_FUNC void sdklT_tryconcatTM (sdkl_State *L);
-LUAI_FUNC void sdklT_trybinassocTM (sdkl_State *L, const TValue *p1,
+SDKLI_FUNC void sdklT_tryconcatTM (sdkl_State *L);
+SDKLI_FUNC void sdklT_trybinassocTM (sdkl_State *L, const TValue *p1,
        const TValue *p2, int inv, StkId res, TMS event);
-LUAI_FUNC void sdklT_trybiniTM (sdkl_State *L, const TValue *p1, sdkl_Integer i2,
+SDKLI_FUNC void sdklT_trybiniTM (sdkl_State *L, const TValue *p1, sdkl_Integer i2,
                                int inv, StkId res, TMS event);
-LUAI_FUNC int sdklT_callorderTM (sdkl_State *L, const TValue *p1,
+SDKLI_FUNC int sdklT_callorderTM (sdkl_State *L, const TValue *p1,
                                 const TValue *p2, TMS event);
-LUAI_FUNC int sdklT_callorderiTM (sdkl_State *L, const TValue *p1, int v2,
+SDKLI_FUNC int sdklT_callorderiTM (sdkl_State *L, const TValue *p1, int v2,
                                  int inv, int isfloat, TMS event);
 
-LUAI_FUNC void sdklT_adjustvarargs (sdkl_State *L, int nfixparams,
+SDKLI_FUNC void sdklT_adjustvarargs (sdkl_State *L, int nfixparams,
                                    struct CallInfo *ci, const Proto *p);
-LUAI_FUNC void sdklT_getvarargs (sdkl_State *L, struct CallInfo *ci,
+SDKLI_FUNC void sdklT_getvarargs (sdkl_State *L, struct CallInfo *ci,
                                               StkId where, int wanted);
 
 

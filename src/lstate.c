@@ -5,7 +5,7 @@
 */
 
 #define lstate_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
@@ -33,7 +33,7 @@
 ** thread state + extra space
 */
 typedef struct LX {
-  lu_byte extra_[LUA_EXTRASPACE];
+  lu_byte extra_[SDKL_EXTRASPACE];
   sdkl_State l;
 } LX;
 
@@ -96,9 +96,9 @@ void sdklE_setdebt (global_State *g, l_mem debt) {
 }
 
 
-LUA_API int sdkl_setcstacklimit (sdkl_State *L, unsigned int limit) {
+SDKL_API int sdkl_setcstacklimit (sdkl_State *L, unsigned int limit) {
   UNUSED(L); UNUSED(limit);
-  return LUAI_MAXCCALLS;  /* warning?? */
+  return SDKLI_MAXCCALLS;  /* warning?? */
 }
 
 
@@ -156,23 +156,23 @@ void sdklE_shrinkCI (sdkl_State *L) {
 
 
 /*
-** Called when 'getCcalls(L)' larger or equal to LUAI_MAXCCALLS.
+** Called when 'getCcalls(L)' larger or equal to SDKLI_MAXCCALLS.
 ** If equal, raises an overflow error. If value is larger than
-** LUAI_MAXCCALLS (which means it is handling an overflow) but
+** SDKLI_MAXCCALLS (which means it is handling an overflow) but
 ** not much larger, does not report an error (to allow overflow
 ** handling to work).
 */
 void sdklE_checkcstack (sdkl_State *L) {
-  if (getCcalls(L) == LUAI_MAXCCALLS)
+  if (getCcalls(L) == SDKLI_MAXCCALLS)
     sdklG_runerror(L, "C stack overflow");
-  else if (getCcalls(L) >= (LUAI_MAXCCALLS / 10 * 11))
-    sdklD_throw(L, LUA_ERRERR);  /* error while handing stack error */
+  else if (getCcalls(L) >= (SDKLI_MAXCCALLS / 10 * 11))
+    sdklD_throw(L, SDKL_ERRERR);  /* error while handing stack error */
 }
 
 
-LUAI_FUNC void sdklE_incCstack (sdkl_State *L) {
+SDKLI_FUNC void sdklE_incCstack (sdkl_State *L) {
   L->nCcalls++;
-  if (l_unlikely(getCcalls(L) >= LUAI_MAXCCALLS))
+  if (l_unlikely(getCcalls(L) >= SDKLI_MAXCCALLS))
     sdklE_checkcstack(L);
 }
 
@@ -195,7 +195,7 @@ static void stack_init (sdkl_State *L1, sdkl_State *L) {
   ci->nresults = 0;
   setnilvalue(s2v(L1->top));  /* 'function' entry for this 'ci' */
   L1->top++;
-  ci->top = L1->top + LUA_MINSTACK;
+  ci->top = L1->top + SDKL_MINSTACK;
   L1->ci = ci;
 }
 
@@ -217,11 +217,11 @@ static void init_registry (sdkl_State *L, global_State *g) {
   /* create registry */
   Table *registry = sdklH_new(L);
   sethvalue(L, &g->l_registry, registry);
-  sdklH_resize(L, registry, LUA_RIDX_LAST, 0);
-  /* registry[LUA_RIDX_MAINTHREAD] = L */
-  setthvalue(L, &registry->array[LUA_RIDX_MAINTHREAD - 1], L);
-  /* registry[LUA_RIDX_GLOBALS] = new table (table of globals) */
-  sethvalue(L, &registry->array[LUA_RIDX_GLOBALS - 1], sdklH_new(L));
+  sdklH_resize(L, registry, SDKL_RIDX_LAST, 0);
+  /* registry[SDKL_RIDX_MAINTHREAD] = L */
+  setthvalue(L, &registry->array[SDKL_RIDX_MAINTHREAD - 1], L);
+  /* registry[SDKL_RIDX_GLOBALS] = new table (table of globals) */
+  sethvalue(L, &registry->array[SDKL_RIDX_GLOBALS - 1], sdklH_new(L));
 }
 
 
@@ -260,7 +260,7 @@ static void preinit_thread (sdkl_State *L, global_State *g) {
   L->allowhook = 1;
   resethookcount(L);
   L->openupval = NULL;
-  L->status = LUA_OK;
+  L->status = SDKL_OK;
   L->errfunc = 0;
   L->oldpc = 0;
 }
@@ -271,7 +271,7 @@ static void close_state (sdkl_State *L) {
   if (!completestate(g))  /* closing a partially built state? */
     sdklC_freeallobjects(L);  /* jucst collect its objects */
   else {  /* closing a fully built state */
-    sdklD_closeprotected(L, 1, LUA_OK);  /* close all upvalues */
+    sdklD_closeprotected(L, 1, SDKL_OK);  /* close all upvalues */
     sdklC_freeallobjects(L);  /* collect all objects */
     sdkli_userstateclose(L);
   }
@@ -282,16 +282,16 @@ static void close_state (sdkl_State *L) {
 }
 
 
-LUA_API sdkl_State *sdkl_newthread (sdkl_State *L) {
+SDKL_API sdkl_State *sdkl_newthread (sdkl_State *L) {
   global_State *g;
   sdkl_State *L1;
   sdkl_lock(L);
   g = G(L);
   sdklC_checkGC(L);
   /* create new thread */
-  L1 = &cast(LX *, sdklM_newobject(L, LUA_TTHREAD, sizeof(LX)))->l;
+  L1 = &cast(LX *, sdklM_newobject(L, SDKL_TTHREAD, sizeof(LX)))->l;
   L1->marked = sdklC_white(g);
-  L1->tt = LUA_VTHREAD;
+  L1->tt = SDKL_VTHREAD;
   /* link it on list 'allgc' */
   L1->next = g->allgc;
   g->allgc = obj2gco(L1);
@@ -305,7 +305,7 @@ LUA_API sdkl_State *sdkl_newthread (sdkl_State *L) {
   resethookcount(L1);
   /* initialize L1 extra space */
   memcpy(sdkl_getextraspace(L1), sdkl_getextraspace(g->mainthread),
-         LUA_EXTRASPACE);
+         SDKL_EXTRASPACE);
   sdkli_userstatethread(L, L1);
   stack_init(L1, L);  /* init stack */
   sdkl_unlock(L);
@@ -328,21 +328,21 @@ int sdklE_resetthread (sdkl_State *L, int status) {
   setnilvalue(s2v(L->stack));  /* 'function' entry for basic 'ci' */
   ci->func = L->stack;
   ci->callstatus = CIST_C;
-  if (status == LUA_YIELD)
-    status = LUA_OK;
+  if (status == SDKL_YIELD)
+    status = SDKL_OK;
   status = sdklD_closeprotected(L, 1, status);
-  if (status != LUA_OK)  /* errors? */
+  if (status != SDKL_OK)  /* errors? */
     sdklD_seterrorobj(L, status, L->stack + 1);
   else
     L->top = L->stack + 1;
-  ci->top = L->top + LUA_MINSTACK;
+  ci->top = L->top + SDKL_MINSTACK;
   L->status = cast_byte(status);
   sdklD_reallocstack(L, cast_int(ci->top - L->stack), 0);
   return status;
 }
 
 
-LUA_API int sdkl_resetthread (sdkl_State *L) {
+SDKL_API int sdkl_resetthread (sdkl_State *L) {
   int status;
   sdkl_lock(L);
   status = sdklE_resetthread(L, L->status);
@@ -351,15 +351,15 @@ LUA_API int sdkl_resetthread (sdkl_State *L) {
 }
 
 
-LUA_API sdkl_State *sdkl_newstate (sdkl_Alloc f, void *ud) {
+SDKL_API sdkl_State *sdkl_newstate (sdkl_Alloc f, void *ud) {
   int i;
   sdkl_State *L;
   global_State *g;
-  LG *l = cast(LG *, (*f)(ud, NULL, LUA_TTHREAD, sizeof(LG)));
+  LG *l = cast(LG *, (*f)(ud, NULL, SDKL_TTHREAD, sizeof(LG)));
   if (l == NULL) return NULL;
   L = &l->l.l;
   g = &l->g;
-  L->tt = LUA_VTHREAD;
+  L->tt = SDKL_VTHREAD;
   g->currentwhite = bitmask(WHITE0BIT);
   L->marked = sdklC_white(g);
   preinit_thread(L, g);
@@ -392,13 +392,13 @@ LUA_API sdkl_State *sdkl_newstate (sdkl_Alloc f, void *ud) {
   g->GCdebt = 0;
   g->lastatomic = 0;
   setivalue(&g->nilvalue, 0);  /* to signal that state is not yet built */
-  setgcparam(g->gcpause, LUAI_GCPAUSE);
-  setgcparam(g->gcstepmul, LUAI_GCMUL);
-  g->gcstepsize = LUAI_GCSTEPSIZE;
-  setgcparam(g->genmajormul, LUAI_GENMAJORMUL);
-  g->genminormul = LUAI_GENMINORMUL;
-  for (i=0; i < LUA_NUMTAGS; i++) g->mt[i] = NULL;
-  if (sdklD_rawrunprotected(L, f_sdklopen, NULL) != LUA_OK) {
+  setgcparam(g->gcpause, SDKLI_GCPAUSE);
+  setgcparam(g->gcstepmul, SDKLI_GCMUL);
+  g->gcstepsize = SDKLI_GCSTEPSIZE;
+  setgcparam(g->genmajormul, SDKLI_GENMAJORMUL);
+  g->genminormul = SDKLI_GENMINORMUL;
+  for (i=0; i < SDKL_NUMTAGS; i++) g->mt[i] = NULL;
+  if (sdklD_rawrunprotected(L, f_sdklopen, NULL) != SDKL_OK) {
     /* memory allocation error: free partial state */
     close_state(L);
     L = NULL;
@@ -407,7 +407,7 @@ LUA_API sdkl_State *sdkl_newstate (sdkl_Alloc f, void *ud) {
 }
 
 
-LUA_API void sdkl_close (sdkl_State *L) {
+SDKL_API void sdkl_close (sdkl_State *L) {
   sdkl_lock(L);
   L = G(L)->mainthread;  /* only the main thread can be closed */
   close_state(L);

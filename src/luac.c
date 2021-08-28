@@ -5,7 +5,7 @@
 */
 
 #define sdklc_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
@@ -115,7 +115,7 @@ static int doargs(int argc, char* argv[])
  }
  if (version)
  {
-  printf("%s\n",LUA_COPYRIGHT);
+  printf("%s\n",SDKL_COPYRIGHT);
   if (version==argc-1) exit(EXIT_SUCCESS);
  }
  return i;
@@ -148,7 +148,7 @@ static const Proto* combine(sdkl_State* L, int n)
  {
   Proto* f;
   int i=n;
-  if (sdkl_load(L,reader,&i,"=(" PROGNAME ")",NULL)!=LUA_OK) fatal(sdkl_tostring(L,-1));
+  if (sdkl_load(L,reader,&i,"=(" PROGNAME ")",NULL)!=SDKL_OK) fatal(sdkl_tostring(L,-1));
   f=toproto(L,-1);
   for (i=0; i<n; i++)
   {
@@ -177,7 +177,7 @@ static int pmain(sdkl_State* L)
  for (i=0; i<argc; i++)
  {
   const char* filename=IS("-") ? NULL : argv[i];
-  if (sdklL_loadfile(L,filename)!=LUA_OK) fatal(sdkl_tostring(L,-1));
+  if (sdklL_loadfile(L,filename)!=SDKL_OK) fatal(sdkl_tostring(L,-1));
  }
  f=combine(L,argc);
  if (listing) sdklU_print(f,listing>1);
@@ -205,7 +205,7 @@ int main(int argc, char* argv[])
  sdkl_pushcfunction(L,&pmain);
  sdkl_pushinteger(L,argc);
  sdkl_pushlightuserdata(L,argv);
- if (sdkl_pcall(L,2,0,0)!=LUA_OK) fatal(sdkl_tostring(L,-1));
+ if (sdkl_pcall(L,2,0,0)!=SDKL_OK) fatal(sdkl_tostring(L,-1));
  sdkl_close(L);
  return EXIT_SUCCESS;
 }
@@ -268,21 +268,21 @@ static void PrintType(const Proto* f, int i)
  const TValue* o=&f->k[i];
  switch (ttypetag(o))
  {
-  case LUA_VNIL:
+  case SDKL_VNIL:
 	printf("N");
 	break;
-  case LUA_VFALSE:
-  case LUA_VTRUE:
+  case SDKL_VFALSE:
+  case SDKL_VTRUE:
 	printf("B");
 	break;
-  case LUA_VNUMFLT:
+  case SDKL_VNUMFLT:
 	printf("F");
 	break;
-  case LUA_VNUMINT:
+  case SDKL_VNUMINT:
 	printf("I");
 	break;
-  case LUA_VSHRSTR:
-  case LUA_VLNGSTR:
+  case SDKL_VSHRSTR:
+  case SDKL_VLNGSTR:
 	printf("S");
 	break;
   default:				/* cannot happen */
@@ -297,28 +297,28 @@ static void PrintConstant(const Proto* f, int i)
  const TValue* o=&f->k[i];
  switch (ttypetag(o))
  {
-  case LUA_VNIL:
+  case SDKL_VNIL:
 	printf("nil");
 	break;
-  case LUA_VFALSE:
+  case SDKL_VFALSE:
 	printf("false");
 	break;
-  case LUA_VTRUE:
+  case SDKL_VTRUE:
 	printf("true");
 	break;
-  case LUA_VNUMFLT:
+  case SDKL_VNUMFLT:
 	{
 	char buff[100];
-	sprintf(buff,LUA_NUMBER_FMT,fltvalue(o));
+	sprintf(buff,SDKL_NUMBER_FMT,fltvalue(o));
 	printf("%s",buff);
 	if (buff[strspn(buff,"-0123456789")]=='\0') printf(".0");
 	break;
 	}
-  case LUA_VNUMINT:
-	printf(LUA_INTEGER_FMT,ivalue(o));
+  case SDKL_VNUMINT:
+	printf(SDKL_INTEGER_FMT,ivalue(o));
 	break;
-  case LUA_VSHRSTR:
-  case LUA_VLNGSTR:
+  case SDKL_VSHRSTR:
+  case SDKL_VLNGSTR:
 	PrintString(tsvalue(o));
 	break;
   default:				/* cannot happen */
@@ -671,7 +671,7 @@ static void PrintHeader(const Proto* f)
  const char* s=f->source ? getstr(f->source) : "=?";
  if (*s=='@' || *s=='=')
   s++;
- else if (*s==LUA_SIGNATURE[0])
+ else if (*s==SDKL_SIGNATURE[0])
   s="(bstring)";
  else
   s="(string)";

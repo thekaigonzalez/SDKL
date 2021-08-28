@@ -52,28 +52,28 @@
 /* type of protected functions, to be ran by 'runprotected' */
 typedef void (*Pfunc) (sdkl_State *L, void *ud);
 
-LUAI_FUNC void sdklD_seterrorobj (sdkl_State *L, int errcode, StkId oldtop);
-LUAI_FUNC int sdklD_protectedparser (sdkl_State *L, ZIO *z, const char *name,
+SDKLI_FUNC void sdklD_seterrorobj (sdkl_State *L, int errcode, StkId oldtop);
+SDKLI_FUNC int sdklD_protectedparser (sdkl_State *L, ZIO *z, const char *name,
                                                   const char *mode);
-LUAI_FUNC void sdklD_hook (sdkl_State *L, int event, int line,
+SDKLI_FUNC void sdklD_hook (sdkl_State *L, int event, int line,
                                         int fTransfer, int nTransfer);
-LUAI_FUNC void sdklD_hookcall (sdkl_State *L, CallInfo *ci);
-LUAI_FUNC void sdklD_pretailcall (sdkl_State *L, CallInfo *ci, StkId func, int n);
-LUAI_FUNC CallInfo *sdklD_precall (sdkl_State *L, StkId func, int nResults);
-LUAI_FUNC void sdklD_call (sdkl_State *L, StkId func, int nResults);
-LUAI_FUNC void sdklD_callnoyield (sdkl_State *L, StkId func, int nResults);
-LUAI_FUNC void sdklD_tryfuncTM (sdkl_State *L, StkId func);
-LUAI_FUNC int sdklD_closeprotected (sdkl_State *L, ptrdiff_t level, int status);
-LUAI_FUNC int sdklD_pcall (sdkl_State *L, Pfunc func, void *u,
+SDKLI_FUNC void sdklD_hookcall (sdkl_State *L, CallInfo *ci);
+SDKLI_FUNC void sdklD_pretailcall (sdkl_State *L, CallInfo *ci, StkId func, int n);
+SDKLI_FUNC CallInfo *sdklD_precall (sdkl_State *L, StkId func, int nResults);
+SDKLI_FUNC void sdklD_call (sdkl_State *L, StkId func, int nResults);
+SDKLI_FUNC void sdklD_callnoyield (sdkl_State *L, StkId func, int nResults);
+SDKLI_FUNC void sdklD_tryfuncTM (sdkl_State *L, StkId func);
+SDKLI_FUNC int sdklD_closeprotected (sdkl_State *L, ptrdiff_t level, int status);
+SDKLI_FUNC int sdklD_pcall (sdkl_State *L, Pfunc func, void *u,
                                         ptrdiff_t oldtop, ptrdiff_t ef);
-LUAI_FUNC void sdklD_poscall (sdkl_State *L, CallInfo *ci, int nres);
-LUAI_FUNC int sdklD_reallocstack (sdkl_State *L, int newsize, int raiseerror);
-LUAI_FUNC int sdklD_growstack (sdkl_State *L, int n, int raiseerror);
-LUAI_FUNC void sdklD_shrinkstack (sdkl_State *L);
-LUAI_FUNC void sdklD_inctop (sdkl_State *L);
+SDKLI_FUNC void sdklD_poscall (sdkl_State *L, CallInfo *ci, int nres);
+SDKLI_FUNC int sdklD_reallocstack (sdkl_State *L, int newsize, int raiseerror);
+SDKLI_FUNC int sdklD_growstack (sdkl_State *L, int n, int raiseerror);
+SDKLI_FUNC void sdklD_shrinkstack (sdkl_State *L);
+SDKLI_FUNC void sdklD_inctop (sdkl_State *L);
 
-LUAI_FUNC l_noret sdklD_throw (sdkl_State *L, int errcode);
-LUAI_FUNC int sdklD_rawrunprotected (sdkl_State *L, Pfunc f, void *ud);
+SDKLI_FUNC l_noret sdklD_throw (sdkl_State *L, int errcode);
+SDKLI_FUNC int sdklD_rawrunprotected (sdkl_State *L, Pfunc f, void *ud);
 
 #endif
 

@@ -47,17 +47,17 @@
 #define CLOSEKTOP	(-1)
 
 
-LUAI_FUNC Proto *sdklF_newproto (sdkl_State *L);
-LUAI_FUNC CClosure *sdklF_newCclosure (sdkl_State *L, int nupvals);
-LUAI_FUNC LClosure *sdklF_newLclosure (sdkl_State *L, int nupvals);
-LUAI_FUNC void sdklF_initupvals (sdkl_State *L, LClosure *cl);
-LUAI_FUNC UpVal *sdklF_findupval (sdkl_State *L, StkId level);
-LUAI_FUNC void sdklF_newtbcupval (sdkl_State *L, StkId level);
-LUAI_FUNC void sdklF_closeupval (sdkl_State *L, StkId level);
-LUAI_FUNC void sdklF_close (sdkl_State *L, StkId level, int status, int yy);
-LUAI_FUNC void sdklF_unlinkupval (UpVal *uv);
-LUAI_FUNC void sdklF_freeproto (sdkl_State *L, Proto *f);
-LUAI_FUNC const char *sdklF_getlocalname (const Proto *func, int local_number,
+SDKLI_FUNC Proto *sdklF_newproto (sdkl_State *L);
+SDKLI_FUNC CClosure *sdklF_newCclosure (sdkl_State *L, int nupvals);
+SDKLI_FUNC LClosure *sdklF_newLclosure (sdkl_State *L, int nupvals);
+SDKLI_FUNC void sdklF_initupvals (sdkl_State *L, LClosure *cl);
+SDKLI_FUNC UpVal *sdklF_findupval (sdkl_State *L, StkId level);
+SDKLI_FUNC void sdklF_newtbcupval (sdkl_State *L, StkId level);
+SDKLI_FUNC void sdklF_closeupval (sdkl_State *L, StkId level);
+SDKLI_FUNC void sdklF_close (sdkl_State *L, StkId level, int status, int yy);
+SDKLI_FUNC void sdklF_unlinkupval (UpVal *uv);
+SDKLI_FUNC void sdklF_freeproto (sdkl_State *L, Proto *f);
+SDKLI_FUNC const char *sdklF_getlocalname (const Proto *func, int local_number,
                                          int pc);
 
 

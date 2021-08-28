@@ -163,8 +163,8 @@ typedef struct FuncState {
 } FuncState;
 
 
-LUAI_FUNC int sdklY_nvarstack (FuncState *fs);
-LUAI_FUNC LClosure *sdklY_parser (sdkl_State *L, ZIO *z, Mbuffer *buff,
+SDKLI_FUNC int sdklY_nvarstack (FuncState *fs);
+SDKLI_FUNC LClosure *sdklY_parser (sdkl_State *L, ZIO *z, Mbuffer *buff,
                                  Dyndata *dyd, const char *name, int firstchar);
 
 

@@ -5,7 +5,7 @@
 */
 
 #define lbaselib_c
-#define LUA_LIB
+#define SDKL_LIB
 
 #include "lprefix.h"
 
@@ -30,7 +30,7 @@
 static int help(sdkl_State* L) /* use L */
 {
  fprintf(stdout,
-"help: Please read the following below before using. \n"
+"sdkl help: Please read the following below before using. \n"
 "SDKL is licensed under the MIT license, no warranty is given for this Software.\n"
 "\n"
 "SDKL is a Programming language inspired off of the Lua Programming language. you can use everything in lua like SDKL.\n"
@@ -109,7 +109,7 @@ static const char *b_str2int (const char *s, int base, sdkl_Integer *pn) {
 
 static int sdklB_tonumber (sdkl_State *L) {
   if (sdkl_isnoneornil(L, 2)) {  /* standard conversion? */
-    if (sdkl_type(L, 1) == LUA_TNUMBER) {  /* already a number? */
+    if (sdkl_type(L, 1) == SDKL_TNUMBER) {  /* already a number? */
       sdkl_settop(L, 1);  /* yes; return it */
       return 1;
     }
@@ -127,7 +127,7 @@ static int sdklB_tonumber (sdkl_State *L) {
     const char *s;
     sdkl_Integer n = 0;  /* to avoid warnings */
     sdkl_Integer base = sdklL_checkinteger(L, 2);
-    sdklL_checktype(L, 1, LUA_TSTRING);  /* no numbers as strings */
+    sdklL_checktype(L, 1, SDKL_TSTRING);  /* no numbers as strings */
     s = sdkl_tolstring(L, 1, &l);
     sdklL_argcheck(L, 2 <= base && base <= 36, 2, "base out of range");
     if (b_str2int(s, (int)base, &n) == s + l) {
@@ -143,7 +143,7 @@ static int sdklB_tonumber (sdkl_State *L) {
 static int sdklB_error (sdkl_State *L) {
   int level = (int)sdklL_optinteger(L, 2, 1);
   sdkl_settop(L, 1);
-  if (sdkl_type(L, 1) == LUA_TSTRING && level > 0) {
+  if (sdkl_type(L, 1) == SDKL_TSTRING && level > 0) {
     sdklL_where(L, level);   /* add extra information */
     sdkl_pushvalue(L, 1);
     sdkl_concat(L, 2);
@@ -165,9 +165,9 @@ static int sdklB_getmetatable (sdkl_State *L) {
 
 static int sdklB_setmetatable (sdkl_State *L) {
   int t = sdkl_type(L, 2);
-  sdklL_checktype(L, 1, LUA_TTABLE);
-  sdklL_argexpected(L, t == LUA_TNIL || t == LUA_TTABLE, 2, "nil or table");
-  if (l_unlikely(sdklL_getmetafield(L, 1, "__metatable") != LUA_TNIL))
+  sdklL_checktype(L, 1, SDKL_TTABLE);
+  sdklL_argexpected(L, t == SDKL_TNIL || t == SDKL_TTABLE, 2, "nil or table");
+  if (l_unlikely(sdklL_getmetafield(L, 1, "__metatable") != SDKL_TNIL))
     return sdklL_error(L, "cannot change a protected metatable");
   sdkl_settop(L, 2);
   sdkl_setmetatable(L, 1);
@@ -185,7 +185,7 @@ static int sdklB_rawequal (sdkl_State *L) {
 
 static int sdklB_rawlen (sdkl_State *L) {
   int t = sdkl_type(L, 1);
-  sdklL_argexpected(L, t == LUA_TTABLE || t == LUA_TSTRING, 1,
+  sdklL_argexpected(L, t == SDKL_TTABLE || t == SDKL_TSTRING, 1,
                       "table or string");
   sdkl_pushinteger(L, sdkl_rawlen(L, 1));
   return 1;
@@ -193,7 +193,7 @@ static int sdklB_rawlen (sdkl_State *L) {
 
 
 static int sdklB_rawget (sdkl_State *L) {
-  sdklL_checktype(L, 1, LUA_TTABLE);
+  sdklL_checktype(L, 1, SDKL_TTABLE);
   sdklL_checkany(L, 2);
   sdkl_settop(L, 2);
   sdkl_rawget(L, 1);
@@ -201,7 +201,7 @@ static int sdklB_rawget (sdkl_State *L) {
 }
 
 static int sdklB_rawset (sdkl_State *L) {
-  sdklL_checktype(L, 1, LUA_TTABLE);
+  sdklL_checktype(L, 1, SDKL_TTABLE);
   sdklL_checkany(L, 2);
   sdklL_checkany(L, 3);
   sdkl_settop(L, 3);
@@ -211,7 +211,7 @@ static int sdklB_rawset (sdkl_State *L) {
 
 
 static int pushmode (sdkl_State *L, int oldmode) {
-  sdkl_pushstring(L, (oldmode == LUA_GCINC) ? "incremental"
+  sdkl_pushstring(L, (oldmode == SDKL_GCINC) ? "incremental"
                                            : "generational");
   return 1;
 }
@@ -221,41 +221,41 @@ static int sdklB_collectgarbage (sdkl_State *L) {
   static const char *const opts[] = {"stop", "restart", "collect",
     "count", "step", "setpause", "setstepmul",
     "isrunning", "generational", "incremental", NULL};
-  static const int optsnum[] = {LUA_GCSTOP, LUA_GCRESTART, LUA_GCCOLLECT,
-    LUA_GCCOUNT, LUA_GCSTEP, LUA_GCSETPAUSE, LUA_GCSETSTEPMUL,
-    LUA_GCISRUNNING, LUA_GCGEN, LUA_GCINC};
+  static const int optsnum[] = {SDKL_GCSTOP, SDKL_GCRESTART, SDKL_GCCOLLECT,
+    SDKL_GCCOUNT, SDKL_GCSTEP, SDKL_GCSETPAUSE, SDKL_GCSETSTEPMUL,
+    SDKL_GCISRUNNING, SDKL_GCGEN, SDKL_GCINC};
   int o = optsnum[sdklL_checkoption(L, 1, "collect", opts)];
   switch (o) {
-    case LUA_GCCOUNT: {
+    case SDKL_GCCOUNT: {
       int k = sdkl_gc(L, o);
-      int b = sdkl_gc(L, LUA_GCCOUNTB);
+      int b = sdkl_gc(L, SDKL_GCCOUNTB);
       sdkl_pushnumber(L, (sdkl_Number)k + ((sdkl_Number)b/1024));
       return 1;
     }
-    case LUA_GCSTEP: {
+    case SDKL_GCSTEP: {
       int step = (int)sdklL_optinteger(L, 2, 0);
       int res = sdkl_gc(L, o, step);
       sdkl_pushboolean(L, res);
       return 1;
     }
-    case LUA_GCSETPAUSE:
-    case LUA_GCSETSTEPMUL: {
+    case SDKL_GCSETPAUSE:
+    case SDKL_GCSETSTEPMUL: {
       int p = (int)sdklL_optinteger(L, 2, 0);
       int previous = sdkl_gc(L, o, p);
       sdkl_pushinteger(L, previous);
       return 1;
     }
-    case LUA_GCISRUNNING: {
+    case SDKL_GCISRUNNING: {
       int res = sdkl_gc(L, o);
       sdkl_pushboolean(L, res);
       return 1;
     }
-    case LUA_GCGEN: {
+    case SDKL_GCGEN: {
       int minormul = (int)sdklL_optinteger(L, 2, 0);
       int majormul = (int)sdklL_optinteger(L, 3, 0);
       return pushmode(L, sdkl_gc(L, o, minormul, majormul));
     }
-    case LUA_GCINC: {
+    case SDKL_GCINC: {
       int pause = (int)sdklL_optinteger(L, 2, 0);
       int stepmul = (int)sdklL_optinteger(L, 3, 0);
       int stepsize = (int)sdklL_optinteger(L, 4, 0);
@@ -272,14 +272,14 @@ static int sdklB_collectgarbage (sdkl_State *L) {
 
 static int sdklB_type (sdkl_State *L) {
   int t = sdkl_type(L, 1);
-  sdklL_argcheck(L, t != LUA_TNONE, 1, "value expected");
+  sdklL_argcheck(L, t != SDKL_TNONE, 1, "value expected");
   sdkl_pushstring(L, sdkl_typename(L, t));
   return 1;
 }
 
 
 static int sdklB_next (sdkl_State *L) {
-  sdklL_checktype(L, 1, LUA_TTABLE);
+  sdklL_checktype(L, 1, SDKL_TTABLE);
   sdkl_settop(L, 2);  /* create a 2nd argument if there isn't one */
   if (sdkl_next(L, 1))
     return 2;
@@ -292,7 +292,7 @@ static int sdklB_next (sdkl_State *L) {
 
 static int sdklB_pairs (sdkl_State *L) {
   sdklL_checkany(L, 1);
-  if (sdklL_getmetafield(L, 1, "__pairs") == LUA_TNIL) {  /* no metamethod? */
+  if (sdklL_getmetafield(L, 1, "__pairs") == SDKL_TNIL) {  /* no metamethod? */
     sdkl_pushcfunction(L, sdklB_next);  /* will return generator, */
     sdkl_pushvalue(L, 1);  /* state, */
     sdkl_pushnil(L);  /* and initial value */
@@ -311,7 +311,7 @@ static int sdklB_pairs (sdkl_State *L) {
 static int ipairsaux (sdkl_State *L) {
   sdkl_Integer i = sdklL_checkinteger(L, 2) + 1;
   sdkl_pushinteger(L, i);
-  return (sdkl_geti(L, 1, i) == LUA_TNIL) ? 1 : 2;
+  return (sdkl_geti(L, 1, i) == SDKL_TNIL) ? 1 : 2;
 }
 
 
@@ -329,7 +329,7 @@ static int sdklB_ipairs (sdkl_State *L) {
 
 
 static int load_aux (sdkl_State *L, int status, int envidx) {
-  if (l_likely(status == LUA_OK)) {
+  if (l_likely(status == SDKL_OK)) {
     if (envidx != 0) {  /* 'env' parameter? */
       sdkl_pushvalue(L, envidx);  /* environment for loaded function */
       if (!sdkl_setupvalue(L, -2, 1))  /* set it as 1st upvalue */
@@ -404,7 +404,7 @@ static int sdklB_load (sdkl_State *L) {
   }
   else {  /* loading from a reader function */
     const char *chunkname = sdklL_optstring(L, 2, "=(load)");
-    sdklL_checktype(L, 1, LUA_TFUNCTION);
+    sdklL_checktype(L, 1, SDKL_TFUNCTION);
     sdkl_settop(L, RESERVEDSLOT);  /* create reserved slot */
     status = sdkl_load(L, generic_reader, NULL, chunkname, mode);
   }
@@ -423,9 +423,9 @@ static int dofilecont (sdkl_State *L, int d1, sdkl_KContext d2) {
 static int sdklB_dofile (sdkl_State *L) {
   const char *fname = sdklL_optstring(L, 1, NULL);
   sdkl_settop(L, 1);
-  if (l_unlikely(sdklL_loadfile(L, fname) != LUA_OK))
+  if (l_unlikely(sdklL_loadfile(L, fname) != SDKL_OK))
     return sdkl_error(L);
-  sdkl_callk(L, 0, LUA_MULTRET, 0, dofilecont);
+  sdkl_callk(L, 0, SDKL_MULTRET, 0, dofilecont);
   return dofilecont(L, 0, 0);
 }
 
@@ -445,7 +445,7 @@ static int sdklB_assert (sdkl_State *L) {
 
 static int sdklB_select (sdkl_State *L) {
   int n = sdkl_gettop(L);
-  if (sdkl_type(L, 1) == LUA_TSTRING && *sdkl_tostring(L, 1) == '#') {
+  if (sdkl_type(L, 1) == SDKL_TSTRING && *sdkl_tostring(L, 1) == '#') {
     sdkl_pushinteger(L, n-1);
     return 1;
   }
@@ -467,7 +467,7 @@ static int sdklB_select (sdkl_State *L) {
 ** ignored).
 */
 static int finishpcall (sdkl_State *L, int status, sdkl_KContext extra) {
-  if (l_unlikely(status != LUA_OK && status != LUA_YIELD)) {  /* error? */
+  if (l_unlikely(status != SDKL_OK && status != SDKL_YIELD)) {  /* error? */
     sdkl_pushboolean(L, 0);  /* first result (false) */
     sdkl_pushvalue(L, -2);  /* error message */
     return 2;  /* return false, msg */
@@ -482,7 +482,7 @@ static int sdklB_pcall (sdkl_State *L) {
   sdklL_checkany(L, 1);
   sdkl_pushboolean(L, 1);  /* first result if no errors */
   sdkl_insert(L, 1);  /* put it in place */
-  status = sdkl_pcallk(L, sdkl_gettop(L) - 2, LUA_MULTRET, 0, 0, finishpcall);
+  status = sdkl_pcallk(L, sdkl_gettop(L) - 2, SDKL_MULTRET, 0, 0, finishpcall);
   return finishpcall(L, status, 0);
 }
 
@@ -495,11 +495,11 @@ static int sdklB_pcall (sdkl_State *L) {
 static int sdklB_xpcall (sdkl_State *L) {
   int status;
   int n = sdkl_gettop(L);
-  sdklL_checktype(L, 2, LUA_TFUNCTION);  /* check error function */
+  sdklL_checktype(L, 2, SDKL_TFUNCTION);  /* check error function */
   sdkl_pushboolean(L, 1);  /* first result */
   sdkl_pushvalue(L, 1);  /* function */
   sdkl_rotate(L, 3, 2);  /* move them below function's arguments */
-  status = sdkl_pcallk(L, n - 2, LUA_MULTRET, 2, 2, finishpcall);
+  status = sdkl_pcallk(L, n - 2, SDKL_MULTRET, 2, 2, finishpcall);
   return finishpcall(L, status, 2);
 }
 
@@ -548,21 +548,21 @@ static const sdklL_Reg base_funcs[] = {
   {"type", sdklB_type},
   {"xpcall", sdklB_xpcall},
   /* placeholders */
-  {LUA_GNAME, NULL},
+  {SDKL_GNAME, NULL},
   {"_VERSION", NULL},
   {NULL, NULL}
 };
 
 
-LUAMOD_API int sdklopen_base (sdkl_State *L) {
+SDKLMOD_API int sdklopen_base (sdkl_State *L) {
   /* open lib into global table */
   sdkl_pushglobaltable(L);
   sdklL_setfuncs(L, base_funcs, 0);
   /* set global _G */
   sdkl_pushvalue(L, -1);
-  sdkl_setfield(L, -2, LUA_GNAME);
+  sdkl_setfield(L, -2, SDKL_GNAME);
   /* set global _VERSION */
-  sdkl_pushliteral(L, LUA_VERSION);
+  sdkl_pushliteral(L, SDKL_VERSION);
   sdkl_setfield(L, -2, "_VERSION");
   return 1;
 }

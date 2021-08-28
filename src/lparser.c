@@ -5,7 +5,7 @@
 */
 
 #define lparser_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
@@ -869,7 +869,7 @@ static void lastlistfield (FuncState *fs, ConsControl *cc) {
   if (cc->tostore == 0) return;
   if (hasmultret(cc->v.k)) {
     sdklK_setmultret(fs, &cc->v);
-    sdklK_setlist(fs, cc->t->u.info, cc->na, LUA_MULTRET);
+    sdklK_setlist(fs, cc->t->u.info, cc->na, SDKL_MULTRET);
     cc->na--;  /* do not count last expression (unknown number of elements) */
   }
   else {
@@ -1043,7 +1043,7 @@ static void funcargs (LexState *ls, expdesc *f, int line) {
   sdkl_assert(f->k == VNONRELOC);
   base = f->u.info;  /* base register for call */
   if (hasmultret(args.k))
-    nparams = LUA_MULTRET;  /* open call */
+    nparams = SDKL_MULTRET;  /* open call */
   else {
     if (args.k != VVOID)
       sdklK_exp2nextreg(fs, &args);  /* close last argument */
@@ -1815,7 +1815,7 @@ static void retstat (LexState *ls) {
         SET_OPCODE(getinstruction(fs,&e), OP_TAILCALL);
         sdkl_assert(GETARG_A(getinstruction(fs,&e)) == sdklY_nvarstack(fs));
       }
-      nret = LUA_MULTRET;  /* return all values */
+      nret = SDKL_MULTRET;  /* return all values */
     }
     else {
       if (nret == 1)  /* only one single value? */
@@ -1908,7 +1908,7 @@ static void statement (LexState *ls) {
 
 /*
 ** compiles the main function, which is a regular vararg function with an
-** upvalue named LUA_ENV
+** upvalue named SDKL_ENV
 */
 static void mainfunc (LexState *ls, FuncState *fs) {
   BlockCnt bl;

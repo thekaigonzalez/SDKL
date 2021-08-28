@@ -9,7 +9,7 @@
 */
 
 #define loadlib_c
-#define LUA_LIB
+#define SDKL_LIB
 
 #include "lprefix.h"
 
@@ -25,34 +25,34 @@
 
 
 /*
-** LUA_IGMARK is a mark to ignore all before it when building the
+** SDKL_IGMARK is a mark to ignore all before it when building the
 ** sdklopen_ function name.
 */
-#if !defined (LUA_IGMARK)
-#define LUA_IGMARK		"-"
+#if !defined (SDKL_IGMARK)
+#define SDKL_IGMARK		"-"
 #endif
 
 
 /*
-** LUA_CSUBSEP is the character that replaces dots in submodule names
+** SDKL_CSUBSEP is the character that replaces dots in submodule names
 ** when searching for a C loader.
-** LUA_LSUBSEP is the character that replaces dots in submodule names
+** SDKL_LSUBSEP is the character that replaces dots in submodule names
 ** when searching for a SDKL loader.
 */
-#if !defined(LUA_CSUBSEP)
-#define LUA_CSUBSEP		LUA_DIRSEP
+#if !defined(SDKL_CSUBSEP)
+#define SDKL_CSUBSEP		SDKL_DIRSEP
 #endif
 
-#if !defined(LUA_LSUBSEP)
-#define LUA_LSUBSEP		LUA_DIRSEP
+#if !defined(SDKL_LSUBSEP)
+#define SDKL_LSUBSEP		SDKL_DIRSEP
 #endif
 
 
 /* prefix for open functions in C libraries */
-#define LUA_POF		"sdklopen_"
+#define SDKL_POF		"sdklopen_"
 
 /* separator for open functions in C libraries */
-#define LUA_OFSEP	"_"
+#define SDKL_OFSEP	"_"
 
 
 /*
@@ -101,7 +101,7 @@ static sdkl_CFunction lsys_sym (sdkl_State *L, void *lib, const char *sym);
 
 
 
-#if defined(LUA_USE_DLOPEN)	/* { */
+#if defined(SDKL_USE_DLOPEN)	/* { */
 /*
 ** {========================================================================
 ** This is an implementation of loadlib based on the dlfcn interface.
@@ -150,7 +150,7 @@ static sdkl_CFunction lsys_sym (sdkl_State *L, void *lib, const char *sym) {
 
 
 
-#elif defined(LUA_DL_DLL)	/* }{ */
+#elif defined(SDKL_DL_DLL)	/* }{ */
 /*
 ** {======================================================================
 ** This is an implementation of loadlib for Windows using native functions.
@@ -163,8 +163,8 @@ static sdkl_CFunction lsys_sym (sdkl_State *L, void *lib, const char *sym) {
 /*
 ** optional flags for LoadLibraryEx
 */
-#if !defined(LUA_LLE_FLAGS)
-#define LUA_LLE_FLAGS	0
+#if !defined(SDKL_LLE_FLAGS)
+#define SDKL_LLE_FLAGS	0
 #endif
 
 
@@ -173,7 +173,7 @@ static sdkl_CFunction lsys_sym (sdkl_State *L, void *lib, const char *sym) {
 
 /*
 ** Replace in the path (on the top of the stack) any occurrence
-** of LUA_EXEC_DIR with the executable's path.
+** of SDKL_EXEC_DIR with the executable's path.
 */
 static void setprogdir (sdkl_State *L) {
   char buff[MAX_PATH + 1];
@@ -184,7 +184,7 @@ static void setprogdir (sdkl_State *L) {
     sdklL_error(L, "unable to get ModuleFileName");
   else {
     *lb = '\0';  /* cut name on the last '\\' to get the path */
-    sdklL_gsub(L, sdkl_tostring(L, -1), LUA_EXEC_DIR, buff);
+    sdklL_gsub(L, sdkl_tostring(L, -1), SDKL_EXEC_DIR, buff);
     sdkl_remove(L, -2);  /* remove original string */
   }
 }
@@ -208,7 +208,7 @@ static void lsys_unloadlib (void *lib) {
 
 
 static void *lsys_load (sdkl_State *L, const char *path, int seeglb) {
-  HMODULE lib = LoadLibraryExA(path, NULL, LUA_LLE_FLAGS);
+  HMODULE lib = LoadLibraryExA(path, NULL, SDKL_LLE_FLAGS);
   (void)(seeglb);  /* not used: symbols are 'global' by default */
   if (lib == NULL) pusherror(L);
   return lib;
@@ -267,25 +267,25 @@ static sdkl_CFunction lsys_sym (sdkl_State *L, void *lib, const char *sym) {
 */
 
 /*
-** LUA_PATH_VAR and LUA_CPATH_VAR are the names of the environment
+** SDKL_PATH_VAR and SDKL_CPATH_VAR are the names of the environment
 ** variables that SDKL check to set its paths.
 */
-#if !defined(LUA_PATH_VAR)
-#define LUA_PATH_VAR    "LUA_PATH"
+#if !defined(SDKL_PATH_VAR)
+#define SDKL_PATH_VAR    "SDKL_PATH"
 #endif
 
-#if !defined(LUA_CPATH_VAR)
-#define LUA_CPATH_VAR   "LUA_CPATH"
+#if !defined(SDKL_CPATH_VAR)
+#define SDKL_CPATH_VAR   "SDKL_CPATH"
 #endif
 
 
 
 /*
-** return registry.LUA_NOENV as a boolean
+** return registry.SDKL_NOENV as a boolean
 */
 static int noenv (sdkl_State *L) {
   int b;
-  sdkl_getfield(L, LUA_REGISTRYINDEX, "LUA_NOENV");
+  sdkl_getfield(L, SDKL_REGISTRYINDEX, "SDKL_NOENV");
   b = sdkl_toboolean(L, -1);
   sdkl_pop(L, 1);  /* remove value */
   return b;
@@ -299,13 +299,13 @@ static void setpath (sdkl_State *L, const char *fieldname,
                                    const char *envname,
                                    const char *dft) {
   const char *dftmark;
-  const char *nver = sdkl_pushfstring(L, "%s%s", envname, LUA_VERSUFFIX);
+  const char *nver = sdkl_pushfstring(L, "%s%s", envname, SDKL_VERSUFFIX);
   const char *path = getenv(nver);  /* try versioned name */
   if (path == NULL)  /* no versioned environment variable? */
     path = getenv(envname);  /* try unversioned name */
   if (path == NULL || noenv(L))  /* no environment variable? */
     sdkl_pushstring(L, dft);  /* use default */
-  else if ((dftmark = strstr(path, LUA_PATH_SEP LUA_PATH_SEP)) == NULL)
+  else if ((dftmark = strstr(path, SDKL_PATH_SEP SDKL_PATH_SEP)) == NULL)
     sdkl_pushstring(L, path);  /* nothing to change */
   else {  /* path contains a ";;": insert default path in its place */
     size_t len = strlen(path);
@@ -313,11 +313,11 @@ static void setpath (sdkl_State *L, const char *fieldname,
     sdklL_buffinit(L, &b);
     if (path < dftmark) {  /* is there a prefix before ';;'? */
       sdklL_addlstring(&b, path, dftmark - path);  /* add it */
-      sdklL_addchar(&b, *LUA_PATH_SEP);
+      sdklL_addchar(&b, *SDKL_PATH_SEP);
     }
     sdklL_addstring(&b, dft);  /* add default */
     if (dftmark < path + len - 2) {  /* is there a suffix after ';;'? */
-      sdklL_addchar(&b, *LUA_PATH_SEP);
+      sdklL_addchar(&b, *SDKL_PATH_SEP);
       sdklL_addlstring(&b, dftmark + 2, (path + len - 2) - dftmark);
     }
     sdklL_pushresult(&b);
@@ -335,7 +335,7 @@ static void setpath (sdkl_State *L, const char *fieldname,
 */
 static void *checkclib (sdkl_State *L, const char *path) {
   void *plib;
-  sdkl_getfield(L, LUA_REGISTRYINDEX, CLIBS);
+  sdkl_getfield(L, SDKL_REGISTRYINDEX, CLIBS);
   sdkl_getfield(L, -1, path);
   plib = sdkl_touserdata(L, -1);  /* plib = CLIBS[path] */
   sdkl_pop(L, 2);  /* pop CLIBS table and 'plib' */
@@ -348,7 +348,7 @@ static void *checkclib (sdkl_State *L, const char *path) {
 ** registry.CLIBS[#CLIBS + 1] = plib  -- also keep a list of all libraries
 */
 static void addtoclib (sdkl_State *L, const char *path, void *plib) {
-  sdkl_getfield(L, LUA_REGISTRYINDEX, CLIBS);
+  sdkl_getfield(L, SDKL_REGISTRYINDEX, CLIBS);
   sdkl_pushlightuserdata(L, plib);
   sdkl_pushvalue(L, -1);
   sdkl_setfield(L, -3, path);  /* CLIBS[path] = plib */
@@ -451,10 +451,10 @@ static const char *getnextfilename (char **path, char *end) {
   if (name == end)
     return NULL;  /* no more names */
   else if (*name == '\0') {  /* from previous iteration? */
-    *name = *LUA_PATH_SEP;  /* restore separator */
+    *name = *SDKL_PATH_SEP;  /* restore separator */
     name++;  /* skip it */
   }
-  sep = strchr(name, *LUA_PATH_SEP);  /* find next separator */
+  sep = strchr(name, *SDKL_PATH_SEP);  /* find next separator */
   if (sep == NULL)  /* separator not found? */
     sep = end;  /* name goes until the end */
   *sep = '\0';  /* finish file name */
@@ -473,7 +473,7 @@ static void pusherrornotfound (sdkl_State *L, const char *path) {
   sdklL_Buffer b;
   sdklL_buffinit(L, &b);
   sdklL_addstring(&b, "no file '");
-  sdklL_addgsub(&b, path, LUA_PATH_SEP, "'\n\tno file '");
+  sdklL_addgsub(&b, path, SDKL_PATH_SEP, "'\n\tno file '");
   sdklL_addstring(&b, "'");
   sdklL_pushresult(&b);
 }
@@ -492,7 +492,7 @@ static const char *searchpath (sdkl_State *L, const char *name,
     name = sdklL_gsub(L, name, sep, dirsep);  /* replace it by 'dirsep' */
   sdklL_buffinit(L, &buff);
   /* add path to the buffer, replacing marks ('?') with the file name */
-  sdklL_addgsub(&buff, path, LUA_PATH_MARK, name);
+  sdklL_addgsub(&buff, path, SDKL_PATH_MARK, name);
   sdklL_addchar(&buff, '\0');
   pathname = sdklL_buffaddr(&buff);  /* writable list of file names */
   endpathname = pathname + sdklL_bufflen(&buff) - 1;
@@ -510,7 +510,7 @@ static int ll_searchpath (sdkl_State *L) {
   const char *f = searchpath(L, sdklL_checkstring(L, 1),
                                 sdklL_checkstring(L, 2),
                                 sdklL_optstring(L, 3, "."),
-                                sdklL_optstring(L, 4, LUA_DIRSEP));
+                                sdklL_optstring(L, 4, SDKL_DIRSEP));
   if (f != NULL) return 1;
   else {  /* error message is on top of the stack */
     sdklL_pushfail(L);
@@ -546,9 +546,9 @@ static int checkload (sdkl_State *L, int stat, const char *filename) {
 static int searcher_SDKL (sdkl_State *L) {
   const char *filename;
   const char *name = sdklL_checkstring(L, 1);
-  filename = findfile(L, name, "path", LUA_LSUBSEP);
+  filename = findfile(L, name, "path", SDKL_LSUBSEP);
   if (filename == NULL) return 1;  /* module not found in this path */
-  return checkload(L, (sdklL_loadfile(L, filename) == LUA_OK), filename);
+  return checkload(L, (sdklL_loadfile(L, filename) == SDKL_OK), filename);
 }
 
 
@@ -563,24 +563,24 @@ static int searcher_SDKL (sdkl_State *L) {
 static int loadfunc (sdkl_State *L, const char *filename, const char *modname) {
   const char *openfunc;
   const char *mark;
-  modname = sdklL_gsub(L, modname, ".", LUA_OFSEP);
-  mark = strchr(modname, *LUA_IGMARK);
+  modname = sdklL_gsub(L, modname, ".", SDKL_OFSEP);
+  mark = strchr(modname, *SDKL_IGMARK);
   if (mark) {
     int stat;
     openfunc = sdkl_pushlstring(L, modname, mark - modname);
-    openfunc = sdkl_pushfstring(L, LUA_POF"%s", openfunc);
+    openfunc = sdkl_pushfstring(L, SDKL_POF"%s", openfunc);
     stat = lookforfunc(L, filename, openfunc);
     if (stat != ERRFUNC) return stat;
     modname = mark + 1;  /* else go ahead and try old-style name */
   }
-  openfunc = sdkl_pushfstring(L, LUA_POF"%s", modname);
+  openfunc = sdkl_pushfstring(L, SDKL_POF"%s", modname);
   return lookforfunc(L, filename, openfunc);
 }
 
 
 static int searcher_C (sdkl_State *L) {
   const char *name = sdklL_checkstring(L, 1);
-  const char *filename = findfile(L, name, "cpath", LUA_CSUBSEP);
+  const char *filename = findfile(L, name, "cpath", SDKL_CSUBSEP);
   if (filename == NULL) return 1;  /* module not found in this path */
   return checkload(L, (loadfunc(L, filename, name) == 0), filename);
 }
@@ -593,7 +593,7 @@ static int searcher_Croot (sdkl_State *L) {
   int stat;
   if (p == NULL) return 0;  /* is root */
   sdkl_pushlstring(L, name, p - name);
-  filename = findfile(L, sdkl_tostring(L, -1), "cpath", LUA_CSUBSEP);
+  filename = findfile(L, sdkl_tostring(L, -1), "cpath", SDKL_CSUBSEP);
   if (filename == NULL) return 1;  /* root not found */
   if ((stat = loadfunc(L, filename, name)) != 0) {
     if (stat != ERRFUNC)
@@ -610,8 +610,8 @@ static int searcher_Croot (sdkl_State *L) {
 
 static int searcher_preload (sdkl_State *L) {
   const char *name = sdklL_checkstring(L, 1);
-  sdkl_getfield(L, LUA_REGISTRYINDEX, LUA_PRELOAD_TABLE);
-  if (sdkl_getfield(L, -1, name) == LUA_TNIL) {  /* not found? */
+  sdkl_getfield(L, SDKL_REGISTRYINDEX, SDKL_PRELOAD_TABLE);
+  if (sdkl_getfield(L, -1, name) == SDKL_TNIL) {  /* not found? */
     sdkl_pushfstring(L, "no field package.preload['%s']", name);
     return 1;
   }
@@ -627,13 +627,13 @@ static void findloader (sdkl_State *L, const char *name) {
   sdklL_Buffer msg;  /* to build error message */
   /* push 'package.searchers' to index 3 in the stack */
   if (l_unlikely(sdkl_getfield(L, sdkl_upvalueindex(1), "searchers")
-                 != LUA_TTABLE))
+                 != SDKL_TTABLE))
     sdklL_error(L, "'package.searchers' must be a table");
   sdklL_buffinit(L, &msg);
   /*  iterate over available searchers to find a loader */
   for (i = 1; ; i++) {
     sdklL_addstring(&msg, "\n\t");  /* error-message prefix */
-    if (l_unlikely(sdkl_rawgeti(L, 3, i) == LUA_TNIL)) {  /* no more searchers? */
+    if (l_unlikely(sdkl_rawgeti(L, 3, i) == SDKL_TNIL)) {  /* no more searchers? */
       sdkl_pop(L, 1);  /* remove nil */
       sdklL_buffsub(&msg, 2);  /* remove prefix */
       sdklL_pushresult(&msg);  /* create error message */
@@ -658,7 +658,7 @@ static void findloader (sdkl_State *L, const char *name) {
 static int ll_require (sdkl_State *L) {
   const char *name = sdklL_checkstring(L, 1);
   sdkl_settop(L, 1);  /* LOADED table will be at index 2 */
-  sdkl_getfield(L, LUA_REGISTRYINDEX, LUA_LOADED_TABLE);
+  sdkl_getfield(L, SDKL_REGISTRYINDEX, SDKL_LOADED_TABLE);
   sdkl_getfield(L, 2, name);  /* LOADED[name] */
   if (sdkl_toboolean(L, -1))  /* is it there? */
     return 1;  /* package is already loaded */
@@ -675,7 +675,7 @@ static int ll_require (sdkl_State *L) {
     sdkl_setfield(L, 2, name);  /* LOADED[name] = returned value */
   else
     sdkl_pop(L, 1);  /* pop nil */
-  if (sdkl_getfield(L, 2, name) == LUA_TNIL) {   /* module set no value? */
+  if (sdkl_getfield(L, 2, name) == SDKL_TNIL) {   /* module set no value? */
     sdkl_pushboolean(L, 1);  /* use true as result */
     sdkl_copy(L, -1, -2);  /* replace loader result */
     sdkl_setfield(L, 2, name);  /* LOADED[name] = true */
@@ -729,7 +729,7 @@ static void createsearcherstable (sdkl_State *L) {
 ** setting a finalizer to close all libraries when closing state.
 */
 static void createclibstable (sdkl_State *L) {
-  sdklL_getsubtable(L, LUA_REGISTRYINDEX, CLIBS);  /* create CLIBS table */
+  sdklL_getsubtable(L, SDKL_REGISTRYINDEX, CLIBS);  /* create CLIBS table */
   sdkl_createtable(L, 0, 1);  /* create metatable for CLIBS */
   sdkl_pushcfunction(L, gctm);
   sdkl_setfield(L, -2, "__gc");  /* set finalizer for CLIBS table */
@@ -737,22 +737,22 @@ static void createclibstable (sdkl_State *L) {
 }
 
 
-LUAMOD_API int sdklopen_package (sdkl_State *L) {
+SDKLMOD_API int sdklopen_package (sdkl_State *L) {
   createclibstable(L);
   sdklL_newlib(L, pk_funcs);  /* create 'package' table */
   createsearcherstable(L);
   /* set paths */
-  setpath(L, "path", LUA_PATH_VAR, LUA_PATH_DEFAULT);
-  setpath(L, "cpath", LUA_CPATH_VAR, LUA_CPATH_DEFAULT);
+  setpath(L, "path", SDKL_PATH_VAR, SDKL_PATH_DEFAULT);
+  setpath(L, "cpath", SDKL_CPATH_VAR, SDKL_CPATH_DEFAULT);
   /* store config information */
-  sdkl_pushliteral(L, LUA_DIRSEP "\n" LUA_PATH_SEP "\n" LUA_PATH_MARK "\n"
-                     LUA_EXEC_DIR "\n" LUA_IGMARK "\n");
+  sdkl_pushliteral(L, SDKL_DIRSEP "\n" SDKL_PATH_SEP "\n" SDKL_PATH_MARK "\n"
+                     SDKL_EXEC_DIR "\n" SDKL_IGMARK "\n");
   sdkl_setfield(L, -2, "config");
   /* set field 'loaded' */
-  sdklL_getsubtable(L, LUA_REGISTRYINDEX, LUA_LOADED_TABLE);
+  sdklL_getsubtable(L, SDKL_REGISTRYINDEX, SDKL_LOADED_TABLE);
   sdkl_setfield(L, -2, "loaded");
   /* set field 'preload' */
-  sdklL_getsubtable(L, LUA_REGISTRYINDEX, LUA_PRELOAD_TABLE);
+  sdklL_getsubtable(L, SDKL_REGISTRYINDEX, SDKL_PRELOAD_TABLE);
   sdkl_setfield(L, -2, "preload");
   sdkl_pushglobaltable(L);
   sdkl_pushvalue(L, -2);  /* set 'package' as upvalue for next lib */

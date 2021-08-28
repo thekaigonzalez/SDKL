@@ -5,7 +5,7 @@
 */
 
 #define lobject_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
@@ -53,18 +53,18 @@ int sdklO_ceillog2 (unsigned int x) {
 static sdkl_Integer intarith (sdkl_State *L, int op, sdkl_Integer v1,
                                                    sdkl_Integer v2) {
   switch (op) {
-    case LUA_OPADD: return intop(+, v1, v2);
-    case LUA_OPSUB:return intop(-, v1, v2);
-    case LUA_OPMUL:return intop(*, v1, v2);
-    case LUA_OPMOD: return sdklV_mod(L, v1, v2);
-    case LUA_OPIDIV: return sdklV_idiv(L, v1, v2);
-    case LUA_OPBAND: return intop(&, v1, v2);
-    case LUA_OPBOR: return intop(|, v1, v2);
-    case LUA_OPBXOR: return intop(^, v1, v2);
-    case LUA_OPSHL: return sdklV_shiftl(v1, v2);
-    case LUA_OPSHR: return sdklV_shiftl(v1, -v2);
-    case LUA_OPUNM: return intop(-, 0, v1);
-    case LUA_OPBNOT: return intop(^, ~l_castS2U(0), v1);
+    case SDKL_OPADD: return intop(+, v1, v2);
+    case SDKL_OPSUB:return intop(-, v1, v2);
+    case SDKL_OPMUL:return intop(*, v1, v2);
+    case SDKL_OPMOD: return sdklV_mod(L, v1, v2);
+    case SDKL_OPIDIV: return sdklV_idiv(L, v1, v2);
+    case SDKL_OPBAND: return intop(&, v1, v2);
+    case SDKL_OPBOR: return intop(|, v1, v2);
+    case SDKL_OPBXOR: return intop(^, v1, v2);
+    case SDKL_OPSHL: return sdklV_shiftl(v1, v2);
+    case SDKL_OPSHR: return sdklV_shiftl(v1, -v2);
+    case SDKL_OPUNM: return intop(-, 0, v1);
+    case SDKL_OPBNOT: return intop(^, ~l_castS2U(0), v1);
     default: sdkl_assert(0); return 0;
   }
 }
@@ -73,14 +73,14 @@ static sdkl_Integer intarith (sdkl_State *L, int op, sdkl_Integer v1,
 static sdkl_Number numarith (sdkl_State *L, int op, sdkl_Number v1,
                                                   sdkl_Number v2) {
   switch (op) {
-    case LUA_OPADD: return sdkli_numadd(L, v1, v2);
-    case LUA_OPSUB: return sdkli_numsub(L, v1, v2);
-    case LUA_OPMUL: return sdkli_nummul(L, v1, v2);
-    case LUA_OPDIV: return sdkli_numdiv(L, v1, v2);
-    case LUA_OPPOW: return sdkli_numpow(L, v1, v2);
-    case LUA_OPIDIV: return sdkli_numidiv(L, v1, v2);
-    case LUA_OPUNM: return sdkli_numunm(L, v1);
-    case LUA_OPMOD: return sdklV_modf(L, v1, v2);
+    case SDKL_OPADD: return sdkli_numadd(L, v1, v2);
+    case SDKL_OPSUB: return sdkli_numsub(L, v1, v2);
+    case SDKL_OPMUL: return sdkli_nummul(L, v1, v2);
+    case SDKL_OPDIV: return sdkli_numdiv(L, v1, v2);
+    case SDKL_OPPOW: return sdkli_numpow(L, v1, v2);
+    case SDKL_OPIDIV: return sdkli_numidiv(L, v1, v2);
+    case SDKL_OPUNM: return sdkli_numunm(L, v1);
+    case SDKL_OPMOD: return sdklV_modf(L, v1, v2);
     default: sdkl_assert(0); return 0;
   }
 }
@@ -89,9 +89,9 @@ static sdkl_Number numarith (sdkl_State *L, int op, sdkl_Number v1,
 int sdklO_rawarith (sdkl_State *L, int op, const TValue *p1, const TValue *p2,
                    TValue *res) {
   switch (op) {
-    case LUA_OPBAND: case LUA_OPBOR: case LUA_OPBXOR:
-    case LUA_OPSHL: case LUA_OPSHR:
-    case LUA_OPBNOT: {  /* operate only on integers */
+    case SDKL_OPBAND: case SDKL_OPBOR: case SDKL_OPBXOR:
+    case SDKL_OPSHL: case SDKL_OPSHR:
+    case SDKL_OPBNOT: {  /* operate only on integers */
       sdkl_Integer i1; sdkl_Integer i2;
       if (tointegerns(p1, &i1) && tointegerns(p2, &i2)) {
         setivalue(res, intarith(L, op, i1, i2));
@@ -99,7 +99,7 @@ int sdklO_rawarith (sdkl_State *L, int op, const TValue *p1, const TValue *p2,
       }
       else return 0;  /* fail */
     }
-    case LUA_OPDIV: case LUA_OPPOW: {  /* operate only on floats */
+    case SDKL_OPDIV: case SDKL_OPPOW: {  /* operate only on floats */
       sdkl_Number n1; sdkl_Number n2;
       if (tonumberns(p1, n1) && tonumberns(p2, n2)) {
         setfltvalue(res, numarith(L, op, n1, n2));
@@ -127,7 +127,7 @@ void sdklO_arith (sdkl_State *L, int op, const TValue *p1, const TValue *p2,
                  StkId res) {
   if (!sdklO_rawarith(L, op, p1, p2, s2v(res))) {
     /* could not perform raw operation; try metamethod */
-    sdklT_trybinTM(L, p1, p2, res, cast(TMS, (op - LUA_OPADD) + TM_ADD));
+    sdklT_trybinTM(L, p1, p2, res, cast(TMS, (op - SDKL_OPADD) + TM_ADD));
   }
 }
 
@@ -270,8 +270,8 @@ static const char *l_str2d (const char *s, sdkl_Number *result) {
 }
 
 
-#define MAXBY10		cast(sdkl_Unsigned, LUA_MAXINTEGER / 10)
-#define MAXLASTD	cast_int(LUA_MAXINTEGER % 10)
+#define MAXBY10		cast(sdkl_Unsigned, SDKL_MAXINTEGER / 10)
+#define MAXLASTD	cast_int(SDKL_MAXINTEGER % 10)
 
 static const char *l_str2int (const char *s, sdkl_Integer *result) {
   sdkl_Unsigned a = 0;
@@ -340,7 +340,7 @@ int sdklO_utf8esc (char *buff, unsigned long x) {
 
 /*
 ** Maximum length of the conversion of a number to a string. Must be
-** enough to accommodate both LUA_INTEGER_FMT and LUA_NUMBER_FMT.
+** enough to accommodate both SDKL_INTEGER_FMT and SDKL_NUMBER_FMT.
 ** (For a long long int, this is 19 digits plus a sign and a final '\0',
 ** adding to 21. For a long double, it can go to a sign, 33 digits,
 ** the dot, an exponent letter, an exponent sign, 5 exponent digits,
@@ -555,7 +555,7 @@ const char *sdklO_pushfstring (sdkl_State *L, const char *fmt, ...) {
 #define addstr(a,b,l)	( memcpy(a,b,(l) * sizeof(char)), a += (l) )
 
 void sdklO_chunkid (char *out, const char *source, size_t srclen) {
-  size_t bufflen = LUA_IDSIZE;  /* free space in buffer */
+  size_t bufflen = SDKL_IDSIZE;  /* free space in buffer */
   if (*source == '=') {  /* 'literal' source */
     if (srclen <= bufflen)  /* small enough? */
       memcpy(out, source + 1, srclen * sizeof(char));

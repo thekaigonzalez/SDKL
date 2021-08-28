@@ -5,7 +5,7 @@
 */
 
 #define lcode_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
@@ -673,22 +673,22 @@ static void sdklK_float (FuncState *fs, int reg, sdkl_Number f) {
 */
 static void const2exp (TValue *v, expdesc *e) {
   switch (ttypetag(v)) {
-    case LUA_VNUMINT:
+    case SDKL_VNUMINT:
       e->k = VKINT; e->u.ival = ivalue(v);
       break;
-    case LUA_VNUMFLT:
+    case SDKL_VNUMFLT:
       e->k = VKFLT; e->u.nval = fltvalue(v);
       break;
-    case LUA_VFALSE:
+    case SDKL_VFALSE:
       e->k = VFALSE;
       break;
-    case LUA_VTRUE:
+    case SDKL_VTRUE:
       e->k = VTRUE;
       break;
-    case LUA_VNIL:
+    case SDKL_VNIL:
       e->k = VNIL;
       break;
-    case LUA_VSHRSTR:  case LUA_VLNGSTR:
+    case SDKL_VSHRSTR:  case SDKL_VLNGSTR:
       e->k = VKSTR; e->u.strval = tsvalue(v);
       break;
     default: sdkl_assert(0);
@@ -1295,13 +1295,13 @@ void sdklK_indexed (FuncState *fs, expdesc *t, expdesc *k) {
 */
 static int validop (int op, TValue *v1, TValue *v2) {
   switch (op) {
-    case LUA_OPBAND: case LUA_OPBOR: case LUA_OPBXOR:
-    case LUA_OPSHL: case LUA_OPSHR: case LUA_OPBNOT: {  /* conversion errors */
+    case SDKL_OPBAND: case SDKL_OPBOR: case SDKL_OPBXOR:
+    case SDKL_OPSHL: case SDKL_OPSHR: case SDKL_OPBNOT: {  /* conversion errors */
       sdkl_Integer i;
-      return (sdklV_tointegerns(v1, &i, LUA_FLOORN2I) &&
-              sdklV_tointegerns(v2, &i, LUA_FLOORN2I));
+      return (sdklV_tointegerns(v1, &i, SDKL_FLOORN2I) &&
+              sdklV_tointegerns(v2, &i, SDKL_FLOORN2I));
     }
-    case LUA_OPDIV: case LUA_OPIDIV: case LUA_OPMOD:  /* division by 0 */
+    case SDKL_OPDIV: case SDKL_OPIDIV: case SDKL_OPMOD:  /* division by 0 */
       return (nvalue(v2) != 0);
     default: return 1;  /* everything else is valid */
   }
@@ -1555,7 +1555,7 @@ void sdklK_prefix (FuncState *fs, UnOpr op, expdesc *e, int line) {
   sdklK_dischargevars(fs, e);
   switch (op) {
     case OPR_MINUS: case OPR_BNOT:  /* use 'ef' as fake 2nd operand */
-      if (constfolding(fs, op + LUA_OPUNM, e, &ef))
+      if (constfolding(fs, op + SDKL_OPUNM, e, &ef))
         break;
       /* else */ /* FALLTHROUGH */
     case OPR_LEN:
@@ -1642,7 +1642,7 @@ static void codeconcat (FuncState *fs, expdesc *e1, expdesc *e2, int line) {
 void sdklK_posfix (FuncState *fs, BinOpr opr,
                   expdesc *e1, expdesc *e2, int line) {
   sdklK_dischargevars(fs, e2);
-  if (foldbinop(opr) && constfolding(fs, opr + LUA_OPADD, e1, e2))
+  if (foldbinop(opr) && constfolding(fs, opr + SDKL_OPADD, e1, e2))
     return;  /* done by folding */
   switch (opr) {
     case OPR_AND: {
@@ -1745,11 +1745,11 @@ void sdklK_settablesize (FuncState *fs, int pc, int ra, int asize, int hsize) {
 ** 'base' is register that keeps table;
 ** 'nelems' is #table plus those to be stored now;
 ** 'tostore' is number of values (in registers 'base + 1',...) to add to
-** table (or LUA_MULTRET to add up to stack top).
+** table (or SDKL_MULTRET to add up to stack top).
 */
 void sdklK_setlist (FuncState *fs, int base, int nelems, int tostore) {
   sdkl_assert(tostore != 0 && tostore <= LFIELDS_PER_FLUSH);
-  if (tostore == LUA_MULTRET)
+  if (tostore == SDKL_MULTRET)
     tostore = 0;
   if (nelems <= MAXARG_C)
     sdklK_codeABC(fs, OP_SETLIST, base, tostore, nelems);

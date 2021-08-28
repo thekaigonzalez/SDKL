@@ -5,7 +5,7 @@
 */
 
 #define loslib_c
-#define LUA_LIB
+#define SDKL_LIB
 
 #include "lprefix.h"
 
@@ -35,7 +35,7 @@
 ** options are grouped by length; group of length 2 start with '||'.
 ** ===================================================================
 */
-#if !defined(LUA_STRFTIMEOPTIONS)	/* { */
+#if !defined(SDKL_STRFTIMEOPTIONS)	/* { */
 
 /* options for ANSI C 89 (only 1-char options) */
 #define L_STRFTIMEC89		"aAbBcdHIjmMpSUwWxXyYZ%"
@@ -48,12 +48,12 @@
 #define L_STRFTIMEWIN "aAbBcdHIjmMpSUwWxXyYzZ%" \
     "||" "#c#x#d#H#I#j#m#M#S#U#w#W#y#Y"  /* two-char options */
 
-#if defined(LUA_USE_WINDOWS)
-#define LUA_STRFTIMEOPTIONS	L_STRFTIMEWIN
-#elif defined(LUA_USE_C89)
-#define LUA_STRFTIMEOPTIONS	L_STRFTIMEC89
+#if defined(SDKL_USE_WINDOWS)
+#define SDKL_STRFTIMEOPTIONS	L_STRFTIMEWIN
+#elif defined(SDKL_USE_C89)
+#define SDKL_STRFTIMEOPTIONS	L_STRFTIMEC89
 #else  /* C99 specification */
-#define LUA_STRFTIMEOPTIONS	L_STRFTIMEC99
+#define SDKL_STRFTIMEOPTIONS	L_STRFTIMEC99
 #endif
 
 #endif					/* } */
@@ -69,7 +69,7 @@
 /*
 ** type to represent time_t in SDKL
 */
-#if !defined(LUA_NUMTIME)	/* { */
+#if !defined(SDKL_NUMTIME)	/* { */
 
 #define l_timet			sdkl_Integer
 #define l_pushtime(L,t)		sdkl_pushinteger(L,(sdkl_Integer)(t))
@@ -90,7 +90,7 @@
 ** where it uses gmtime_r/localtime_r
 */
 
-#if defined(LUA_USE_POSIX)	/* { */
+#if defined(SDKL_USE_POSIX)	/* { */
 
 #define l_gmtime(t,r)		gmtime_r(t,r)
 #define l_localtime(t,r)	localtime_r(t,r)
@@ -117,18 +117,18 @@
 */
 #if !defined(sdkl_tmpnam)	/* { */
 
-#if defined(LUA_USE_POSIX)	/* { */
+#if defined(SDKL_USE_POSIX)	/* { */
 
 #include <unistd.h>
 
-#define LUA_TMPNAMBUFSIZE	32
+#define SDKL_TMPNAMBUFSIZE	32
 
-#if !defined(LUA_TMPNAMTEMPLATE)
-#define LUA_TMPNAMTEMPLATE	"/tmp/sdkl_XXXXXX"
+#if !defined(SDKL_TMPNAMTEMPLATE)
+#define SDKL_TMPNAMTEMPLATE	"/tmp/sdkl_XXXXXX"
 #endif
 
 #define sdkl_tmpnam(b,e) { \
-        strcpy(b, LUA_TMPNAMTEMPLATE); \
+        strcpy(b, SDKL_TMPNAMTEMPLATE); \
         e = mkstemp(b); \
         if (e != -1) close(e); \
         e = (e == -1); }
@@ -136,7 +136,7 @@
 #else				/* }{ */
 
 /* ISO C definitions */
-#define LUA_TMPNAMBUFSIZE	L_tmpnam
+#define SDKL_TMPNAMBUFSIZE	L_tmpnam
 #define sdkl_tmpnam(b,e)		{ e = (tmpnam(b) == NULL); }
 
 #endif				/* } */
@@ -181,7 +181,7 @@ static int os_rename (sdkl_State *L) {
 
 
 static int os_tmpname (sdkl_State *L) {
-  char buff[LUA_TMPNAMBUFSIZE];
+  char buff[SDKL_TMPNAMBUFSIZE];
   int err;
   sdkl_tmpnam(buff, err);
   if (l_unlikely(err))
@@ -221,8 +221,8 @@ static int os_clock (sdkl_State *L) {
 ** to compute the year.
 */
 static void setfield (sdkl_State *L, const char *key, int value, int delta) {
-  #if (defined(LUA_NUMTIME) && LUA_MAXINTEGER <= INT_MAX)
-    if (l_unlikely(value > LUA_MAXINTEGER - delta))
+  #if (defined(SDKL_NUMTIME) && SDKL_MAXINTEGER <= INT_MAX)
+    if (l_unlikely(value > SDKL_MAXINTEGER - delta))
       sdklL_error(L, "field '%s' is out-of-bound", key);
   #endif
   sdkl_pushinteger(L, (sdkl_Integer)value + delta);
@@ -256,7 +256,7 @@ static void setallfields (sdkl_State *L, struct tm *stm) {
 
 static int getboolfield (sdkl_State *L, const char *key) {
   int res;
-  res = (sdkl_getfield(L, -1, key) == LUA_TNIL) ? -1 : sdkl_toboolean(L, -1);
+  res = (sdkl_getfield(L, -1, key) == SDKL_TNIL) ? -1 : sdkl_toboolean(L, -1);
   sdkl_pop(L, 1);
   return res;
 }
@@ -267,7 +267,7 @@ static int getfield (sdkl_State *L, const char *key, int d, int delta) {
   int t = sdkl_getfield(L, -1, key);  /* get field and its type */
   sdkl_Integer res = sdkl_tointegerx(L, -1, &isnum);
   if (!isnum) {  /* field is not an integer? */
-    if (l_unlikely(t != LUA_TNIL))  /* some other value? */
+    if (l_unlikely(t != SDKL_TNIL))  /* some other value? */
       return sdklL_error(L, "field '%s' is not an integer", key);
     else if (l_unlikely(d < 0))  /* absent field; no default? */
       return sdklL_error(L, "field '%s' missing in date table", key);
@@ -287,7 +287,7 @@ static int getfield (sdkl_State *L, const char *key, int d, int delta) {
 
 static const char *checkoption (sdkl_State *L, const char *conv,
                                 ptrdiff_t convlen, char *buff) {
-  const char *option = LUA_STRFTIMEOPTIONS;
+  const char *option = SDKL_STRFTIMEOPTIONS;
   int oplen = 1;  /* length of options being checked */
   for (; *option != '\0' && oplen <= convlen; option += oplen) {
     if (*option == '|')  /* next block? */
@@ -363,7 +363,7 @@ static int os_time (sdkl_State *L) {
     t = time(NULL);  /* get current time */
   else {
     struct tm ts;
-    sdklL_checktype(L, 1, LUA_TTABLE);
+    sdklL_checktype(L, 1, SDKL_TTABLE);
     sdkl_settop(L, 1);  /* make sure table is at the top */
     ts.tm_year = getfield(L, "year", -1, 1900);
     ts.tm_mon = getfield(L, "month", -1, 1);
@@ -459,7 +459,7 @@ static const sdklL_Reg syslib[] = {
 
 
 
-LUAMOD_API int sdklopen_os (sdkl_State *L) {
+SDKLMOD_API int sdklopen_os (sdkl_State *L) {
   sdklL_newlib(L, syslib);
   return 1;
 }

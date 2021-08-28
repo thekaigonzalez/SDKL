@@ -5,7 +5,7 @@
 */
 
 #define ltablib_c
-#define LUA_LIB
+#define SDKL_LIB
 
 #include "lprefix.h"
 
@@ -35,7 +35,7 @@
 
 static int checkfield (sdkl_State *L, const char *key, int n) {
   sdkl_pushstring(L, key);
-  return (sdkl_rawget(L, -n) != LUA_TNIL);
+  return (sdkl_rawget(L, -n) != SDKL_TNIL);
 }
 
 
@@ -44,7 +44,7 @@ static int checkfield (sdkl_State *L, const char *key, int n) {
 ** has a metatable with the required metamethods)
 */
 static void checktab (sdkl_State *L, int arg, int what) {
-  if (sdkl_type(L, arg) != LUA_TTABLE) {  /* is it not a table? */
+  if (sdkl_type(L, arg) != SDKL_TTABLE) {  /* is it not a table? */
     int n = 1;  /* number of elements to pop */
     if (sdkl_getmetatable(L, arg) &&  /* must have metatable */
         (!(what & TAB_R) || checkfield(L, "__index", ++n)) &&
@@ -53,7 +53,7 @@ static void checktab (sdkl_State *L, int arg, int what) {
       sdkl_pop(L, n);  /* pop metatable and tested metamethods */
     }
     else
-      sdklL_checktype(L, arg, LUA_TTABLE);  /* force an error */
+      sdklL_checktype(L, arg, SDKL_TTABLE);  /* force an error */
   }
 }
 
@@ -120,12 +120,12 @@ static int tmove (sdkl_State *L) {
   checktab(L, tt, TAB_W);
   if (e >= f) {  /* otherwise, nothing to move */
     sdkl_Integer n, i;
-    sdklL_argcheck(L, f > 0 || e < LUA_MAXINTEGER + f, 3,
+    sdklL_argcheck(L, f > 0 || e < SDKL_MAXINTEGER + f, 3,
                   "too many elements to move");
     n = e - f + 1;  /* number of elements to move */
-    sdklL_argcheck(L, t <= LUA_MAXINTEGER - n + 1, 4,
+    sdklL_argcheck(L, t <= SDKL_MAXINTEGER - n + 1, 4,
                   "destination wrap around");
-    if (t > e || t <= f || (tt != 1 && !sdkl_compare(L, 1, tt, LUA_OPEQ))) {
+    if (t > e || t <= f || (tt != 1 && !sdkl_compare(L, 1, tt, SDKL_OPEQ))) {
       for (i = 0; i < n; i++) {
         sdkl_geti(L, 1, f + i);
         sdkl_seti(L, tt, t + i);
@@ -273,7 +273,7 @@ static void set2 (sdkl_State *L, IdxT i, IdxT j) {
 */
 static int sort_comp (sdkl_State *L, int a, int b) {
   if (sdkl_isnil(L, 2))  /* no function? */
-    return sdkl_compare(L, a, b, LUA_OPLT);  /* a < b */
+    return sdkl_compare(L, a, b, SDKL_OPLT);  /* a < b */
   else {  /* function */
     int res;
     sdkl_pushvalue(L, 2);    /* push function */
@@ -400,7 +400,7 @@ static int sort (sdkl_State *L) {
   if (n > 1) {  /* non-trivial interval? */
     sdklL_argcheck(L, n < INT_MAX, 1, "array too big");
     if (!sdkl_isnoneornil(L, 2))  /* is there a 2nd argument? */
-      sdklL_checktype(L, 2, LUA_TFUNCTION);  /* must be a function */
+      sdklL_checktype(L, 2, SDKL_TFUNCTION);  /* must be a function */
     sdkl_settop(L, 2);  /* make sure there are two arguments */
     auxsort(L, 1, (IdxT)n, 0);
   }
@@ -422,7 +422,7 @@ static const sdklL_Reg tab_funcs[] = {
 };
 
 
-LUAMOD_API int sdklopen_table (sdkl_State *L) {
+SDKLMOD_API int sdklopen_table (sdkl_State *L) {
   sdklL_newlib(L, tab_funcs);
   return 1;
 }

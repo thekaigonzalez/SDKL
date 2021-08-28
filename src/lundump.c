@@ -5,7 +5,7 @@
 */
 
 #define lundump_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
@@ -39,7 +39,7 @@ typedef struct {
 
 static l_noret error (LoadState *S, const char *why) {
   sdklO_pushfstring(S->L, "%s: bad binary format (%s)", S->name, why);
-  sdklD_throw(S->L, LUA_ERRSYNTAX);
+  sdklD_throw(S->L, SDKL_ERRSYNTAX);
 }
 
 
@@ -113,8 +113,8 @@ static TString *loadStringN (LoadState *S, Proto *p) {
   size_t size = loadSize(S);
   if (size == 0)  /* no string? */
     return NULL;
-  else if (--size <= LUAI_MAXSHORTLEN) {  /* short string? */
-    char buff[LUAI_MAXSHORTLEN];
+  else if (--size <= SDKLI_MAXSHORTLEN) {  /* short string? */
+    char buff[SDKLI_MAXSHORTLEN];
     loadVector(S, buff, size);  /* load string into buffer */
     ts = sdklS_newlstr(L, buff, size);  /* create string */
   }
@@ -163,23 +163,23 @@ static void loadConstants (LoadState *S, Proto *f) {
     TValue *o = &f->k[i];
     int t = loadByte(S);
     switch (t) {
-      case LUA_VNIL:
+      case SDKL_VNIL:
         setnilvalue(o);
         break;
-      case LUA_VFALSE:
+      case SDKL_VFALSE:
         setbfvalue(o);
         break;
-      case LUA_VTRUE:
+      case SDKL_VTRUE:
         setbtvalue(o);
         break;
-      case LUA_VNUMFLT:
+      case SDKL_VNUMFLT:
         setfltvalue(o, loadNumber(S));
         break;
-      case LUA_VNUMINT:
+      case SDKL_VNUMINT:
         setivalue(o, loadInteger(S));
         break;
-      case LUA_VSHRSTR:
-      case LUA_VLNGSTR:
+      case SDKL_VSHRSTR:
+      case SDKL_VLNGSTR:
         setsvalue2n(S->L, o, loadString(S, f));
         break;
       default: sdkl_assert(0);
@@ -271,7 +271,7 @@ static void loadFunction (LoadState *S, Proto *f, TString *psource) {
 
 
 static void checkliteral (LoadState *S, const char *s, const char *msg) {
-  char buff[sizeof(LUA_SIGNATURE) + sizeof(LUAC_DATA)]; /* larger than both */
+  char buff[sizeof(SDKL_SIGNATURE) + sizeof(SDKLC_DATA)]; /* larger than both */
   size_t len = strlen(s);
   loadVector(S, buff, len);
   if (memcmp(s, buff, len) != 0)
@@ -289,18 +289,18 @@ static void fchecksize (LoadState *S, size_t size, const char *tname) {
 
 static void checkHeader (LoadState *S) {
   /* skip 1st char (already read and checked) */
-  checkliteral(S, &LUA_SIGNATURE[1], "not a binary chunk");
-  if (loadByte(S) != LUAC_VERSION)
+  checkliteral(S, &SDKL_SIGNATURE[1], "not a binary chunk");
+  if (loadByte(S) != SDKLC_VERSION)
     error(S, "version mismatch");
-  if (loadByte(S) != LUAC_FORMAT)
+  if (loadByte(S) != SDKLC_FORMAT)
     error(S, "format mismatch");
-  checkliteral(S, LUAC_DATA, "corrupted chunk");
+  checkliteral(S, SDKLC_DATA, "corrupted chunk");
   checksize(S, Instruction);
   checksize(S, sdkl_Integer);
   checksize(S, sdkl_Number);
-  if (loadInteger(S) != LUAC_INT)
+  if (loadInteger(S) != SDKLC_INT)
     error(S, "integer format mismatch");
-  if (loadNumber(S) != LUAC_NUM)
+  if (loadNumber(S) != SDKLC_NUM)
     error(S, "float format mismatch");
 }
 
@@ -313,7 +313,7 @@ LClosure *sdklU_undump(sdkl_State *L, ZIO *Z, const char *name) {
   LClosure *cl;
   if (*name == '@' || *name == '=')
     S.name = name + 1;
-  else if (*name == LUA_SIGNATURE[0])
+  else if (*name == SDKL_SIGNATURE[0])
     S.name = "binary string";
   else
     S.name = name;

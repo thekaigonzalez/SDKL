@@ -5,7 +5,7 @@
 */
 
 #define lmathlib_c
-#define LUA_LIB
+#define SDKL_LIB
 
 #include "lprefix.h"
 
@@ -173,7 +173,7 @@ static int math_log (sdkl_State *L) {
     res = l_mathop(log)(x);
   else {
     sdkl_Number base = sdklL_checknumber(L, 2);
-#if !defined(LUA_USE_C89)
+#if !defined(SDKL_USE_C89)
     if (base == l_mathop(2.0))
       res = l_mathop(log2)(x);
     else
@@ -209,7 +209,7 @@ static int math_min (sdkl_State *L) {
   int i;
   sdklL_argcheck(L, n >= 1, 1, "value expected");
   for (i = 2; i <= n; i++) {
-    if (sdkl_compare(L, i, imin, LUA_OPLT))
+    if (sdkl_compare(L, i, imin, SDKL_OPLT))
       imin = i;
   }
   sdkl_pushvalue(L, imin);
@@ -223,7 +223,7 @@ static int math_max (sdkl_State *L) {
   int i;
   sdklL_argcheck(L, n >= 1, 1, "value expected");
   for (i = 2; i <= n; i++) {
-    if (sdkl_compare(L, imax, i, LUA_OPLT))
+    if (sdkl_compare(L, imax, i, SDKL_OPLT))
       imax = i;
   }
   sdkl_pushvalue(L, imax);
@@ -232,7 +232,7 @@ static int math_max (sdkl_State *L) {
 
 
 static int math_type (sdkl_State *L) {
-  if (sdkl_type(L, 1) == LUA_TNUMBER)
+  if (sdkl_type(L, 1) == SDKL_TNUMBER)
     sdkl_pushstring(L, (sdkl_isinteger(L, 1)) ? "integer" : "float");
   else {
     sdklL_checkany(L, 1);
@@ -260,10 +260,10 @@ static int math_type (sdkl_State *L) {
 
 
 /*
-** LUA_RAND32 forces the use of 32-bit integers in the implementation
+** SDKL_RAND32 forces the use of 32-bit integers in the implementation
 ** of the PRN generator (mainly for testing).
 */
-#if !defined(LUA_RAND32) && !defined(Rand64)
+#if !defined(SDKL_RAND32) && !defined(Rand64)
 
 /* try to find an integer type with at least 64 bits */
 
@@ -272,12 +272,12 @@ static int math_type (sdkl_State *L) {
 /* 'long' has at least 64 bits */
 #define Rand64		unsigned long
 
-#elif !defined(LUA_USE_C89) && defined(LLONG_MAX)
+#elif !defined(SDKL_USE_C89) && defined(LLONG_MAX)
 
 /* there is a 'long long' type (which must have at least 64 bits) */
 #define Rand64		unsigned long long
 
-#elif (LUA_MAXUNSIGNED >> 31 >> 31) >= 3
+#elif (SDKL_MAXUNSIGNED >> 31 >> 31) >= 3
 
 /* 'sdkl_Integer' has at least 64 bits */
 #define Rand64		sdkl_Unsigned
@@ -348,7 +348,7 @@ static sdkl_Number I2d (Rand64 x) {
 #else	/* no 'Rand64'   }{ */
 
 /* get an integer with at least 32 bits */
-#if LUAI_IS32INT
+#if SDKLI_IS32INT
 typedef unsigned int lu_int32;
 #else
 typedef unsigned long lu_int32;
@@ -541,7 +541,7 @@ static sdkl_Unsigned project (sdkl_Unsigned ran, sdkl_Unsigned n,
     lim |= (lim >> 4);
     lim |= (lim >> 8);
     lim |= (lim >> 16);
-#if (LUA_MAXUNSIGNED >> 31) >= 3
+#if (SDKL_MAXUNSIGNED >> 31) >= 3
     lim |= (lim >> 32);  /* integer type has more than 32 bits */
 #endif
     sdkl_assert((lim & (lim + 1)) == 0  /* 'lim + 1' is a power of 2, */
@@ -654,7 +654,7 @@ static void setrandfunc (sdkl_State *L) {
 ** Deprecated functions (for compatibility only)
 ** ===================================================================
 */
-#if defined(LUA_COMPAT_MATHLIB)
+#if defined(SDKL_COMPAT_MATHLIB)
 
 static int math_cosh (sdkl_State *L) {
   sdkl_pushnumber(L, l_mathop(cosh)(sdklL_checknumber(L, 1)));
@@ -724,7 +724,7 @@ static const sdklL_Reg mathlib[] = {
   {"sqrt",  math_sqrt},
   {"tan",   math_tan},
   {"type", math_type},
-#if defined(LUA_COMPAT_MATHLIB)
+#if defined(SDKL_COMPAT_MATHLIB)
   {"atan2", math_atan},
   {"cosh",   math_cosh},
   {"sinh",   math_sinh},
@@ -748,15 +748,15 @@ static const sdklL_Reg mathlib[] = {
 /*
 ** Open math library
 */
-LUAMOD_API int sdklopen_math (sdkl_State *L) {
+SDKLMOD_API int sdklopen_math (sdkl_State *L) {
   sdklL_newlib(L, mathlib);
   sdkl_pushnumber(L, PI);
   sdkl_setfield(L, -2, "pi");
   sdkl_pushnumber(L, (sdkl_Number)HUGE_VAL);
   sdkl_setfield(L, -2, "huge");
-  sdkl_pushinteger(L, LUA_MAXINTEGER);
+  sdkl_pushinteger(L, SDKL_MAXINTEGER);
   sdkl_setfield(L, -2, "maxinteger");
-  sdkl_pushinteger(L, LUA_MININTEGER);
+  sdkl_pushinteger(L, SDKL_MININTEGER);
   sdkl_setfield(L, -2, "mininteger");
   setrandfunc(L);
   return 1;

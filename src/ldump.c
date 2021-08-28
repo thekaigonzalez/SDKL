@@ -5,7 +5,7 @@
 */
 
 #define ldump_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
@@ -114,18 +114,18 @@ static void dumpConstants (DumpState *D, const Proto *f) {
     int tt = ttypetag(o);
     dumpByte(D, tt);
     switch (tt) {
-      case LUA_VNUMFLT:
+      case SDKL_VNUMFLT:
         dumpNumber(D, fltvalue(o));
         break;
-      case LUA_VNUMINT:
+      case SDKL_VNUMINT:
         dumpInteger(D, ivalue(o));
         break;
-      case LUA_VSHRSTR:
-      case LUA_VLNGSTR:
+      case SDKL_VSHRSTR:
+      case SDKL_VLNGSTR:
         dumpString(D, tsvalue(o));
         break;
       default:
-        sdkl_assert(tt == LUA_VNIL || tt == LUA_VFALSE || tt == LUA_VTRUE);
+        sdkl_assert(tt == SDKL_VNIL || tt == SDKL_VFALSE || tt == SDKL_VTRUE);
     }
   }
 }
@@ -195,15 +195,15 @@ static void dumpFunction (DumpState *D, const Proto *f, TString *psource) {
 
 
 static void dumpHeader (DumpState *D) {
-  dumpLiteral(D, LUA_SIGNATURE);
-  dumpByte(D, LUAC_VERSION);
-  dumpByte(D, LUAC_FORMAT);
-  dumpLiteral(D, LUAC_DATA);
+  dumpLiteral(D, SDKL_SIGNATURE);
+  dumpByte(D, SDKLC_VERSION);
+  dumpByte(D, SDKLC_FORMAT);
+  dumpLiteral(D, SDKLC_DATA);
   dumpByte(D, sizeof(Instruction));
   dumpByte(D, sizeof(sdkl_Integer));
   dumpByte(D, sizeof(sdkl_Number));
-  dumpInteger(D, LUAC_INT);
-  dumpNumber(D, LUAC_NUM);
+  dumpInteger(D, SDKLC_INT);
+  dumpNumber(D, SDKLC_NUM);
 }
 
 

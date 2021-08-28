@@ -5,7 +5,7 @@
 */
 
 #define lutf8lib_c
-#define LUA_LIB
+#define SDKL_LIB
 
 #include "lprefix.h"
 
@@ -280,7 +280,7 @@ static const sdklL_Reg funcs[] = {
 };
 
 
-LUAMOD_API int sdklopen_utf8 (sdkl_State *L) {
+SDKLMOD_API int sdklopen_utf8 (sdkl_State *L) {
   sdklL_newlib(L, funcs);
   sdkl_pushlstring(L, UTF8PATT, sizeof(UTF8PATT)/sizeof(char) - 1);
   sdkl_setfield(L, -2, "charpattern");

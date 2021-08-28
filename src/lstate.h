@@ -137,7 +137,7 @@ struct sdkl_longjmp;  /* defined in ldo.c */
 #define EXTRA_STACK   5
 
 
-#define BASIC_STACK_SIZE        (2*LUA_MINSTACK)
+#define BASIC_STACK_SIZE        (2*SDKL_MINSTACK)
 
 #define stacksize(th)	cast_int((th)->stack_last - (th)->stack)
 
@@ -214,7 +214,7 @@ typedef struct CallInfo {
 #define CIST_CLSRET	(1<<9)  /* function is closing tbc variables */
 /* Bits 10-12 are used for CIST_RECST (see below) */
 #define CIST_RECST	10
-#if defined(LUA_COMPAT_LT_LE)
+#if defined(SDKL_COMPAT_LT_LE)
 #define CIST_LEQ	(1<<13)  /* using __lt for __le */
 #endif
 
@@ -291,7 +291,7 @@ typedef struct global_State {
   struct sdkl_State *mainthread;
   TString *memerrmsg;  /* message for memory-allocation errors */
   TString *tmname[TM_N];  /* array with tag-method names */
-  struct Table *mt[LUA_NUMTAGS];  /* metatables for basic types */
+  struct Table *mt[SDKL_NUMTAGS];  /* metatables for basic types */
   TString *strcache[STRCACHE_N][STRCACHE_M];  /* cache for strings in API */
   sdkl_WarnFunction warnf;  /* warning function */
   void *ud_warn;         /* auxiliary data to 'warnf' */
@@ -366,38 +366,38 @@ union GCUnion {
 
 /* macros to convert a GCObject into a specific value */
 #define gco2ts(o)  \
-	check_exp(novariant((o)->tt) == LUA_TSTRING, &((cast_u(o))->ts))
-#define gco2u(o)  check_exp((o)->tt == LUA_VUSERDATA, &((cast_u(o))->u))
-#define gco2lcl(o)  check_exp((o)->tt == LUA_VLCL, &((cast_u(o))->cl.l))
-#define gco2ccl(o)  check_exp((o)->tt == LUA_VCCL, &((cast_u(o))->cl.c))
+	check_exp(novariant((o)->tt) == SDKL_TSTRING, &((cast_u(o))->ts))
+#define gco2u(o)  check_exp((o)->tt == SDKL_VUSERDATA, &((cast_u(o))->u))
+#define gco2lcl(o)  check_exp((o)->tt == SDKL_VLCL, &((cast_u(o))->cl.l))
+#define gco2ccl(o)  check_exp((o)->tt == SDKL_VCCL, &((cast_u(o))->cl.c))
 #define gco2cl(o)  \
-	check_exp(novariant((o)->tt) == LUA_TFUNCTION, &((cast_u(o))->cl))
-#define gco2t(o)  check_exp((o)->tt == LUA_VTABLE, &((cast_u(o))->h))
-#define gco2p(o)  check_exp((o)->tt == LUA_VPROTO, &((cast_u(o))->p))
-#define gco2th(o)  check_exp((o)->tt == LUA_VTHREAD, &((cast_u(o))->th))
-#define gco2upv(o)	check_exp((o)->tt == LUA_VUPVAL, &((cast_u(o))->upv))
+	check_exp(novariant((o)->tt) == SDKL_TFUNCTION, &((cast_u(o))->cl))
+#define gco2t(o)  check_exp((o)->tt == SDKL_VTABLE, &((cast_u(o))->h))
+#define gco2p(o)  check_exp((o)->tt == SDKL_VPROTO, &((cast_u(o))->p))
+#define gco2th(o)  check_exp((o)->tt == SDKL_VTHREAD, &((cast_u(o))->th))
+#define gco2upv(o)	check_exp((o)->tt == SDKL_VUPVAL, &((cast_u(o))->upv))
 
 
 /*
 ** macro to convert a SDKL object into a GCObject
 ** (The access to 'tt' tries to ensure that 'v' is actually a SDKL object.)
 */
-#define obj2gco(v)	check_exp((v)->tt >= LUA_TSTRING, &(cast_u(v)->gc))
+#define obj2gco(v)	check_exp((v)->tt >= SDKL_TSTRING, &(cast_u(v)->gc))
 
 
 /* actual number of total bytes allocated */
 #define gettotalbytes(g)	cast(lu_mem, (g)->totalbytes + (g)->GCdebt)
 
-LUAI_FUNC void sdklE_setdebt (global_State *g, l_mem debt);
-LUAI_FUNC void sdklE_freethread (sdkl_State *L, sdkl_State *L1);
-LUAI_FUNC CallInfo *sdklE_extendCI (sdkl_State *L);
-LUAI_FUNC void sdklE_freeCI (sdkl_State *L);
-LUAI_FUNC void sdklE_shrinkCI (sdkl_State *L);
-LUAI_FUNC void sdklE_checkcstack (sdkl_State *L);
-LUAI_FUNC void sdklE_incCstack (sdkl_State *L);
-LUAI_FUNC void sdklE_warning (sdkl_State *L, const char *msg, int tocont);
-LUAI_FUNC void sdklE_warnerror (sdkl_State *L, const char *where);
-LUAI_FUNC int sdklE_resetthread (sdkl_State *L, int status);
+SDKLI_FUNC void sdklE_setdebt (global_State *g, l_mem debt);
+SDKLI_FUNC void sdklE_freethread (sdkl_State *L, sdkl_State *L1);
+SDKLI_FUNC CallInfo *sdklE_extendCI (sdkl_State *L);
+SDKLI_FUNC void sdklE_freeCI (sdkl_State *L);
+SDKLI_FUNC void sdklE_shrinkCI (sdkl_State *L);
+SDKLI_FUNC void sdklE_checkcstack (sdkl_State *L);
+SDKLI_FUNC void sdklE_incCstack (sdkl_State *L);
+SDKLI_FUNC void sdklE_warning (sdkl_State *L, const char *msg, int tocont);
+SDKLI_FUNC void sdklE_warnerror (sdkl_State *L, const char *where);
+SDKLI_FUNC int sdklE_resetthread (sdkl_State *L, int status);
 
 
 #endif

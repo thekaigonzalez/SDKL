@@ -5,7 +5,7 @@
 */
 
 #define lvm_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
@@ -35,11 +35,11 @@
 ** By default, use jump tables in the main interpreter loop on gcc
 ** and compatible compilers.
 */
-#if !defined(LUA_USE_JUMPTABLE)
+#if !defined(SDKL_USE_JUMPTABLE)
 #if defined(__GNUC__)
-#define LUA_USE_JUMPTABLE	1
+#define SDKL_USE_JUMPTABLE	1
 #else
-#define LUA_USE_JUMPTABLE	0
+#define SDKL_USE_JUMPTABLE	0
 #endif
 #endif
 
@@ -64,7 +64,7 @@
 ** of an integer. In a worst case, NBM == 113 for long double and
 ** sizeof(long) == 32.)
 */
-#if ((((LUA_MAXINTEGER >> (NBM / 4)) >> (NBM / 4)) >> (NBM / 4)) \
+#if ((((SDKL_MAXINTEGER >> (NBM / 4)) >> (NBM / 4)) >> (NBM / 4)) \
 	>> (NBM - (3 * (NBM / 4))))  >  0
 
 /* limit for integers that fit in a float */
@@ -166,12 +166,12 @@ int sdklV_tointeger (const TValue *obj, sdkl_Integer *p, F2Imod mode) {
 ** If the limit is an integer or can be converted to an integer,
 ** rounding down, that is the limit.
 ** Otherwise, check whether the limit can be converted to a float. If
-** the float is too large, clip it to LUA_MAXINTEGER.  If the float
+** the float is too large, clip it to SDKL_MAXINTEGER.  If the float
 ** is too negative, the loop should not run, because any initial
 ** integer value is greater than such limit; so, the function returns
 ** true to signal that. (For this latter case, no integer limit would be
-** correct; even a limit of LUA_MININTEGER would run the loop once for
-** an initial value equal to LUA_MININTEGER.)
+** correct; even a limit of SDKL_MININTEGER would run the loop once for
+** an initial value equal to SDKL_MININTEGER.)
 */
 static int forlimit (sdkl_State *L, sdkl_Integer init, const TValue *lim,
                                    sdkl_Integer *p, sdkl_Integer step) {
@@ -183,11 +183,11 @@ static int forlimit (sdkl_State *L, sdkl_Integer init, const TValue *lim,
     /* else 'flim' is a float out of integer bounds */
     if (sdkli_numlt(0, flim)) {  /* if it is positive, it is too large */
       if (step < 0) return 1;  /* initial value must be less than it */
-      *p = LUA_MAXINTEGER;  /* truncate */
+      *p = SDKL_MAXINTEGER;  /* truncate */
     }
     else {  /* it is less than min integer */
       if (step > 0) return 1;  /* initial value must be greater than it */
-      *p = LUA_MININTEGER;  /* truncate */
+      *p = SDKL_MININTEGER;  /* truncate */
     }
   }
   return (step > 0 ? init > *p : init < *p);  /* not to run? */
@@ -565,7 +565,7 @@ int sdklV_lessequal (sdkl_State *L, const TValue *l, const TValue *r) {
 int sdklV_equalobj (sdkl_State *L, const TValue *t1, const TValue *t2) {
   const TValue *tm;
   if (ttypetag(t1) != ttypetag(t2)) {  /* not the same variant? */
-    if (ttype(t1) != ttype(t2) || ttype(t1) != LUA_TNUMBER)
+    if (ttype(t1) != ttype(t2) || ttype(t1) != SDKL_TNUMBER)
       return 0;  /* only numbers can be equal with different variants */
     else {  /* two numbers with different variants */
       /* One of them is an integer. If the other does not have an
@@ -579,14 +579,14 @@ int sdklV_equalobj (sdkl_State *L, const TValue *t1, const TValue *t2) {
   }
   /* values have same type and same variant */
   switch (ttypetag(t1)) {
-    case LUA_VNIL: case LUA_VFALSE: case LUA_VTRUE: return 1;
-    case LUA_VNUMINT: return (ivalue(t1) == ivalue(t2));
-    case LUA_VNUMFLT: return sdkli_numeq(fltvalue(t1), fltvalue(t2));
-    case LUA_VLIGHTUSERDATA: return pvalue(t1) == pvalue(t2);
-    case LUA_VLCF: return fvalue(t1) == fvalue(t2);
-    case LUA_VSHRSTR: return eqshrstr(tsvalue(t1), tsvalue(t2));
-    case LUA_VLNGSTR: return sdklS_eqlngstr(tsvalue(t1), tsvalue(t2));
-    case LUA_VUSERDATA: {
+    case SDKL_VNIL: case SDKL_VFALSE: case SDKL_VTRUE: return 1;
+    case SDKL_VNUMINT: return (ivalue(t1) == ivalue(t2));
+    case SDKL_VNUMFLT: return sdkli_numeq(fltvalue(t1), fltvalue(t2));
+    case SDKL_VLIGHTUSERDATA: return pvalue(t1) == pvalue(t2);
+    case SDKL_VLCF: return fvalue(t1) == fvalue(t2);
+    case SDKL_VSHRSTR: return eqshrstr(tsvalue(t1), tsvalue(t2));
+    case SDKL_VLNGSTR: return sdklS_eqlngstr(tsvalue(t1), tsvalue(t2));
+    case SDKL_VUSERDATA: {
       if (uvalue(t1) == uvalue(t2)) return 1;
       else if (L == NULL) return 0;
       tm = fasttm(L, uvalue(t1)->metatable, TM_EQ);
@@ -594,7 +594,7 @@ int sdklV_equalobj (sdkl_State *L, const TValue *t1, const TValue *t2) {
         tm = fasttm(L, uvalue(t2)->metatable, TM_EQ);
       break;  /* will try TM */
     }
-    case LUA_VTABLE: {
+    case SDKL_VTABLE: {
       if (hvalue(t1) == hvalue(t2)) return 1;
       else if (L == NULL) return 0;
       tm = fasttm(L, hvalue(t1)->metatable, TM_EQ);
@@ -660,8 +660,8 @@ void sdklV_concat (sdkl_State *L, int total) {
           sdklG_runerror(L, "string length overflow");
         tl += l;
       }
-      if (tl <= LUAI_MAXSHORTLEN) {  /* is result a short string? */
-        char buff[LUAI_MAXSHORTLEN];
+      if (tl <= SDKLI_MAXSHORTLEN) {  /* is result a short string? */
+        char buff[SDKLI_MAXSHORTLEN];
         copy2buff(top, n, buff);  /* copy strings to buffer */
         ts = sdklS_newlstr(L, buff, tl);
       }
@@ -683,18 +683,18 @@ void sdklV_concat (sdkl_State *L, int total) {
 void sdklV_objlen (sdkl_State *L, StkId ra, const TValue *rb) {
   const TValue *tm;
   switch (ttypetag(rb)) {
-    case LUA_VTABLE: {
+    case SDKL_VTABLE: {
       Table *h = hvalue(rb);
       tm = fasttm(L, h->metatable, TM_LEN);
       if (tm) break;  /* metamethod? break switch to call it */
       setivalue(s2v(ra), sdklH_getn(h));  /* else primitive len */
       return;
     }
-    case LUA_VSHRSTR: {
+    case SDKL_VSHRSTR: {
       setivalue(s2v(ra), tsvalue(rb)->shrlen);
       return;
     }
-    case LUA_VLNGSTR: {
+    case SDKL_VLNGSTR: {
       setivalue(s2v(ra), tsvalue(rb)->u.lnglen);
       return;
     }
@@ -827,7 +827,7 @@ void sdklV_finishOp (sdkl_State *L) {
     case OP_EQ: {  /* note that 'OP_EQI'/'OP_EQK' cannot yield */
       int res = !l_isfalse(s2v(L->top - 1));
       L->top--;
-#if defined(LUA_COMPAT_LT_LE)
+#if defined(SDKL_COMPAT_LT_LE)
       if (ci->callstatus & CIST_LEQ) {  /* "<=" using "<" instead? */
         ci->callstatus ^= CIST_LEQ;  /* clear mark */
         res = !res;  /* negate result */
@@ -1132,7 +1132,7 @@ void sdklV_execute (sdkl_State *L, CallInfo *ci) {
   StkId base;
   const Instruction *pc;
   int trap;
-#if LUA_USE_JUMPTABLE
+#if SDKL_USE_JUMPTABLE
 #include "ljumptab.h"
 #endif
  startfunc:
@@ -1536,7 +1536,7 @@ void sdklV_execute (sdkl_State *L, CallInfo *ci) {
         vmbreak;
       }
       vmcase(OP_CLOSE) {
-        Protect(sdklF_close(L, ra, LUA_OK, 1));
+        Protect(sdklF_close(L, ra, SDKL_OK, 1));
         vmbreak;
       }
       vmcase(OP_TBC) {
@@ -1651,7 +1651,7 @@ void sdklV_execute (sdkl_State *L, CallInfo *ci) {
           checkstackGCp(L, 1, ra);
         }
         if (!ttisLclosure(s2v(ra))) {  /* C function? */
-          sdklD_precall(L, ra, LUA_MULTRET);  /* call it */
+          sdklD_precall(L, ra, SDKL_MULTRET);  /* call it */
           updatetrap(ci);
           updatestack(ci);  /* stack may have been relocated */
           ci->func -= delta;  /* restore 'func' (if vararg) */

@@ -5,19 +5,19 @@
 */
 
 #define lctype_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
 
 #include "lctype.h"
 
-#if !LUA_USE_CTYPE	/* { */
+#if !SDKL_USE_CTYPE	/* { */
 
 #include <limits.h>
 
 
-#if defined (LUA_UCID)		/* accept UniCode IDentifiers? */
+#if defined (SDKL_UCID)		/* accept UniCode IDentifiers? */
 /* consider all non-ascii codepoints to be alphabetic */
 #define NONA		0x01
 #else
@@ -25,7 +25,7 @@
 #endif
 
 
-LUAI_DDEF const lu_byte sdkli_ctype_[UCHAR_MAX + 2] = {
+SDKLI_DDEF const lu_byte sdkli_ctype_[UCHAR_MAX + 2] = {
   0x00,  /* EOZ */
   0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,	/* 0. */
   0x00,  0x08,  0x08,  0x08,  0x08,  0x08,  0x00,  0x00,

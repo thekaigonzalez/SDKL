@@ -5,7 +5,7 @@
 */
 
 #define lauxlib_c
-#define LUA_LIB
+#define SDKL_LIB
 
 #include "lprefix.h"
 
@@ -54,7 +54,7 @@ static int findfield (sdkl_State *L, int objidx, int level) {
     return 0;  /* not found */
   sdkl_pushnil(L);  /* start 'next' loop */
   while (sdkl_next(L, -2)) {  /* for each pair in table */
-    if (sdkl_type(L, -2) == LUA_TSTRING) {  /* ignore non-string keys */
+    if (sdkl_type(L, -2) == SDKL_TSTRING) {  /* ignore non-string keys */
       if (sdkl_rawequal(L, objidx, -1)) {  /* found object? */
         sdkl_pop(L, 1);  /* remove value (but keep name) */
         return 1;
@@ -79,10 +79,10 @@ static int findfield (sdkl_State *L, int objidx, int level) {
 static int pushglobalfuncname (sdkl_State *L, sdkl_Debug *ar) {
   int top = sdkl_gettop(L);
   sdkl_getinfo(L, "f", ar);  /* push function */
-  sdkl_getfield(L, LUA_REGISTRYINDEX, LUA_LOADED_TABLE);
+  sdkl_getfield(L, SDKL_REGISTRYINDEX, SDKL_LOADED_TABLE);
   if (findfield(L, top + 1, 2)) {
     const char *name = sdkl_tostring(L, -1);
-    if (strncmp(name, LUA_GNAME ".", 3) == 0) {  /* name start with '_G.'? */
+    if (strncmp(name, SDKL_GNAME ".", 3) == 0) {  /* name start with '_G.'? */
       sdkl_pushstring(L, name + 3);  /* push name without prefix */
       sdkl_remove(L, -2);  /* remove original name */
     }
@@ -128,7 +128,7 @@ static int lastlevel (sdkl_State *L) {
 }
 
 
-LUALIB_API void sdklL_traceback (sdkl_State *L, sdkl_State *L1,
+SDKLLIB_API void sdklL_traceback (sdkl_State *L, sdkl_State *L1,
                                 const char *msg, int level) {
   sdklL_Buffer b;
   sdkl_Debug ar;
@@ -172,7 +172,7 @@ LUALIB_API void sdklL_traceback (sdkl_State *L, sdkl_State *L1,
 ** =======================================================
 */
 
-LUALIB_API int sdklL_argerror (sdkl_State *L, int arg, const char *extramsg) {
+SDKLLIB_API int sdklL_argerror (sdkl_State *L, int arg, const char *extramsg) {
   sdkl_Debug ar;
   if (!sdkl_getstack(L, 0, &ar))  /* no stack frame? */
     return sdklL_error(L, "bad argument #%d (%s)", arg, extramsg);
@@ -190,12 +190,12 @@ LUALIB_API int sdklL_argerror (sdkl_State *L, int arg, const char *extramsg) {
 }
 
 
-LUALIB_API int sdklL_typeerror (sdkl_State *L, int arg, const char *tname) {
+SDKLLIB_API int sdklL_typeerror (sdkl_State *L, int arg, const char *tname) {
   const char *msg;
   const char *typearg;  /* name for the type of the actual argument */
-  if (sdklL_getmetafield(L, arg, "__name") == LUA_TSTRING)
+  if (sdklL_getmetafield(L, arg, "__name") == SDKL_TSTRING)
     typearg = sdkl_tostring(L, -1);  /* use the given type name */
-  else if (sdkl_type(L, arg) == LUA_TLIGHTUSERDATA)
+  else if (sdkl_type(L, arg) == SDKL_TLIGHTUSERDATA)
     typearg = "light userdata";  /* special name for messages */
   else
     typearg = sdklL_typename(L, arg);  /* standard name */
@@ -213,7 +213,7 @@ static void tag_error (sdkl_State *L, int arg, int tag) {
 ** The use of 'sdkl_pushfstring' ensures this function does not
 ** need reserved stack space when called.
 */
-LUALIB_API void sdklL_where (sdkl_State *L, int level) {
+SDKLLIB_API void sdklL_where (sdkl_State *L, int level) {
   sdkl_Debug ar;
   if (sdkl_getstack(L, level, &ar)) {  /* check function at level */
     sdkl_getinfo(L, "Sl", &ar);  /* get info about it */
@@ -231,7 +231,7 @@ LUALIB_API void sdklL_where (sdkl_State *L, int level) {
 ** not need reserved stack space when called. (At worst, it generates
 ** an error with "stack overflow" instead of the given message.)
 */
-LUALIB_API int sdklL_error (sdkl_State *L, const char *fmt, ...) {
+SDKLLIB_API int sdklL_error (sdkl_State *L, const char *fmt, ...) {
   va_list argp;
   va_start(argp, fmt);
   sdklL_where(L, 1);
@@ -242,7 +242,7 @@ LUALIB_API int sdklL_error (sdkl_State *L, const char *fmt, ...) {
 }
 
 
-LUALIB_API int sdklL_fileresult (sdkl_State *L, int stat, const char *fname) {
+SDKLLIB_API int sdklL_fileresult (sdkl_State *L, int stat, const char *fname) {
   int en = errno;  /* calls to SDKL API may change this value */
   if (stat) {
     sdkl_pushboolean(L, 1);
@@ -262,7 +262,7 @@ LUALIB_API int sdklL_fileresult (sdkl_State *L, int stat, const char *fname) {
 
 #if !defined(l_inspectstat)	/* { */
 
-#if defined(LUA_USE_POSIX)
+#if defined(SDKL_USE_POSIX)
 
 #include <sys/wait.h>
 
@@ -282,7 +282,7 @@ LUALIB_API int sdklL_fileresult (sdkl_State *L, int stat, const char *fname) {
 #endif				/* } */
 
 
-LUALIB_API int sdklL_execresult (sdkl_State *L, int stat) {
+SDKLLIB_API int sdklL_execresult (sdkl_State *L, int stat) {
   if (stat != 0 && errno != 0)  /* error with an 'errno'? */
     return sdklL_fileresult(L, 0, NULL);
   else {
@@ -308,26 +308,26 @@ LUALIB_API int sdklL_execresult (sdkl_State *L, int stat) {
 ** =======================================================
 */
 
-LUALIB_API int sdklL_newmetatable (sdkl_State *L, const char *tname) {
-  if (sdklL_getmetatable(L, tname) != LUA_TNIL)  /* name already in use? */
+SDKLLIB_API int sdklL_newmetatable (sdkl_State *L, const char *tname) {
+  if (sdklL_getmetatable(L, tname) != SDKL_TNIL)  /* name already in use? */
     return 0;  /* leave previous value on top, but return 0 */
   sdkl_pop(L, 1);
   sdkl_createtable(L, 0, 2);  /* create metatable */
   sdkl_pushstring(L, tname);
   sdkl_setfield(L, -2, "__name");  /* metatable.__name = tname */
   sdkl_pushvalue(L, -1);
-  sdkl_setfield(L, LUA_REGISTRYINDEX, tname);  /* registry.name = metatable */
+  sdkl_setfield(L, SDKL_REGISTRYINDEX, tname);  /* registry.name = metatable */
   return 1;
 }
 
 
-LUALIB_API void sdklL_setmetatable (sdkl_State *L, const char *tname) {
+SDKLLIB_API void sdklL_setmetatable (sdkl_State *L, const char *tname) {
   sdklL_getmetatable(L, tname);
   sdkl_setmetatable(L, -2);
 }
 
 
-LUALIB_API void *sdklL_testudata (sdkl_State *L, int ud, const char *tname) {
+SDKLLIB_API void *sdklL_testudata (sdkl_State *L, int ud, const char *tname) {
   void *p = sdkl_touserdata(L, ud);
   if (p != NULL) {  /* value is a userdata? */
     if (sdkl_getmetatable(L, ud)) {  /* does it have a metatable? */
@@ -342,7 +342,7 @@ LUALIB_API void *sdklL_testudata (sdkl_State *L, int ud, const char *tname) {
 }
 
 
-LUALIB_API void *sdklL_checkudata (sdkl_State *L, int ud, const char *tname) {
+SDKLLIB_API void *sdklL_checkudata (sdkl_State *L, int ud, const char *tname) {
   void *p = sdklL_testudata(L, ud, tname);
   sdklL_argexpected(L, p != NULL, ud, tname);
   return p;
@@ -357,7 +357,7 @@ LUALIB_API void *sdklL_checkudata (sdkl_State *L, int ud, const char *tname) {
 ** =======================================================
 */
 
-LUALIB_API int sdklL_checkoption (sdkl_State *L, int arg, const char *def,
+SDKLLIB_API int sdklL_checkoption (sdkl_State *L, int arg, const char *def,
                                  const char *const lst[]) {
   const char *name = (def) ? sdklL_optstring(L, arg, def) :
                              sdklL_checkstring(L, arg);
@@ -377,7 +377,7 @@ LUALIB_API int sdklL_checkoption (sdkl_State *L, int arg, const char *def,
 ** this extra space, SDKL will generate the same 'stack overflow' error,
 ** but without 'msg'.)
 */
-LUALIB_API void sdklL_checkstack (sdkl_State *L, int space, const char *msg) {
+SDKLLIB_API void sdklL_checkstack (sdkl_State *L, int space, const char *msg) {
   if (l_unlikely(!sdkl_checkstack(L, space))) {
     if (msg)
       sdklL_error(L, "stack overflow (%s)", msg);
@@ -387,26 +387,26 @@ LUALIB_API void sdklL_checkstack (sdkl_State *L, int space, const char *msg) {
 }
 
 
-LUALIB_API void sdklL_checktype (sdkl_State *L, int arg, int t) {
+SDKLLIB_API void sdklL_checktype (sdkl_State *L, int arg, int t) {
   if (l_unlikely(sdkl_type(L, arg) != t))
     tag_error(L, arg, t);
 }
 
 
-LUALIB_API void sdklL_checkany (sdkl_State *L, int arg) {
-  if (l_unlikely(sdkl_type(L, arg) == LUA_TNONE))
+SDKLLIB_API void sdklL_checkany (sdkl_State *L, int arg) {
+  if (l_unlikely(sdkl_type(L, arg) == SDKL_TNONE))
     sdklL_argerror(L, arg, "value expected");
 }
 
 
-LUALIB_API const char *sdklL_checklstring (sdkl_State *L, int arg, size_t *len) {
+SDKLLIB_API const char *sdklL_checklstring (sdkl_State *L, int arg, size_t *len) {
   const char *s = sdkl_tolstring(L, arg, len);
-  if (l_unlikely(!s)) tag_error(L, arg, LUA_TSTRING);
+  if (l_unlikely(!s)) tag_error(L, arg, SDKL_TSTRING);
   return s;
 }
 
 
-LUALIB_API const char *sdklL_optlstring (sdkl_State *L, int arg,
+SDKLLIB_API const char *sdklL_optlstring (sdkl_State *L, int arg,
                                         const char *def, size_t *len) {
   if (sdkl_isnoneornil(L, arg)) {
     if (len)
@@ -417,16 +417,16 @@ LUALIB_API const char *sdklL_optlstring (sdkl_State *L, int arg,
 }
 
 
-LUALIB_API sdkl_Number sdklL_checknumber (sdkl_State *L, int arg) {
+SDKLLIB_API sdkl_Number sdklL_checknumber (sdkl_State *L, int arg) {
   int isnum;
   sdkl_Number d = sdkl_tonumberx(L, arg, &isnum);
   if (l_unlikely(!isnum))
-    tag_error(L, arg, LUA_TNUMBER);
+    tag_error(L, arg, SDKL_TNUMBER);
   return d;
 }
 
 
-LUALIB_API sdkl_Number sdklL_optnumber (sdkl_State *L, int arg, sdkl_Number def) {
+SDKLLIB_API sdkl_Number sdklL_optnumber (sdkl_State *L, int arg, sdkl_Number def) {
   return sdklL_opt(L, sdklL_checknumber, arg, def);
 }
 
@@ -435,11 +435,11 @@ static void interror (sdkl_State *L, int arg) {
   if (sdkl_isnumber(L, arg))
     sdklL_argerror(L, arg, "number has no integer representation");
   else
-    tag_error(L, arg, LUA_TNUMBER);
+    tag_error(L, arg, SDKL_TNUMBER);
 }
 
 
-LUALIB_API sdkl_Integer sdklL_checkinteger (sdkl_State *L, int arg) {
+SDKLLIB_API sdkl_Integer sdklL_checkinteger (sdkl_State *L, int arg) {
   int isnum;
   sdkl_Integer d = sdkl_tointegerx(L, arg, &isnum);
   if (l_unlikely(!isnum)) {
@@ -449,7 +449,7 @@ LUALIB_API sdkl_Integer sdklL_checkinteger (sdkl_State *L, int arg) {
 }
 
 
-LUALIB_API sdkl_Integer sdklL_optinteger (sdkl_State *L, int arg,
+SDKLLIB_API sdkl_Integer sdklL_optinteger (sdkl_State *L, int arg,
                                                       sdkl_Integer def) {
   return sdklL_opt(L, sdklL_checkinteger, arg, def);
 }
@@ -571,12 +571,12 @@ static char *prepbuffsize (sdklL_Buffer *B, size_t sz, int boxidx) {
 /*
 ** returns a pointer to a free area with at least 'sz' bytes
 */
-LUALIB_API char *sdklL_prepbuffsize (sdklL_Buffer *B, size_t sz) {
+SDKLLIB_API char *sdklL_prepbuffsize (sdklL_Buffer *B, size_t sz) {
   return prepbuffsize(B, sz, -1);
 }
 
 
-LUALIB_API void sdklL_addlstring (sdklL_Buffer *B, const char *s, size_t l) {
+SDKLLIB_API void sdklL_addlstring (sdklL_Buffer *B, const char *s, size_t l) {
   if (l > 0) {  /* avoid 'memcpy' when 's' can be NULL */
     char *b = prepbuffsize(B, l, -1);
     memcpy(b, s, l * sizeof(char));
@@ -585,12 +585,12 @@ LUALIB_API void sdklL_addlstring (sdklL_Buffer *B, const char *s, size_t l) {
 }
 
 
-LUALIB_API void sdklL_addstring (sdklL_Buffer *B, const char *s) {
+SDKLLIB_API void sdklL_addstring (sdklL_Buffer *B, const char *s) {
   sdklL_addlstring(B, s, strlen(s));
 }
 
 
-LUALIB_API void sdklL_pushresult (sdklL_Buffer *B) {
+SDKLLIB_API void sdklL_pushresult (sdklL_Buffer *B) {
   sdkl_State *L = B->L;
   checkbufferlevel(B, -1);
   sdkl_pushlstring(L, B->b, B->n);
@@ -600,7 +600,7 @@ LUALIB_API void sdklL_pushresult (sdklL_Buffer *B) {
 }
 
 
-LUALIB_API void sdklL_pushresultsize (sdklL_Buffer *B, size_t sz) {
+SDKLLIB_API void sdklL_pushresultsize (sdklL_Buffer *B, size_t sz) {
   sdklL_addsize(B, sz);
   sdklL_pushresult(B);
 }
@@ -615,7 +615,7 @@ LUALIB_API void sdklL_pushresultsize (sdklL_Buffer *B, size_t sz) {
 ** trigger an emergency GC, so we should not remove the string from the
 ** stack before we have the space guaranteed.)
 */
-LUALIB_API void sdklL_addvalue (sdklL_Buffer *B) {
+SDKLLIB_API void sdklL_addvalue (sdklL_Buffer *B) {
   sdkl_State *L = B->L;
   size_t len;
   const char *s = sdkl_tolstring(L, -1, &len);
@@ -626,16 +626,16 @@ LUALIB_API void sdklL_addvalue (sdklL_Buffer *B) {
 }
 
 
-LUALIB_API void sdklL_buffinit (sdkl_State *L, sdklL_Buffer *B) {
+SDKLLIB_API void sdklL_buffinit (sdkl_State *L, sdklL_Buffer *B) {
   B->L = L;
   B->b = B->init.b;
   B->n = 0;
-  B->size = LUAL_BUFFERSIZE;
+  B->size = SDKLL_BUFFERSIZE;
   sdkl_pushlightuserdata(L, (void*)B);  /* push placeholder */
 }
 
 
-LUALIB_API char *sdklL_buffinitsize (sdkl_State *L, sdklL_Buffer *B, size_t sz) {
+SDKLLIB_API char *sdklL_buffinitsize (sdkl_State *L, sdklL_Buffer *B, size_t sz) {
   sdklL_buffinit(L, B);
   return prepbuffsize(B, sz, -1);
 }
@@ -650,21 +650,21 @@ LUALIB_API char *sdklL_buffinitsize (sdkl_State *L, sdklL_Buffer *B, size_t sz) 
 */
 
 /* index of free-list header (after the predefined values) */
-#define freelist	(LUA_RIDX_LAST + 1)
+#define freelist	(SDKL_RIDX_LAST + 1)
 
 /*
 ** The previously freed references form a linked list:
 ** t[freelist] is the index of a first free index, or zero if list is
 ** empty; t[t[freelist]] is the index of the second element; etc.
 */
-LUALIB_API int sdklL_ref (sdkl_State *L, int t) {
+SDKLLIB_API int sdklL_ref (sdkl_State *L, int t) {
   int ref;
   if (sdkl_isnil(L, -1)) {
     sdkl_pop(L, 1);  /* remove from stack */
-    return LUA_REFNIL;  /* 'nil' has a unique fixed reference */
+    return SDKL_REFNIL;  /* 'nil' has a unique fixed reference */
   }
   t = sdkl_absindex(L, t);
-  if (sdkl_rawgeti(L, t, freelist) == LUA_TNIL) {  /* first access? */
+  if (sdkl_rawgeti(L, t, freelist) == SDKL_TNIL) {  /* first access? */
     ref = 0;  /* list is empty */
     sdkl_pushinteger(L, 0);  /* initialize as an empty list */
     sdkl_rawseti(L, t, freelist);  /* ref = t[freelist] = 0 */
@@ -685,7 +685,7 @@ LUALIB_API int sdklL_ref (sdkl_State *L, int t) {
 }
 
 
-LUALIB_API void sdklL_unref (sdkl_State *L, int t, int ref) {
+SDKLLIB_API void sdklL_unref (sdkl_State *L, int t, int ref) {
   if (ref >= 0) {
     t = sdkl_absindex(L, t);
     sdkl_rawgeti(L, t, freelist);
@@ -735,7 +735,7 @@ static int errfile (sdkl_State *L, const char *what, int fnameindex) {
   const char *filename = sdkl_tostring(L, fnameindex) + 1;
   sdkl_pushfstring(L, "cannot %s %s: %s", what, filename, serr);
   sdkl_remove(L, fnameindex);
-  return LUA_ERRFILE;
+  return SDKL_ERRFILE;
 }
 
 
@@ -773,7 +773,7 @@ static int skipcomment (LoadF *lf, int *cp) {
 }
 
 
-LUALIB_API int sdklL_loadfilex (sdkl_State *L, const char *filename,
+SDKLLIB_API int sdklL_loadfilex (sdkl_State *L, const char *filename,
                                              const char *mode) {
   LoadF lf;
   int status, readstatus;
@@ -790,7 +790,7 @@ LUALIB_API int sdklL_loadfilex (sdkl_State *L, const char *filename,
   }
   if (skipcomment(&lf, &c))  /* read initial portion */
     lf.buff[lf.n++] = '\n';  /* add line to correct line numbers */
-  if (c == LUA_SIGNATURE[0] && filename) {  /* binary file? */
+  if (c == SDKL_SIGNATURE[0] && filename) {  /* binary file? */
     lf.f = freopen(filename, "rb", lf.f);  /* reopen in binary mode */
     if (lf.f == NULL) return errfile(L, "reopen", fnameindex);
     skipcomment(&lf, &c);  /* re-read initial portion */
@@ -825,7 +825,7 @@ static const char *getS (sdkl_State *L, void *ud, size_t *size) {
 }
 
 
-LUALIB_API int sdklL_loadbufferx (sdkl_State *L, const char *buff, size_t size,
+SDKLLIB_API int sdklL_loadbufferx (sdkl_State *L, const char *buff, size_t size,
                                  const char *name, const char *mode) {
   LoadS ls;
   ls.s = buff;
@@ -834,7 +834,7 @@ LUALIB_API int sdklL_loadbufferx (sdkl_State *L, const char *buff, size_t size,
 }
 
 
-LUALIB_API int sdklL_loadstring (sdkl_State *L, const char *s) {
+SDKLLIB_API int sdklL_loadstring (sdkl_State *L, const char *s) {
   return sdklL_loadbuffer(L, s, strlen(s), s);
 }
 
@@ -842,14 +842,14 @@ LUALIB_API int sdklL_loadstring (sdkl_State *L, const char *s) {
 
 
 
-LUALIB_API int sdklL_getmetafield (sdkl_State *L, int obj, const char *event) {
+SDKLLIB_API int sdklL_getmetafield (sdkl_State *L, int obj, const char *event) {
   if (!sdkl_getmetatable(L, obj))  /* no metatable? */
-    return LUA_TNIL;
+    return SDKL_TNIL;
   else {
     int tt;
     sdkl_pushstring(L, event);
     tt = sdkl_rawget(L, -2);
-    if (tt == LUA_TNIL)  /* is metafield nil? */
+    if (tt == SDKL_TNIL)  /* is metafield nil? */
       sdkl_pop(L, 2);  /* remove metatable and metafield */
     else
       sdkl_remove(L, -2);  /* remove only metatable */
@@ -858,9 +858,9 @@ LUALIB_API int sdklL_getmetafield (sdkl_State *L, int obj, const char *event) {
 }
 
 
-LUALIB_API int sdklL_callmeta (sdkl_State *L, int obj, const char *event) {
+SDKLLIB_API int sdklL_callmeta (sdkl_State *L, int obj, const char *event) {
   obj = sdkl_absindex(L, obj);
-  if (sdklL_getmetafield(L, obj, event) == LUA_TNIL)  /* no metafield? */
+  if (sdklL_getmetafield(L, obj, event) == SDKL_TNIL)  /* no metafield? */
     return 0;
   sdkl_pushvalue(L, obj);
   sdkl_call(L, 1, 1);
@@ -868,7 +868,7 @@ LUALIB_API int sdklL_callmeta (sdkl_State *L, int obj, const char *event) {
 }
 
 
-LUALIB_API sdkl_Integer sdklL_len (sdkl_State *L, int idx) {
+SDKLLIB_API sdkl_Integer sdklL_len (sdkl_State *L, int idx) {
   sdkl_Integer l;
   int isnum;
   sdkl_len(L, idx);
@@ -880,35 +880,35 @@ LUALIB_API sdkl_Integer sdklL_len (sdkl_State *L, int idx) {
 }
 
 
-LUALIB_API const char *sdklL_tolstring (sdkl_State *L, int idx, size_t *len) {
+SDKLLIB_API const char *sdklL_tolstring (sdkl_State *L, int idx, size_t *len) {
   if (sdklL_callmeta(L, idx, "__tostring")) {  /* metafield? */
     if (!sdkl_isstring(L, -1))
       sdklL_error(L, "'__tostring' must return a string");
   }
   else {
     switch (sdkl_type(L, idx)) {
-      case LUA_TNUMBER: {
+      case SDKL_TNUMBER: {
         if (sdkl_isinteger(L, idx))
-          sdkl_pushfstring(L, "%I", (LUAI_UACINT)sdkl_tointeger(L, idx));
+          sdkl_pushfstring(L, "%I", (SDKLI_UACINT)sdkl_tointeger(L, idx));
         else
-          sdkl_pushfstring(L, "%f", (LUAI_UACNUMBER)sdkl_tonumber(L, idx));
+          sdkl_pushfstring(L, "%f", (SDKLI_UACNUMBER)sdkl_tonumber(L, idx));
         break;
       }
-      case LUA_TSTRING:
+      case SDKL_TSTRING:
         sdkl_pushvalue(L, idx);
         break;
-      case LUA_TBOOLEAN:
+      case SDKL_TBOOLEAN:
         sdkl_pushstring(L, (sdkl_toboolean(L, idx) ? "true" : "false"));
         break;
-      case LUA_TNIL:
+      case SDKL_TNIL:
         sdkl_pushliteral(L, "nil");
         break;
       default: {
         int tt = sdklL_getmetafield(L, idx, "__name");  /* try name */
-        const char *kind = (tt == LUA_TSTRING) ? sdkl_tostring(L, -1) :
+        const char *kind = (tt == SDKL_TSTRING) ? sdkl_tostring(L, -1) :
                                                  sdklL_typename(L, idx);
         sdkl_pushfstring(L, "%s: %p", kind, sdkl_topointer(L, idx));
-        if (tt != LUA_TNIL)
+        if (tt != SDKL_TNIL)
           sdkl_remove(L, -2);  /* remove '__name' */
         break;
       }
@@ -923,7 +923,7 @@ LUALIB_API const char *sdklL_tolstring (sdkl_State *L, int idx, size_t *len) {
 ** function gets the 'nup' elements at the top as upvalues.
 ** Returns with only the table at the stack.
 */
-LUALIB_API void sdklL_setfuncs (sdkl_State *L, const sdklL_Reg *l, int nup) {
+SDKLLIB_API void sdklL_setfuncs (sdkl_State *L, const sdklL_Reg *l, int nup) {
   sdklL_checkstack(L, nup, "too many upvalues");
   for (; l->name != NULL; l++) {  /* fill the table with given functions */
     if (l->func == NULL)  /* place holder? */
@@ -944,8 +944,8 @@ LUALIB_API void sdklL_setfuncs (sdkl_State *L, const sdklL_Reg *l, int nup) {
 ** ensure that stack[idx][fname] has a table and push that table
 ** into the stack
 */
-LUALIB_API int sdklL_getsubtable (sdkl_State *L, int idx, const char *fname) {
-  if (sdkl_getfield(L, idx, fname) == LUA_TTABLE)
+SDKLLIB_API int sdklL_getsubtable (sdkl_State *L, int idx, const char *fname) {
+  if (sdkl_getfield(L, idx, fname) == SDKL_TTABLE)
     return 1;  /* table already there */
   else {
     sdkl_pop(L, 1);  /* remove previous result */
@@ -964,9 +964,9 @@ LUALIB_API int sdklL_getsubtable (sdkl_State *L, int idx, const char *fname) {
 ** if 'glb' is true, also registers the result in the global table.
 ** Leaves resulting module on the top.
 */
-LUALIB_API void sdklL_requiref (sdkl_State *L, const char *modname,
+SDKLLIB_API void sdklL_requiref (sdkl_State *L, const char *modname,
                                sdkl_CFunction openf, int glb) {
-  sdklL_getsubtable(L, LUA_REGISTRYINDEX, LUA_LOADED_TABLE);
+  sdklL_getsubtable(L, SDKL_REGISTRYINDEX, SDKL_LOADED_TABLE);
   sdkl_getfield(L, -1, modname);  /* LOADED[modname] */
   if (!sdkl_toboolean(L, -1)) {  /* package not already loaded? */
     sdkl_pop(L, 1);  /* remove field */
@@ -984,7 +984,7 @@ LUALIB_API void sdklL_requiref (sdkl_State *L, const char *modname,
 }
 
 
-LUALIB_API void sdklL_addgsub (sdklL_Buffer *b, const char *s,
+SDKLLIB_API void sdklL_addgsub (sdklL_Buffer *b, const char *s,
                                      const char *p, const char *r) {
   const char *wild;
   size_t l = strlen(p);
@@ -997,7 +997,7 @@ LUALIB_API void sdklL_addgsub (sdklL_Buffer *b, const char *s,
 }
 
 
-LUALIB_API const char *sdklL_gsub (sdkl_State *L, const char *s,
+SDKLLIB_API const char *sdklL_gsub (sdkl_State *L, const char *s,
                                   const char *p, const char *r) {
   sdklL_Buffer b;
   sdklL_buffinit(L, &b);
@@ -1084,7 +1084,7 @@ static void warnfon (void *ud, const char *message, int tocont) {
 }
 
 
-LUALIB_API sdkl_State *sdklL_newstate (void) {
+SDKLLIB_API sdkl_State *sdklL_newstate (void) {
   sdkl_State *L = sdkl_newstate(l_alloc, NULL);
   if (l_likely(L)) {
     sdkl_atpanic(L, &panic);
@@ -1094,12 +1094,12 @@ LUALIB_API sdkl_State *sdklL_newstate (void) {
 }
 
 
-LUALIB_API void sdklL_checkversion_ (sdkl_State *L, sdkl_Number ver, size_t sz) {
+SDKLLIB_API void sdklL_checkversion_ (sdkl_State *L, sdkl_Number ver, size_t sz) {
   sdkl_Number v = sdkl_version(L);
-  if (sz != LUAL_NUMSIZES)  /* check numeric types */
+  if (sz != SDKLL_NUMSIZES)  /* check numeric types */
     sdklL_error(L, "core and library have incompatible numeric types");
   else if (v != ver)
     sdklL_error(L, "version mismatch: app. needs %f, SDKL core provides %f",
-                  (LUAI_UACNUMBER)ver, (LUAI_UACNUMBER)v);
+                  (SDKLI_UACNUMBER)ver, (SDKLI_UACNUMBER)v);
 }
 

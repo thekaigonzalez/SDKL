@@ -5,7 +5,7 @@
 */
 
 #define lstrlib_c
-#define LUA_LIB
+#define SDKL_LIB
 
 #include "lprefix.h"
 
@@ -31,8 +31,8 @@
 ** pattern-matching. This limit is arbitrary, but must fit in
 ** an unsigned char.
 */
-#if !defined(LUA_MAXCAPTURES)
-#define LUA_MAXCAPTURES		32
+#if !defined(SDKL_MAXCAPTURES)
+#define SDKL_MAXCAPTURES		32
 #endif
 
 
@@ -233,7 +233,7 @@ static int writer (sdkl_State *L, const void *b, size_t size, void *ud) {
 static int str_dump (sdkl_State *L) {
   struct str_Writer state;
   int strip = sdkl_toboolean(L, 2);
-  sdklL_checktype(L, 1, LUA_TFUNCTION);
+  sdklL_checktype(L, 1, SDKL_TFUNCTION);
   sdkl_settop(L, 1);  /* ensure function is on the top of the stack */
   state.init = 0;
   if (l_unlikely(sdkl_dump(L, writer, &state, strip) != 0))
@@ -250,7 +250,7 @@ static int str_dump (sdkl_State *L) {
 ** =======================================================
 */
 
-#if defined(LUA_NOCVTS2N)	/* { */
+#if defined(SDKL_NOCVTS2N)	/* { */
 
 /* no coercion from strings to numbers */
 
@@ -262,7 +262,7 @@ static const sdklL_Reg stringmetamethods[] = {
 #else		/* }{ */
 
 static int tonum (sdkl_State *L, int arg) {
-  if (sdkl_type(L, arg) == LUA_TNUMBER) {  /* already a number? */
+  if (sdkl_type(L, arg) == SDKL_TNUMBER) {  /* already a number? */
     sdkl_pushvalue(L, arg);
     return 1;
   }
@@ -276,7 +276,7 @@ static int tonum (sdkl_State *L, int arg) {
 
 static void trymt (sdkl_State *L, const char *mtname) {
   sdkl_settop(L, 2);  /* back to the original arguments */
-  if (l_unlikely(sdkl_type(L, 2) == LUA_TSTRING ||
+  if (l_unlikely(sdkl_type(L, 2) == SDKL_TSTRING ||
                  !sdklL_getmetafield(L, 2, mtname)))
     sdklL_error(L, "attempt to %s a '%s' with a '%s'", mtname + 2,
                   sdklL_typename(L, -2), sdklL_typename(L, -1));
@@ -295,35 +295,35 @@ static int arith (sdkl_State *L, int op, const char *mtname) {
 
 
 static int arith_add (sdkl_State *L) {
-  return arith(L, LUA_OPADD, "__add");
+  return arith(L, SDKL_OPADD, "__add");
 }
 
 static int arith_sub (sdkl_State *L) {
-  return arith(L, LUA_OPSUB, "__sub");
+  return arith(L, SDKL_OPSUB, "__sub");
 }
 
 static int arith_mul (sdkl_State *L) {
-  return arith(L, LUA_OPMUL, "__mul");
+  return arith(L, SDKL_OPMUL, "__mul");
 }
 
 static int arith_mod (sdkl_State *L) {
-  return arith(L, LUA_OPMOD, "__mod");
+  return arith(L, SDKL_OPMOD, "__mod");
 }
 
 static int arith_pow (sdkl_State *L) {
-  return arith(L, LUA_OPPOW, "__pow");
+  return arith(L, SDKL_OPPOW, "__pow");
 }
 
 static int arith_div (sdkl_State *L) {
-  return arith(L, LUA_OPDIV, "__div");
+  return arith(L, SDKL_OPDIV, "__div");
 }
 
 static int arith_idiv (sdkl_State *L) {
-  return arith(L, LUA_OPIDIV, "__idiv");
+  return arith(L, SDKL_OPIDIV, "__idiv");
 }
 
 static int arith_unm (sdkl_State *L) {
-  return arith(L, LUA_OPUNM, "__unm");
+  return arith(L, SDKL_OPUNM, "__unm");
 }
 
 
@@ -365,7 +365,7 @@ typedef struct MatchState {
   struct {
     const char *init;
     ptrdiff_t len;
-  } capture[LUA_MAXCAPTURES];
+  } capture[SDKL_MAXCAPTURES];
 } MatchState;
 
 
@@ -535,7 +535,7 @@ static const char *start_capture (MatchState *ms, const char *s,
                                     const char *p, int what) {
   const char *res;
   int level = ms->level;
-  if (level >= LUA_MAXCAPTURES) sdklL_error(ms->L, "too many captures");
+  if (level >= SDKL_MAXCAPTURES) sdklL_error(ms->L, "too many captures");
   ms->capture[level].init = s;
   ms->capture[level].len = what;
   ms->level = level+1;
@@ -907,19 +907,19 @@ static int add_value (MatchState *ms, sdklL_Buffer *b, const char *s,
                                       const char *e, int tr) {
   sdkl_State *L = ms->L;
   switch (tr) {
-    case LUA_TFUNCTION: {  /* call the function */
+    case SDKL_TFUNCTION: {  /* call the function */
       int n;
       sdkl_pushvalue(L, 3);  /* push the function */
       n = push_captures(ms, s, e);  /* all captures as arguments */
       sdkl_call(L, n, 1);  /* call it */
       break;
     }
-    case LUA_TTABLE: {  /* index the table */
+    case SDKL_TTABLE: {  /* index the table */
       push_onecapture(ms, 0, s, e);  /* first capture is the index */
       sdkl_gettable(L, 3);
       break;
     }
-    default: {  /* LUA_TNUMBER or LUA_TSTRING */
+    default: {  /* SDKL_TNUMBER or SDKL_TSTRING */
       add_s(ms, b, s, e);  /* add value to the buffer */
       return 1;  /* something changed */
     }
@@ -951,8 +951,8 @@ static int str_gsub (sdkl_State *L) {
   int changed = 0;  /* change flag */
   MatchState ms;
   sdklL_Buffer b;
-  sdklL_argexpected(L, tr == LUA_TNUMBER || tr == LUA_TSTRING ||
-                   tr == LUA_TFUNCTION || tr == LUA_TTABLE, 3,
+  sdklL_argexpected(L, tr == SDKL_TNUMBER || tr == SDKL_TSTRING ||
+                   tr == SDKL_TFUNCTION || tr == SDKL_TTABLE, 3,
                       "string/function/table");
   sdklL_buffinit(L, &b);
   if (anchor) {
@@ -998,7 +998,7 @@ static int str_gsub (sdkl_State *L) {
 ** Hexadecimal floating-point formatter
 */
 
-#define SIZELENMOD	(sizeof(LUA_NUMBER_FRMLEN)/sizeof(char))
+#define SIZELENMOD	(sizeof(SDKL_NUMBER_FRMLEN)/sizeof(char))
 
 
 /*
@@ -1024,10 +1024,10 @@ static sdkl_Number adddigit (char *buff, int n, sdkl_Number x) {
 static int num2straux (char *buff, int sz, sdkl_Number x) {
   /* if 'inf' or 'NaN', format it like '%g' */
   if (x != x || x == (sdkl_Number)HUGE_VAL || x == -(sdkl_Number)HUGE_VAL)
-    return l_sprintf(buff, sz, LUA_NUMBER_FMT, (LUAI_UACNUMBER)x);
+    return l_sprintf(buff, sz, SDKL_NUMBER_FMT, (SDKLI_UACNUMBER)x);
   else if (x == 0) {  /* can be -0... */
     /* create "0" or "-0" followed by exponent */
-    return l_sprintf(buff, sz, LUA_NUMBER_FMT "x0p+0", (LUAI_UACNUMBER)x);
+    return l_sprintf(buff, sz, SDKL_NUMBER_FMT "x0p+0", (SDKLI_UACNUMBER)x);
   }
   else {
     int e;
@@ -1140,7 +1140,7 @@ static int quotefloat (sdkl_State *L, char *buff, sdkl_Number n) {
     s = "(0/0)";
   else {  /* format number as hexadecimal */
     int  nb = sdkl_number2strx(L, buff, MAX_ITEM,
-                                 "%" LUA_NUMBER_FRMLEN "a", n);
+                                 "%" SDKL_NUMBER_FRMLEN "a", n);
     /* ensures that 'buff' string uses a dot as the radix character */
     if (memchr(buff, '.', nb) == NULL) {  /* no dot? */
       char point = sdkl_getlocaledecpoint();  /* try locale point */
@@ -1156,28 +1156,28 @@ static int quotefloat (sdkl_State *L, char *buff, sdkl_Number n) {
 
 static void addliteral (sdkl_State *L, sdklL_Buffer *b, int arg) {
   switch (sdkl_type(L, arg)) {
-    case LUA_TSTRING: {
+    case SDKL_TSTRING: {
       size_t len;
       const char *s = sdkl_tolstring(L, arg, &len);
       addquoted(b, s, len);
       break;
     }
-    case LUA_TNUMBER: {
+    case SDKL_TNUMBER: {
       char *buff = sdklL_prepbuffsize(b, MAX_ITEM);
       int nb;
       if (!sdkl_isinteger(L, arg))  /* float? */
         nb = quotefloat(L, buff, sdkl_tonumber(L, arg));
       else {  /* integers */
         sdkl_Integer n = sdkl_tointeger(L, arg);
-        const char *format = (n == LUA_MININTEGER)  /* corner case? */
-                           ? "0x%" LUA_INTEGER_FRMLEN "x"  /* use hex */
-                           : LUA_INTEGER_FMT;  /* else use default format */
-        nb = l_sprintf(buff, MAX_ITEM, format, (LUAI_UACINT)n);
+        const char *format = (n == SDKL_MININTEGER)  /* corner case? */
+                           ? "0x%" SDKL_INTEGER_FRMLEN "x"  /* use hex */
+                           : SDKL_INTEGER_FMT;  /* else use default format */
+        nb = l_sprintf(buff, MAX_ITEM, format, (SDKLI_UACINT)n);
       }
       sdklL_addsize(b, nb);
       break;
     }
-    case LUA_TNIL: case LUA_TBOOLEAN: {
+    case SDKL_TNIL: case SDKL_TBOOLEAN: {
       sdklL_tolstring(L, arg, NULL);
       sdklL_addvalue(b);
       break;
@@ -1253,12 +1253,12 @@ static int str_format (sdkl_State *L) {
         case 'd': case 'i':
         case 'o': case 'u': case 'x': case 'X': {
           sdkl_Integer n = sdklL_checkinteger(L, arg);
-          addlenmod(form, LUA_INTEGER_FRMLEN);
-          nb = l_sprintf(buff, maxitem, form, (LUAI_UACINT)n);
+          addlenmod(form, SDKL_INTEGER_FRMLEN);
+          nb = l_sprintf(buff, maxitem, form, (SDKLI_UACINT)n);
           break;
         }
         case 'a': case 'A':
-          addlenmod(form, LUA_NUMBER_FRMLEN);
+          addlenmod(form, SDKL_NUMBER_FRMLEN);
           nb = sdkl_number2strx(L, buff, maxitem, form,
                                   sdklL_checknumber(L, arg));
           break;
@@ -1268,8 +1268,8 @@ static int str_format (sdkl_State *L) {
           /* FALLTHROUGH */
         case 'e': case 'E': case 'g': case 'G': {
           sdkl_Number n = sdklL_checknumber(L, arg);
-          addlenmod(form, LUA_NUMBER_FRMLEN);
-          nb = l_sprintf(buff, maxitem, form, (LUAI_UACNUMBER)n);
+          addlenmod(form, SDKL_NUMBER_FRMLEN);
+          nb = l_sprintf(buff, maxitem, form, (SDKLI_UACNUMBER)n);
           break;
         }
         case 'p': {
@@ -1328,8 +1328,8 @@ static int str_format (sdkl_State *L) {
 
 
 /* value used for padding */
-#if !defined(LUAL_PACKPADBYTE)
-#define LUAL_PACKPADBYTE		0x00
+#if !defined(SDKLL_PACKPADBYTE)
+#define SDKLL_PACKPADBYTE		0x00
 #endif
 
 /* maximum size for the binary representation of an integer */
@@ -1555,7 +1555,7 @@ static int str_pack (sdkl_State *L) {
     KOption opt = getdetails(&h, totalsize, &fmt, &size, &ntoalign);
     totalsize += ntoalign + size;
     while (ntoalign-- > 0)
-     sdklL_addchar(&b, LUAL_PACKPADBYTE);  /* fill alignment */
+     sdklL_addchar(&b, SDKLL_PACKPADBYTE);  /* fill alignment */
     arg++;
     switch (opt) {
       case Kint: {  /* signed integers */
@@ -1606,7 +1606,7 @@ static int str_pack (sdkl_State *L) {
                          "string longer than given size");
         sdklL_addlstring(&b, s, len);  /* add string */
         while (len++ < (size_t)size)  /* pad extra space */
-          sdklL_addchar(&b, LUAL_PACKPADBYTE);
+          sdklL_addchar(&b, SDKLL_PACKPADBYTE);
         break;
       }
       case Kstring: {  /* strings with length count */
@@ -1629,7 +1629,7 @@ static int str_pack (sdkl_State *L) {
         totalsize += len + 1;
         break;
       }
-      case Kpadding: sdklL_addchar(&b, LUAL_PACKPADBYTE);  /* FALLTHROUGH */
+      case Kpadding: sdklL_addchar(&b, SDKLL_PACKPADBYTE);  /* FALLTHROUGH */
       case Kpaddalign: case Knop:
         arg--;  /* undo increment */
         break;
@@ -1809,7 +1809,7 @@ static void createmetatable (sdkl_State *L) {
 /*
 ** Open string library
 */
-LUAMOD_API int sdklopen_string (sdkl_State *L) {
+SDKLMOD_API int sdklopen_string (sdkl_State *L) {
   sdklL_newlib(L, strlib);
   createmetatable(L);
   return 1;

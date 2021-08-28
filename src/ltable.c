@@ -5,7 +5,7 @@
 */
 
 #define ltable_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
@@ -93,8 +93,8 @@
 #define dummynode		(&dummynode_)
 
 static const Node dummynode_ = {
-  {{NULL}, LUA_VEMPTY,  /* value's value and type */
-   LUA_VNIL, 0, {NULL}}  /* key type, next, and key value */
+  {{NULL}, SDKL_VEMPTY,  /* value's value and type */
+   SDKL_VNIL, 0, {NULL}}  /* key type, next, and key value */
 };
 
 
@@ -140,31 +140,31 @@ static int l_hashfloat (sdkl_Number n) {
 */
 static Node *mainposition (const Table *t, int ktt, const Value *kvl) {
   switch (withvariant(ktt)) {
-    case LUA_VNUMINT: {
+    case SDKL_VNUMINT: {
       sdkl_Integer key = ivalueraw(*kvl);
       return hashint(t, key);
     }
-    case LUA_VNUMFLT: {
+    case SDKL_VNUMFLT: {
       sdkl_Number n = fltvalueraw(*kvl);
       return hashmod(t, l_hashfloat(n));
     }
-    case LUA_VSHRSTR: {
+    case SDKL_VSHRSTR: {
       TString *ts = tsvalueraw(*kvl);
       return hashstr(t, ts);
     }
-    case LUA_VLNGSTR: {
+    case SDKL_VLNGSTR: {
       TString *ts = tsvalueraw(*kvl);
       return hashpow2(t, sdklS_hashlongstr(ts));
     }
-    case LUA_VFALSE:
+    case SDKL_VFALSE:
       return hashboolean(t, 0);
-    case LUA_VTRUE:
+    case SDKL_VTRUE:
       return hashboolean(t, 1);
-    case LUA_VLIGHTUSERDATA: {
+    case SDKL_VLIGHTUSERDATA: {
       void *p = pvalueraw(*kvl);
       return hashpointer(t, p);
     }
-    case LUA_VLCF: {
+    case SDKL_VLCF: {
       sdkl_CFunction f = fvalueraw(*kvl);
       return hashpointer(t, f);
     }
@@ -209,17 +209,17 @@ static int equalkey (const TValue *k1, const Node *n2, int deadok) {
        !(deadok && keyisdead(n2) && iscollectable(k1)))
    return 0;  /* cannot be same key */
   switch (keytt(n2)) {
-    case LUA_VNIL: case LUA_VFALSE: case LUA_VTRUE:
+    case SDKL_VNIL: case SDKL_VFALSE: case SDKL_VTRUE:
       return 1;
-    case LUA_VNUMINT:
+    case SDKL_VNUMINT:
       return (ivalue(k1) == keyival(n2));
-    case LUA_VNUMFLT:
+    case SDKL_VNUMFLT:
       return sdkli_numeq(fltvalue(k1), fltvalueraw(keyval(n2)));
-    case LUA_VLIGHTUSERDATA:
+    case SDKL_VLIGHTUSERDATA:
       return pvalue(k1) == pvalueraw(keyval(n2));
-    case LUA_VLCF:
+    case SDKL_VLCF:
       return fvalue(k1) == fvalueraw(keyval(n2));
-    case ctb(LUA_VLNGSTR):
+    case ctb(SDKL_VLNGSTR):
       return sdklS_eqlngstr(tsvalue(k1), keystrval(n2));
     default:
       return gcvalue(k1) == gcvalueraw(keyval(n2));
@@ -238,7 +238,7 @@ static int equalkey (const TValue *k1, const Node *n2, int deadok) {
 /*
 ** Returns the real size of the 'array' array
 */
-LUAI_FUNC unsigned int sdklH_realasize (const Table *t) {
+SDKLI_FUNC unsigned int sdklH_realasize (const Table *t) {
   if (limitequalsasize(t))
     return t->alimit;  /* this is the size */
   else {
@@ -613,7 +613,7 @@ static void rehash (sdkl_State *L, Table *t, const TValue *ek) {
 
 
 Table *sdklH_new (sdkl_State *L) {
-  GCObject *o = sdklC_newobj(L, LUA_VTABLE, sizeof(Table));
+  GCObject *o = sdklC_newobj(L, SDKL_VTABLE, sizeof(Table));
   Table *t = gco2t(o);
   t->metatable = NULL;
   t->flags = cast_byte(maskflags);  /* table has no metamethod fields */
@@ -746,7 +746,7 @@ const TValue *sdklH_getint (Table *t, sdkl_Integer key) {
 */
 const TValue *sdklH_getshortstr (Table *t, TString *key) {
   Node *n = hashstr(t, key);
-  sdkl_assert(key->tt == LUA_VSHRSTR);
+  sdkl_assert(key->tt == SDKL_VSHRSTR);
   for (;;) {  /* check whether 'key' is somewhere in the chain */
     if (keyisshrstr(n) && eqshrstr(keystrval(n), key))
       return gval(n);  /* that's it */
@@ -761,7 +761,7 @@ const TValue *sdklH_getshortstr (Table *t, TString *key) {
 
 
 const TValue *sdklH_getstr (Table *t, TString *key) {
-  if (key->tt == LUA_VSHRSTR)
+  if (key->tt == SDKL_VSHRSTR)
     return sdklH_getshortstr(t, key);
   else {  /* for long strings, use generic case */
     TValue ko;
@@ -776,10 +776,10 @@ const TValue *sdklH_getstr (Table *t, TString *key) {
 */
 const TValue *sdklH_get (Table *t, const TValue *key) {
   switch (ttypetag(key)) {
-    case LUA_VSHRSTR: return sdklH_getshortstr(t, tsvalue(key));
-    case LUA_VNUMINT: return sdklH_getint(t, ivalue(key));
-    case LUA_VNIL: return &absentkey;
-    case LUA_VNUMFLT: {
+    case SDKL_VSHRSTR: return sdklH_getshortstr(t, tsvalue(key));
+    case SDKL_VNUMINT: return sdklH_getint(t, ivalue(key));
+    case SDKL_VNIL: return &absentkey;
+    case SDKL_VNUMFLT: {
       sdkl_Integer k;
       if (sdklV_flttointeger(fltvalue(key), &k, F2Ieq)) /* integral index? */
         return sdklH_getint(t, k);  /* use specialized version */
@@ -834,7 +834,7 @@ void sdklH_setint (sdkl_State *L, Table *t, sdkl_Integer key, TValue *value) {
 ** present. We want to find a larger key that is absent from the
 ** table, so that we can do a binary search between the two keys to
 ** find a boundary. We keep doubling 'j' until we get an absent index.
-** If the doubling would overflow, we try LUA_MAXINTEGER. If it is
+** If the doubling would overflow, we try SDKL_MAXINTEGER. If it is
 ** absent, we are ready for the binary search. ('j', being max integer,
 ** is larger or equal to 'i', but it cannot be equal because it is
 ** absent while 'i' is present; so 'j > i'.) Otherwise, 'j' is a
@@ -846,10 +846,10 @@ static sdkl_Unsigned hash_search (Table *t, sdkl_Unsigned j) {
   if (j == 0) j++;  /* the caller ensures 'j + 1' is present */
   do {
     i = j;  /* 'i' is a present index */
-    if (j <= l_castS2U(LUA_MAXINTEGER) / 2)
+    if (j <= l_castS2U(SDKL_MAXINTEGER) / 2)
       j *= 2;
     else {
-      j = LUA_MAXINTEGER;
+      j = SDKL_MAXINTEGER;
       if (isempty(sdklH_getint(t, j)))  /* t[j] not present? */
         break;  /* 'j' now is an absent index */
       else  /* weird case */
@@ -958,7 +958,7 @@ sdkl_Unsigned sdklH_getn (Table *t) {
 
 
 
-#if defined(LUA_DEBUG)
+#if defined(SDKL_DEBUG)
 
 /* export these functions for the test library */
 

@@ -17,22 +17,22 @@
 
 
 /* global table */
-#define LUA_GNAME	"_G"
+#define SDKL_GNAME	"_G"
 
 
 typedef struct sdklL_Buffer sdklL_Buffer;
 
 
 /* extra error code for 'sdklL_loadfilex' */
-#define LUA_ERRFILE     (LUA_ERRERR+1)
+#define SDKL_ERRFILE     (SDKL_ERRERR+1)
 
 
 /* key, in the registry, for table of loaded modules */
-#define LUA_LOADED_TABLE	"_LOADED"
+#define SDKL_LOADED_TABLE	"_LOADED"
 
 
 /* key, in the registry, for table of preloaded loaders */
-#define LUA_PRELOAD_TABLE	"_PRELOAD"
+#define SDKL_PRELOAD_TABLE	"_PRELOAD"
 
 
 typedef struct sdklL_Reg {
@@ -41,80 +41,80 @@ typedef struct sdklL_Reg {
 } sdklL_Reg;
 
 
-#define LUAL_NUMSIZES	(sizeof(sdkl_Integer)*16 + sizeof(sdkl_Number))
+#define SDKLL_NUMSIZES	(sizeof(sdkl_Integer)*16 + sizeof(sdkl_Number))
 
-LUALIB_API void (sdklL_checkversion_) (sdkl_State *L, sdkl_Number ver, size_t sz);
+SDKLLIB_API void (sdklL_checkversion_) (sdkl_State *L, sdkl_Number ver, size_t sz);
 #define sdklL_checkversion(L)  \
-	  sdklL_checkversion_(L, LUA_VERSION_NUM, LUAL_NUMSIZES)
+	  sdklL_checkversion_(L, SDKL_VERSION_NUM, SDKLL_NUMSIZES)
 
-LUALIB_API int (sdklL_getmetafield) (sdkl_State *L, int obj, const char *e);
-LUALIB_API int (sdklL_callmeta) (sdkl_State *L, int obj, const char *e);
-LUALIB_API const char *(sdklL_tolstring) (sdkl_State *L, int idx, size_t *len);
-LUALIB_API int (sdklL_argerror) (sdkl_State *L, int arg, const char *extramsg);
-LUALIB_API int (sdklL_typeerror) (sdkl_State *L, int arg, const char *tname);
-LUALIB_API const char *(sdklL_checklstring) (sdkl_State *L, int arg,
+SDKLLIB_API int (sdklL_getmetafield) (sdkl_State *L, int obj, const char *e);
+SDKLLIB_API int (sdklL_callmeta) (sdkl_State *L, int obj, const char *e);
+SDKLLIB_API const char *(sdklL_tolstring) (sdkl_State *L, int idx, size_t *len);
+SDKLLIB_API int (sdklL_argerror) (sdkl_State *L, int arg, const char *extramsg);
+SDKLLIB_API int (sdklL_typeerror) (sdkl_State *L, int arg, const char *tname);
+SDKLLIB_API const char *(sdklL_checklstring) (sdkl_State *L, int arg,
                                                           size_t *l);
-LUALIB_API const char *(sdklL_optlstring) (sdkl_State *L, int arg,
+SDKLLIB_API const char *(sdklL_optlstring) (sdkl_State *L, int arg,
                                           const char *def, size_t *l);
-LUALIB_API sdkl_Number (sdklL_checknumber) (sdkl_State *L, int arg);
-LUALIB_API sdkl_Number (sdklL_optnumber) (sdkl_State *L, int arg, sdkl_Number def);
+SDKLLIB_API sdkl_Number (sdklL_checknumber) (sdkl_State *L, int arg);
+SDKLLIB_API sdkl_Number (sdklL_optnumber) (sdkl_State *L, int arg, sdkl_Number def);
 
-LUALIB_API sdkl_Integer (sdklL_checkinteger) (sdkl_State *L, int arg);
-LUALIB_API sdkl_Integer (sdklL_optinteger) (sdkl_State *L, int arg,
+SDKLLIB_API sdkl_Integer (sdklL_checkinteger) (sdkl_State *L, int arg);
+SDKLLIB_API sdkl_Integer (sdklL_optinteger) (sdkl_State *L, int arg,
                                           sdkl_Integer def);
 
-LUALIB_API void (sdklL_checkstack) (sdkl_State *L, int sz, const char *msg);
-LUALIB_API void (sdklL_checktype) (sdkl_State *L, int arg, int t);
-LUALIB_API void (sdklL_checkany) (sdkl_State *L, int arg);
+SDKLLIB_API void (sdklL_checkstack) (sdkl_State *L, int sz, const char *msg);
+SDKLLIB_API void (sdklL_checktype) (sdkl_State *L, int arg, int t);
+SDKLLIB_API void (sdklL_checkany) (sdkl_State *L, int arg);
 
-LUALIB_API int   (sdklL_newmetatable) (sdkl_State *L, const char *tname);
-LUALIB_API void  (sdklL_setmetatable) (sdkl_State *L, const char *tname);
-LUALIB_API void *(sdklL_testudata) (sdkl_State *L, int ud, const char *tname);
-LUALIB_API void *(sdklL_checkudata) (sdkl_State *L, int ud, const char *tname);
+SDKLLIB_API int   (sdklL_newmetatable) (sdkl_State *L, const char *tname);
+SDKLLIB_API void  (sdklL_setmetatable) (sdkl_State *L, const char *tname);
+SDKLLIB_API void *(sdklL_testudata) (sdkl_State *L, int ud, const char *tname);
+SDKLLIB_API void *(sdklL_checkudata) (sdkl_State *L, int ud, const char *tname);
 
-LUALIB_API void (sdklL_where) (sdkl_State *L, int lvl);
-LUALIB_API int (sdklL_error) (sdkl_State *L, const char *fmt, ...);
+SDKLLIB_API void (sdklL_where) (sdkl_State *L, int lvl);
+SDKLLIB_API int (sdklL_error) (sdkl_State *L, const char *fmt, ...);
 
-LUALIB_API int (sdklL_checkoption) (sdkl_State *L, int arg, const char *def,
+SDKLLIB_API int (sdklL_checkoption) (sdkl_State *L, int arg, const char *def,
                                    const char *const lst[]);
 
-LUALIB_API int (sdklL_fileresult) (sdkl_State *L, int stat, const char *fname);
-LUALIB_API int (sdklL_execresult) (sdkl_State *L, int stat);
+SDKLLIB_API int (sdklL_fileresult) (sdkl_State *L, int stat, const char *fname);
+SDKLLIB_API int (sdklL_execresult) (sdkl_State *L, int stat);
 
 
 /* predefined references */
-#define LUA_NOREF       (-2)
-#define LUA_REFNIL      (-1)
+#define SDKL_NOREF       (-2)
+#define SDKL_REFNIL      (-1)
 
-LUALIB_API int (sdklL_ref) (sdkl_State *L, int t);
-LUALIB_API void (sdklL_unref) (sdkl_State *L, int t, int ref);
+SDKLLIB_API int (sdklL_ref) (sdkl_State *L, int t);
+SDKLLIB_API void (sdklL_unref) (sdkl_State *L, int t, int ref);
 
-LUALIB_API int (sdklL_loadfilex) (sdkl_State *L, const char *filename,
+SDKLLIB_API int (sdklL_loadfilex) (sdkl_State *L, const char *filename,
                                                const char *mode);
 
 #define sdklL_loadfile(L,f)	sdklL_loadfilex(L,f,NULL)
 
-LUALIB_API int (sdklL_loadbufferx) (sdkl_State *L, const char *buff, size_t sz,
+SDKLLIB_API int (sdklL_loadbufferx) (sdkl_State *L, const char *buff, size_t sz,
                                    const char *name, const char *mode);
-LUALIB_API int (sdklL_loadstring) (sdkl_State *L, const char *s);
+SDKLLIB_API int (sdklL_loadstring) (sdkl_State *L, const char *s);
 
-LUALIB_API sdkl_State *(sdklL_newstate) (void);
+SDKLLIB_API sdkl_State *(sdklL_newstate) (void);
 
-LUALIB_API sdkl_Integer (sdklL_len) (sdkl_State *L, int idx);
+SDKLLIB_API sdkl_Integer (sdklL_len) (sdkl_State *L, int idx);
 
-LUALIB_API void sdklL_addgsub (sdklL_Buffer *b, const char *s,
+SDKLLIB_API void sdklL_addgsub (sdklL_Buffer *b, const char *s,
                                      const char *p, const char *r);
-LUALIB_API const char *(sdklL_gsub) (sdkl_State *L, const char *s,
+SDKLLIB_API const char *(sdklL_gsub) (sdkl_State *L, const char *s,
                                     const char *p, const char *r);
 
-LUALIB_API void (sdklL_setfuncs) (sdkl_State *L, const sdklL_Reg *l, int nup);
+SDKLLIB_API void (sdklL_setfuncs) (sdkl_State *L, const sdklL_Reg *l, int nup);
 
-LUALIB_API int (sdklL_getsubtable) (sdkl_State *L, int idx, const char *fname);
+SDKLLIB_API int (sdklL_getsubtable) (sdkl_State *L, int idx, const char *fname);
 
-LUALIB_API void (sdklL_traceback) (sdkl_State *L, sdkl_State *L1,
+SDKLLIB_API void (sdklL_traceback) (sdkl_State *L, sdkl_State *L1,
                                   const char *msg, int level);
 
-LUALIB_API void (sdklL_requiref) (sdkl_State *L, const char *modname,
+SDKLLIB_API void (sdklL_requiref) (sdkl_State *L, const char *modname,
                                  sdkl_CFunction openf, int glb);
 
 /*
@@ -142,12 +142,12 @@ LUALIB_API void (sdklL_requiref) (sdkl_State *L, const char *modname,
 #define sdklL_typename(L,i)	sdkl_typename(L, sdkl_type(L,(i)))
 
 #define sdklL_dofile(L, fn) \
-	(sdklL_loadfile(L, fn) || sdkl_pcall(L, 0, LUA_MULTRET, 0))
+	(sdklL_loadfile(L, fn) || sdkl_pcall(L, 0, SDKL_MULTRET, 0))
 
 #define sdklL_dostring(L, s) \
-	(sdklL_loadstring(L, s) || sdkl_pcall(L, 0, LUA_MULTRET, 0))
+	(sdklL_loadstring(L, s) || sdkl_pcall(L, 0, SDKL_MULTRET, 0))
 
-#define sdklL_getmetatable(L,n)	(sdkl_getfield(L, LUA_REGISTRYINDEX, (n)))
+#define sdklL_getmetatable(L,n)	(sdkl_getfield(L, SDKL_REGISTRYINDEX, (n)))
 
 #define sdklL_opt(L,f,n,d)	(sdkl_isnoneornil(L,(n)) ? (d) : f(L,(n)))
 
@@ -163,7 +163,7 @@ LUALIB_API void (sdklL_requiref) (sdkl_State *L, const char *modname,
 */
 #if !defined(sdkl_assert)
 
-#if defined LUAI_ASSERT
+#if defined SDKLI_ASSERT
   #include <assert.h>
   #define sdkl_assert(c)		assert(c)
 #else
@@ -186,8 +186,8 @@ struct sdklL_Buffer {
   size_t n;  /* number of characters in buffer */
   sdkl_State *L;
   union {
-    LUAI_MAXALIGN;  /* ensure maximum alignment for buffer */
-    char b[LUAL_BUFFERSIZE];  /* initial buffer */
+    SDKLI_MAXALIGN;  /* ensure maximum alignment for buffer */
+    char b[SDKLL_BUFFERSIZE];  /* initial buffer */
   } init;
 };
 
@@ -204,16 +204,16 @@ struct sdklL_Buffer {
 
 #define sdklL_buffsub(B,s)	((B)->n -= (s))
 
-LUALIB_API void (sdklL_buffinit) (sdkl_State *L, sdklL_Buffer *B);
-LUALIB_API char *(sdklL_prepbuffsize) (sdklL_Buffer *B, size_t sz);
-LUALIB_API void (sdklL_addlstring) (sdklL_Buffer *B, const char *s, size_t l);
-LUALIB_API void (sdklL_addstring) (sdklL_Buffer *B, const char *s);
-LUALIB_API void (sdklL_addvalue) (sdklL_Buffer *B);
-LUALIB_API void (sdklL_pushresult) (sdklL_Buffer *B);
-LUALIB_API void (sdklL_pushresultsize) (sdklL_Buffer *B, size_t sz);
-LUALIB_API char *(sdklL_buffinitsize) (sdkl_State *L, sdklL_Buffer *B, size_t sz);
+SDKLLIB_API void (sdklL_buffinit) (sdkl_State *L, sdklL_Buffer *B);
+SDKLLIB_API char *(sdklL_prepbuffsize) (sdklL_Buffer *B, size_t sz);
+SDKLLIB_API void (sdklL_addlstring) (sdklL_Buffer *B, const char *s, size_t l);
+SDKLLIB_API void (sdklL_addstring) (sdklL_Buffer *B, const char *s);
+SDKLLIB_API void (sdklL_addvalue) (sdklL_Buffer *B);
+SDKLLIB_API void (sdklL_pushresult) (sdklL_Buffer *B);
+SDKLLIB_API void (sdklL_pushresultsize) (sdklL_Buffer *B, size_t sz);
+SDKLLIB_API char *(sdklL_buffinitsize) (sdkl_State *L, sdklL_Buffer *B, size_t sz);
 
-#define sdklL_prepbuffer(B)	sdklL_prepbuffsize(B, LUAL_BUFFERSIZE)
+#define sdklL_prepbuffer(B)	sdklL_prepbuffsize(B, SDKLL_BUFFERSIZE)
 
 /* }====================================================== */
 
@@ -226,12 +226,12 @@ LUALIB_API char *(sdklL_buffinitsize) (sdkl_State *L, sdklL_Buffer *B, size_t sz
 */
 
 /*
-** A file handle is a userdata with metatable 'LUA_FILEHANDLE' and
+** A file handle is a userdata with metatable 'SDKL_FILEHANDLE' and
 ** initial structure 'sdklL_Stream' (it may contain other fields
 ** after that initial structure).
 */
 
-#define LUA_FILEHANDLE          "FILE*"
+#define SDKL_FILEHANDLE          "FILE*"
 
 
 typedef struct sdklL_Stream {
@@ -271,7 +271,7 @@ typedef struct sdklL_Stream {
 ** Compatibility with deprecated conversions
 ** =============================================================
 */
-#if defined(LUA_COMPAT_APIINTCASTS)
+#if defined(SDKL_COMPAT_APIINTCASTS)
 
 #define sdklL_checkunsigned(L,a)	((sdkl_Unsigned)sdklL_checkinteger(L,a))
 #define sdklL_optunsigned(L,a,d)	\

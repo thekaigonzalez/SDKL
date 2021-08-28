@@ -5,7 +5,7 @@
 */
 
 #define lopcodes_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
@@ -15,7 +15,7 @@
 
 /* ORDER OP */
 
-LUAI_DDEF const lu_byte sdklP_opmodes[NUM_OPCODES] = {
+SDKLI_DDEF const lu_byte sdklP_opmodes[NUM_OPCODES] = {
 /*       MM OT IT T  A  mode		   opcode  */
   opmode(0, 0, 0, 0, 1, iABC)		/* OP_MOVE */
  ,opmode(0, 0, 0, 0, 1, iAsBx)		/* OP_LOADI */

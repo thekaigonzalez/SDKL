@@ -5,7 +5,7 @@
 */
 
 #define ltm_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
@@ -27,7 +27,7 @@
 
 static const char udatatypename[] = "userdata";
 
-LUAI_DDEF const char *const sdklT_typenames_[LUA_TOTALTYPES] = {
+SDKLI_DDEF const char *const sdklT_typenames_[SDKL_TOTALTYPES] = {
   "no value",
   "nil", "boolean", udatatypename, "number",
   "string", "table", "function", udatatypename, "thread",
@@ -71,10 +71,10 @@ const TValue *sdklT_gettm (Table *events, TMS event, TString *ename) {
 const TValue *sdklT_gettmbyobj (sdkl_State *L, const TValue *o, TMS event) {
   Table *mt;
   switch (ttype(o)) {
-    case LUA_TTABLE:
+    case SDKL_TTABLE:
       mt = hvalue(o)->metatable;
       break;
-    case LUA_TUSERDATA:
+    case SDKL_TUSERDATA:
       mt = uvalue(o)->metatable;
       break;
     default:
@@ -191,7 +191,7 @@ void sdklT_trybiniTM (sdkl_State *L, const TValue *p1, sdkl_Integer i2,
 
 /*
 ** Calls an order tag method.
-** For lessequal, LUA_COMPAT_LT_LE keeps compatibility with old
+** For lessequal, SDKL_COMPAT_LT_LE keeps compatibility with old
 ** behavior: if there is no '__le', try '__lt', based on l <= r iff
 ** !(r < l) (assuming a total order). If the metamethod yields during
 ** this substitution, the continuation has to know about it (to negate
@@ -202,7 +202,7 @@ int sdklT_callorderTM (sdkl_State *L, const TValue *p1, const TValue *p2,
                       TMS event) {
   if (callbinTM(L, p1, p2, L->top, event))  /* try original event */
     return !l_isfalse(s2v(L->top));
-#if defined(LUA_COMPAT_LT_LE)
+#if defined(SDKL_COMPAT_LT_LE)
   else if (event == TM_LE) {
       /* try '!(p2 < p1)' for '(p1 <= p2)' */
       L->ci->callstatus |= CIST_LEQ;  /* mark it is doing 'lt' for 'le' */

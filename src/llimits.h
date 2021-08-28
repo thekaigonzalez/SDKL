@@ -20,10 +20,10 @@
 ** the total memory used by SDKL (in bytes). Usually, 'size_t' and
 ** 'ptrdiff_t' should work, but we use 'long' for 16-bit machines.
 */
-#if defined(LUAI_MEM)		/* { external definitions? */
-typedef LUAI_UMEM lu_mem;
-typedef LUAI_MEM l_mem;
-#elif LUAI_IS32INT	/* }{ */
+#if defined(SDKLI_MEM)		/* { external definitions? */
+typedef SDKLI_UMEM lu_mem;
+typedef SDKLI_MEM l_mem;
+#elif SDKLI_IS32INT	/* }{ */
 typedef size_t lu_mem;
 typedef ptrdiff_t l_mem;
 #else  /* 16-bit ints */	/* }{ */
@@ -42,7 +42,7 @@ typedef signed char ls_byte;
 
 /* maximum size visible for SDKL (must be representable in a sdkl_Integer) */
 #define MAX_SIZE	(sizeof(size_t) < sizeof(sdkl_Integer) ? MAX_SIZET \
-                          : (size_t)(LUA_MAXINTEGER))
+                          : (size_t)(SDKL_MAXINTEGER))
 
 
 #define MAX_LUMEM	((lu_mem)(~(lu_mem)0))
@@ -80,14 +80,14 @@ typedef signed char ls_byte;
 
 
 /* types of 'usual argument conversions' for sdkl_Number and sdkl_Integer */
-typedef LUAI_UACNUMBER l_uacNumber;
-typedef LUAI_UACINT l_uacInt;
+typedef SDKLI_UACNUMBER l_uacNumber;
+typedef SDKLI_UACINT l_uacInt;
 
 
 /*
 ** Internal assertions for in-house debugging
 */
-#if defined LUAI_ASSERT
+#if defined SDKLI_ASSERT
 #undef NDEBUG
 #include <assert.h>
 #define sdkl_assert(c)           assert(c)
@@ -169,7 +169,7 @@ typedef LUAI_UACINT l_uacInt;
 ** type for virtual-machine instructions;
 ** must be an unsigned with (at least) 4 bytes (see details in lopcodes.h)
 */
-#if LUAI_IS32INT
+#if SDKLI_IS32INT
 typedef unsigned int l_uint32;
 #else
 typedef unsigned long l_uint32;
@@ -185,8 +185,8 @@ typedef l_uint32 Instruction;
 ** metamethods, as these strings must be internalized;
 ** #("function") = 8, #("__newindex") = 10.)
 */
-#if !defined(LUAI_MAXSHORTLEN)
-#define LUAI_MAXSHORTLEN	40
+#if !defined(SDKLI_MAXSHORTLEN)
+#define SDKLI_MAXSHORTLEN	40
 #endif
 
 
@@ -213,8 +213,8 @@ typedef l_uint32 Instruction;
 
 
 /* minimum size for string buffer */
-#if !defined(LUA_MINBUFFER)
-#define LUA_MINBUFFER	32
+#if !defined(SDKL_MINBUFFER)
+#define SDKL_MINBUFFER	32
 #endif
 
 
@@ -224,8 +224,8 @@ typedef l_uint32 Instruction;
 ** fit in a 16-bit unsigned integer. It must also be compatible with
 ** the size of the C stack.)
 */
-#if !defined(LUAI_MAXCCALLS)
-#define LUAI_MAXCCALLS		200
+#if !defined(SDKLI_MAXCCALLS)
+#define SDKLI_MAXCCALLS		200
 #endif
 
 

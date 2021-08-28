@@ -37,43 +37,43 @@
 */
 
 /*
-@@ LUA_USE_C89 controls the use of non-ISO-C89 features.
+@@ SDKL_USE_C89 controls the use of non-ISO-C89 features.
 ** Define it if you want SDKL to avoid the use of a few C99 features
 ** or Windows-specific features on Windows.
 */
-/* #define LUA_USE_C89 */
+/* #define SDKL_USE_C89 */
 
 
 /*
 ** By default, SDKL on Windows use (some) specific Windows features
 */
-#if !defined(LUA_USE_C89) && defined(_WIN32) && !defined(_WIN32_WCE)
-#define LUA_USE_WINDOWS  /* enable goodies for regular Windows */
+#if !defined(SDKL_USE_C89) && defined(_WIN32) && !defined(_WIN32_WCE)
+#define SDKL_USE_WINDOWS  /* enable goodies for regular Windows */
 #endif
 
 
-#if defined(LUA_USE_WINDOWS)
-#define LUA_DL_DLL	/* enable support for DLL */
-#define LUA_USE_C89	/* broadly, Windows is C89 */
+#if defined(SDKL_USE_WINDOWS)
+#define SDKL_DL_DLL	/* enable support for DLL */
+#define SDKL_USE_C89	/* broadly, Windows is C89 */
 #endif
 
 
-#if defined(LUA_USE_LINUX)
-#define LUA_USE_POSIX
-#define LUA_USE_DLOPEN		/* needs an extra library: -ldl */
+#if defined(SDKL_USE_LINUX)
+#define SDKL_USE_POSIX
+#define SDKL_USE_DLOPEN		/* needs an extra library: -ldl */
 #endif
 
 
-#if defined(LUA_USE_MACOSX)
-#define LUA_USE_POSIX
-#define LUA_USE_DLOPEN		/* MacOS does not need -ldl */
+#if defined(SDKL_USE_MACOSX)
+#define SDKL_USE_POSIX
+#define SDKL_USE_DLOPEN		/* MacOS does not need -ldl */
 #endif
 
 
 /*
-@@ LUAI_IS32INT is true iff 'int' has (at least) 32 bits.
+@@ SDKLI_IS32INT is true iff 'int' has (at least) 32 bits.
 */
-#define LUAI_IS32INT	((UINT_MAX >> 30) >= 3)
+#define SDKLI_IS32INT	((UINT_MAX >> 30) >= 3)
 
 /* }================================================================== */
 
@@ -88,8 +88,8 @@
 */
 
 /*
-@@ LUA_INT_TYPE defines the type for SDKL integers.
-@@ LUA_FLOAT_TYPE defines the type for SDKL floats.
+@@ SDKL_INT_TYPE defines the type for SDKL integers.
+@@ SDKL_FLOAT_TYPE defines the type for SDKL floats.
 ** SDKL should work fine with any mix of these options supported
 ** by your C compiler. The usual configurations are 64-bit integers
 ** and 'double' (the default), 32-bit integers and 'float' (for
@@ -97,63 +97,63 @@
 ** compliant with C99, which may not have support for 'long long').
 */
 
-/* predefined options for LUA_INT_TYPE */
-#define LUA_INT_INT		1
-#define LUA_INT_LONG		2
-#define LUA_INT_LONGLONG	3
+/* predefined options for SDKL_INT_TYPE */
+#define SDKL_INT_INT		1
+#define SDKL_INT_LONG		2
+#define SDKL_INT_LONGLONG	3
 
-/* predefined options for LUA_FLOAT_TYPE */
-#define LUA_FLOAT_FLOAT		1
-#define LUA_FLOAT_DOUBLE	2
-#define LUA_FLOAT_LONGDOUBLE	3
+/* predefined options for SDKL_FLOAT_TYPE */
+#define SDKL_FLOAT_FLOAT		1
+#define SDKL_FLOAT_DOUBLE	2
+#define SDKL_FLOAT_LONGDOUBLE	3
 
 
 /* Default configuration ('long long' and 'double', for 64-bit SDKL) */
-#define LUA_INT_DEFAULT		LUA_INT_LONGLONG
-#define LUA_FLOAT_DEFAULT	LUA_FLOAT_DOUBLE
+#define SDKL_INT_DEFAULT		SDKL_INT_LONGLONG
+#define SDKL_FLOAT_DEFAULT	SDKL_FLOAT_DOUBLE
 
 
 /*
-@@ LUA_32BITS enables SDKL with 32-bit integers and 32-bit floats.
+@@ SDKL_32BITS enables SDKL with 32-bit integers and 32-bit floats.
 */
-#define LUA_32BITS	0
+#define SDKL_32BITS	0
 
 
 /*
-@@ LUA_C89_NUMBERS ensures that SDKL uses the largest types available for
+@@ SDKL_C89_NUMBERS ensures that SDKL uses the largest types available for
 ** C89 ('long' and 'double'); Windows always has '__int64', so it does
 ** not need to use this case.
 */
-#if defined(LUA_USE_C89) && !defined(LUA_USE_WINDOWS)
-#define LUA_C89_NUMBERS		1
+#if defined(SDKL_USE_C89) && !defined(SDKL_USE_WINDOWS)
+#define SDKL_C89_NUMBERS		1
 #else
-#define LUA_C89_NUMBERS		0
+#define SDKL_C89_NUMBERS		0
 #endif
 
 
-#if LUA_32BITS		/* { */
+#if SDKL_32BITS		/* { */
 /*
 ** 32-bit integers and 'float'
 */
-#if LUAI_IS32INT  /* use 'int' if big enough */
-#define LUA_INT_TYPE	LUA_INT_INT
+#if SDKLI_IS32INT  /* use 'int' if big enough */
+#define SDKL_INT_TYPE	SDKL_INT_INT
 #else  /* otherwise use 'long' */
-#define LUA_INT_TYPE	LUA_INT_LONG
+#define SDKL_INT_TYPE	SDKL_INT_LONG
 #endif
-#define LUA_FLOAT_TYPE	LUA_FLOAT_FLOAT
+#define SDKL_FLOAT_TYPE	SDKL_FLOAT_FLOAT
 
-#elif LUA_C89_NUMBERS	/* }{ */
+#elif SDKL_C89_NUMBERS	/* }{ */
 /*
 ** largest types available for C89 ('long' and 'double')
 */
-#define LUA_INT_TYPE	LUA_INT_LONG
-#define LUA_FLOAT_TYPE	LUA_FLOAT_DOUBLE
+#define SDKL_INT_TYPE	SDKL_INT_LONG
+#define SDKL_FLOAT_TYPE	SDKL_FLOAT_DOUBLE
 
 #else		/* }{ */
 /* use defaults */
 
-#define LUA_INT_TYPE	LUA_INT_DEFAULT
-#define LUA_FLOAT_TYPE	LUA_FLOAT_DEFAULT
+#define SDKL_INT_TYPE	SDKL_INT_DEFAULT
+#define SDKL_FLOAT_TYPE	SDKL_FLOAT_DEFAULT
 
 #endif				/* } */
 
@@ -169,84 +169,84 @@
 */
 
 /*
-** LUA_PATH_SEP is the character that separates templates in a path.
-** LUA_PATH_MARK is the string that marks the substitution points in a
+** SDKL_PATH_SEP is the character that separates templates in a path.
+** SDKL_PATH_MARK is the string that marks the substitution points in a
 ** template.
-** LUA_EXEC_DIR in a Windows path is replaced by the executable's
+** SDKL_EXEC_DIR in a Windows path is replaced by the executable's
 ** directory.
 */
-#define LUA_PATH_SEP            ";"
-#define LUA_PATH_MARK           "?"
-#define LUA_EXEC_DIR            "!"
+#define SDKL_PATH_SEP            ";"
+#define SDKL_PATH_MARK           "?"
+#define SDKL_EXEC_DIR            "!"
 
 
 /*
-@@ LUA_PATH_DEFAULT is the default path that SDKL uses to look for
+@@ SDKL_PATH_DEFAULT is the default path that SDKL uses to look for
 ** SDKL libraries.
-@@ LUA_CPATH_DEFAULT is the default path that SDKL uses to look for
+@@ SDKL_CPATH_DEFAULT is the default path that SDKL uses to look for
 ** C libraries.
 ** CHANGE them if your machine has a non-conventional directory
 ** hierarchy or if you want to install your libraries in
 ** non-conventional directories.
 */
 
-#define LUA_VDIR	LUA_VERSION_MAJOR "." LUA_VERSION_MINOR
+#define SDKL_VDIR	SDKL_VERSION_MAJOR "." SDKL_VERSION_MINOR
 #if defined(_WIN32)	/* { */
 /*
 ** In Windows, any exclamation mark ('!') in the path is replaced by the
 ** path of the directory of the executable file of the current process.
 */
-#define LUA_LDIR	"!\\sdkl\\"
-#define LUA_CDIR	"!\\"
-#define LUA_SHRDIR	"!\\..\\share\\sdkl\\" LUA_VDIR "\\"
+#define SDKL_LDIR	"!\\sdkl\\"
+#define SDKL_CDIR	"!\\"
+#define SDKL_SHRDIR	"!\\..\\share\\sdkl\\" SDKL_VDIR "\\"
 
-#if !defined(LUA_PATH_DEFAULT)
-#define LUA_PATH_DEFAULT  \
-		LUA_LDIR"?.sdkl;"  LUA_LDIR"?\\init.sdkl;" \
-		LUA_CDIR"?.sdkl;"  LUA_CDIR"?\\init.sdkl;" \
-		LUA_SHRDIR"?.sdkl;" LUA_SHRDIR"?\\init.sdkl;" \
+#if !defined(SDKL_PATH_DEFAULT)
+#define SDKL_PATH_DEFAULT  \
+		SDKL_LDIR"?.sdkl;"  SDKL_LDIR"?\\init.sdkl;" \
+		SDKL_CDIR"?.sdkl;"  SDKL_CDIR"?\\init.sdkl;" \
+		SDKL_SHRDIR"?.sdkl;" SDKL_SHRDIR"?\\init.sdkl;" \
 		".\\?.sdkl;" ".\\?\\init.sdkl"
 #endif
 
-#if !defined(LUA_CPATH_DEFAULT)
-#define LUA_CPATH_DEFAULT \
-		LUA_CDIR"?.dll;" \
-		LUA_CDIR"..\\lib\\sdkl\\" LUA_VDIR "\\?.dll;" \
-		LUA_CDIR"loadall.dll;" ".\\?.dll"
+#if !defined(SDKL_CPATH_DEFAULT)
+#define SDKL_CPATH_DEFAULT \
+		SDKL_CDIR"?.dll;" \
+		SDKL_CDIR"..\\lib\\sdkl\\" SDKL_VDIR "\\?.dll;" \
+		SDKL_CDIR"loadall.dll;" ".\\?.dll"
 #endif
 
 #else			/* }{ */
 
-#define LUA_ROOT	"/usr/local/"
-#define LUA_LDIR	LUA_ROOT "share/sdkl/" LUA_VDIR "/"
-#define LUA_CDIR	LUA_ROOT "lib/sdkl/" LUA_VDIR "/"
+#define SDKL_ROOT	"/usr/local/"
+#define SDKL_LDIR	SDKL_ROOT "share/sdkl/" SDKL_VDIR "/"
+#define SDKL_CDIR	SDKL_ROOT "lib/sdkl/" SDKL_VDIR "/"
 
-#if !defined(LUA_PATH_DEFAULT)
-#define LUA_PATH_DEFAULT  \
-		LUA_LDIR"?.sdkl;"  LUA_LDIR"?/init.sdkl;" \
-		LUA_CDIR"?.sdkl;"  LUA_CDIR"?/init.sdkl;" \
+#if !defined(SDKL_PATH_DEFAULT)
+#define SDKL_PATH_DEFAULT  \
+		SDKL_LDIR"?.sdkl;"  SDKL_LDIR"?/init.sdkl;" \
+		SDKL_CDIR"?.sdkl;"  SDKL_CDIR"?/init.sdkl;" \
 		"./?.sdkl;" "./?/sdkl.sdkl"
 #endif
 
-#if !defined(LUA_CPATH_DEFAULT)
-#define LUA_CPATH_DEFAULT \
-		LUA_CDIR"?.so;" LUA_CDIR"loadall.so;" "./?.so"
+#if !defined(SDKL_CPATH_DEFAULT)
+#define SDKL_CPATH_DEFAULT \
+		SDKL_CDIR"?.so;" SDKL_CDIR"loadall.so;" "./?.so"
 #endif
 
 #endif			/* } */
 
 
 /*
-@@ LUA_DIRSEP is the directory separator (for submodules).
+@@ SDKL_DIRSEP is the directory separator (for submodules).
 ** CHANGE it if your machine does not use "/" as the directory separator
 ** and is not Windows. (On Windows SDKL automatically uses "\".)
 */
-#if !defined(LUA_DIRSEP)
+#if !defined(SDKL_DIRSEP)
 
 #if defined(_WIN32)
-#define LUA_DIRSEP	"\\"
+#define SDKL_DIRSEP	"\\"
 #else
-#define LUA_DIRSEP	"/"
+#define SDKL_DIRSEP	"/"
 #endif
 
 #endif
@@ -261,25 +261,25 @@
 */
 
 /*
-@@ LUA_API is a mark for all core API functions.
-@@ LUALIB_API is a mark for all auxiliary library functions.
-@@ LUAMOD_API is a mark for all standard library opening functions.
+@@ SDKL_API is a mark for all core API functions.
+@@ SDKLLIB_API is a mark for all auxiliary library functions.
+@@ SDKLMOD_API is a mark for all standard library opening functions.
 ** CHANGE them if you need to define those functions in some special way.
 ** For instance, if you want to create one Windows DLL with the core and
 ** the libraries, you may want to use the following definition (define
-** LUA_BUILD_AS_DLL to get it).
+** SDKL_BUILD_AS_DLL to get it).
 */
-#if defined(LUA_BUILD_AS_DLL)	/* { */
+#if defined(SDKL_BUILD_AS_DLL)	/* { */
 
-#if defined(LUA_CORE) || defined(LUA_LIB)	/* { */
-#define LUA_API __declspec(dllexport)
+#if defined(SDKL_CORE) || defined(SDKL_LIB)	/* { */
+#define SDKL_API __declspec(dllexport)
 #else						/* }{ */
-#define LUA_API __declspec(dllimport)
+#define SDKL_API __declspec(dllimport)
 #endif						/* } */
 
 #else				/* }{ */
 
-#define LUA_API		extern
+#define SDKL_API		extern
 
 #endif				/* } */
 
@@ -287,16 +287,16 @@
 /*
 ** More often than not the libs go together with the core.
 */
-#define LUALIB_API	LUA_API
-#define LUAMOD_API	LUA_API
+#define SDKLLIB_API	SDKL_API
+#define SDKLMOD_API	SDKL_API
 
 
 /*
-@@ LUAI_FUNC is a mark for all extern functions that are not to be
+@@ SDKLI_FUNC is a mark for all extern functions that are not to be
 ** exported to outside modules.
-@@ LUAI_DDEF and LUAI_DDEC are marks for all extern (const) variables,
-** none of which to be exported to outside modules (LUAI_DDEF for
-** definitions and LUAI_DDEC for declarations).
+@@ SDKLI_DDEF and SDKLI_DDEC are marks for all extern (const) variables,
+** none of which to be exported to outside modules (SDKLI_DDEF for
+** definitions and SDKLI_DDEC for declarations).
 ** CHANGE them if you need to mark them in some special way. Elf/gcc
 ** (versions 3.2 and later) mark them as "hidden" to optimize access
 ** when SDKL is compiled as a shared library. Not all elf targets support
@@ -307,13 +307,13 @@
 */
 #if defined(__GNUC__) && ((__GNUC__*100 + __GNUC_MINOR__) >= 302) && \
     defined(__ELF__)		/* { */
-#define LUAI_FUNC	__attribute__((visibility("internal"))) extern
+#define SDKLI_FUNC	__attribute__((visibility("internal"))) extern
 #else				/* }{ */
-#define LUAI_FUNC	extern
+#define SDKLI_FUNC	extern
 #endif				/* } */
 
-#define LUAI_DDEC(dec)	LUAI_FUNC dec
-#define LUAI_DDEF	/* empty */
+#define SDKLI_DDEC(dec)	SDKLI_FUNC dec
+#define SDKLI_DDEF	/* empty */
 
 /* }================================================================== */
 
@@ -325,35 +325,35 @@
 */
 
 /*
-@@ LUA_COMPAT_5_3 controls other macros for compatibility with SDKL 5.3.
+@@ SDKL_COMPAT_5_3 controls other macros for compatibility with SDKL 5.3.
 ** You can define it to get all options, or change specific options
 ** to fit your specific needs.
 */
-#if defined(LUA_COMPAT_5_3)	/* { */
+#if defined(SDKL_COMPAT_5_3)	/* { */
 
 /*
-@@ LUA_COMPAT_MATHLIB controls the presence of several deprecated
+@@ SDKL_COMPAT_MATHLIB controls the presence of several deprecated
 ** functions in the mathematical library.
 ** (These functions were already officially removed in 5.3;
 ** nevertheless they are still available here.)
 */
-#define LUA_COMPAT_MATHLIB
+#define SDKL_COMPAT_MATHLIB
 
 /*
-@@ LUA_COMPAT_APIINTCASTS controls the presence of macros for
+@@ SDKL_COMPAT_APIINTCASTS controls the presence of macros for
 ** manipulating other integer types (sdkl_pushunsigned, sdkl_tounsigned,
 ** sdklL_checkint, sdklL_checklong, etc.)
 ** (These macros were also officially removed in 5.3, but they are still
 ** available here.)
 */
-#define LUA_COMPAT_APIINTCASTS
+#define SDKL_COMPAT_APIINTCASTS
 
 
 /*
-@@ LUA_COMPAT_LT_LE controls the emulation of the '__le' metamethod
+@@ SDKL_COMPAT_LT_LE controls the emulation of the '__le' metamethod
 ** using '__lt'.
 */
-#define LUA_COMPAT_LT_LE
+#define SDKL_COMPAT_LT_LE
 
 
 /*
@@ -367,8 +367,8 @@
 
 #define sdkl_objlen(L,i)		sdkl_rawlen(L, (i))
 
-#define sdkl_equal(L,idx1,idx2)		sdkl_compare(L,(idx1),(idx2),LUA_OPEQ)
-#define sdkl_lessthan(L,idx1,idx2)	sdkl_compare(L,(idx1),(idx2),LUA_OPLT)
+#define sdkl_equal(L,idx1,idx2)		sdkl_compare(L,(idx1),(idx2),SDKL_OPEQ)
+#define sdkl_lessthan(L,idx1,idx2)	sdkl_compare(L,(idx1),(idx2),SDKL_OPLT)
 
 #endif				/* } */
 
@@ -379,18 +379,18 @@
 /*
 ** {==================================================================
 ** Configuration for Numbers (low-level part).
-** Change these definitions if no predefined LUA_FLOAT_* / LUA_INT_*
+** Change these definitions if no predefined SDKL_FLOAT_* / SDKL_INT_*
 ** satisfy your needs.
 ** ===================================================================
 */
 
 /*
-@@ LUAI_UACNUMBER is the result of a 'default argument promotion'
+@@ SDKLI_UACNUMBER is the result of a 'default argument promotion'
 @@ over a floating number.
 @@ l_floatatt(x) corrects float attribute 'x' to the proper float type
 ** by prefixing it with one of FLT/DBL/LDBL.
-@@ LUA_NUMBER_FRMLEN is the length modifier for writing floats.
-@@ LUA_NUMBER_FMT is the format for writing floats.
+@@ SDKL_NUMBER_FRMLEN is the length modifier for writing floats.
+@@ SDKL_NUMBER_FMT is the format for writing floats.
 @@ sdkl_number2str converts a float to a string.
 @@ l_mathop allows the addition of an 'l' or 'f' to all math operations.
 @@ l_floor takes the floor of a float.
@@ -403,7 +403,7 @@
 #define l_floor(x)		(l_mathop(floor)(x))
 
 #define sdkl_number2str(s,sz,n)  \
-	l_sprintf((s), sz, LUA_NUMBER_FMT, (LUAI_UACNUMBER)(n))
+	l_sprintf((s), sz, SDKL_NUMBER_FMT, (SDKLI_UACNUMBER)(n))
 
 /*
 @@ sdkl_numbertointeger converts a float number with an integral value
@@ -415,54 +415,54 @@
 ** may have an ill-defined value.)
 */
 #define sdkl_numbertointeger(n,p) \
-  ((n) >= (LUA_NUMBER)(LUA_MININTEGER) && \
-   (n) < -(LUA_NUMBER)(LUA_MININTEGER) && \
-      (*(p) = (LUA_INTEGER)(n), 1))
+  ((n) >= (SDKL_NUMBER)(SDKL_MININTEGER) && \
+   (n) < -(SDKL_NUMBER)(SDKL_MININTEGER) && \
+      (*(p) = (SDKL_INTEGER)(n), 1))
 
 
 /* now the variable definitions */
 
-#if LUA_FLOAT_TYPE == LUA_FLOAT_FLOAT		/* { single float */
+#if SDKL_FLOAT_TYPE == SDKL_FLOAT_FLOAT		/* { single float */
 
-#define LUA_NUMBER	float
+#define SDKL_NUMBER	float
 
 #define l_floatatt(n)		(FLT_##n)
 
-#define LUAI_UACNUMBER	double
+#define SDKLI_UACNUMBER	double
 
-#define LUA_NUMBER_FRMLEN	""
-#define LUA_NUMBER_FMT		"%.7g"
+#define SDKL_NUMBER_FRMLEN	""
+#define SDKL_NUMBER_FMT		"%.7g"
 
 #define l_mathop(op)		op##f
 
 #define sdkl_str2number(s,p)	strtof((s), (p))
 
 
-#elif LUA_FLOAT_TYPE == LUA_FLOAT_LONGDOUBLE	/* }{ long double */
+#elif SDKL_FLOAT_TYPE == SDKL_FLOAT_LONGDOUBLE	/* }{ long double */
 
-#define LUA_NUMBER	long double
+#define SDKL_NUMBER	long double
 
 #define l_floatatt(n)		(LDBL_##n)
 
-#define LUAI_UACNUMBER	long double
+#define SDKLI_UACNUMBER	long double
 
-#define LUA_NUMBER_FRMLEN	"L"
-#define LUA_NUMBER_FMT		"%.19Lg"
+#define SDKL_NUMBER_FRMLEN	"L"
+#define SDKL_NUMBER_FMT		"%.19Lg"
 
 #define l_mathop(op)		op##l
 
 #define sdkl_str2number(s,p)	strtold((s), (p))
 
-#elif LUA_FLOAT_TYPE == LUA_FLOAT_DOUBLE	/* }{ double */
+#elif SDKL_FLOAT_TYPE == SDKL_FLOAT_DOUBLE	/* }{ double */
 
-#define LUA_NUMBER	double
+#define SDKL_NUMBER	double
 
 #define l_floatatt(n)		(DBL_##n)
 
-#define LUAI_UACNUMBER	double
+#define SDKLI_UACNUMBER	double
 
-#define LUA_NUMBER_FRMLEN	""
-#define LUA_NUMBER_FMT		"%.14g"
+#define SDKL_NUMBER_FRMLEN	""
+#define SDKL_NUMBER_FMT		"%.14g"
 
 #define l_mathop(op)		op
 
@@ -477,89 +477,89 @@
 
 
 /*
-@@ LUA_UNSIGNED is the unsigned version of LUA_INTEGER.
-@@ LUAI_UACINT is the result of a 'default argument promotion'
-@@ over a LUA_INTEGER.
-@@ LUA_INTEGER_FRMLEN is the length modifier for reading/writing integers.
-@@ LUA_INTEGER_FMT is the format for writing integers.
-@@ LUA_MAXINTEGER is the maximum value for a LUA_INTEGER.
-@@ LUA_MININTEGER is the minimum value for a LUA_INTEGER.
-@@ LUA_MAXUNSIGNED is the maximum value for a LUA_UNSIGNED.
-@@ LUA_UNSIGNEDBITS is the number of bits in a LUA_UNSIGNED.
+@@ SDKL_UNSIGNED is the unsigned version of SDKL_INTEGER.
+@@ SDKLI_UACINT is the result of a 'default argument promotion'
+@@ over a SDKL_INTEGER.
+@@ SDKL_INTEGER_FRMLEN is the length modifier for reading/writing integers.
+@@ SDKL_INTEGER_FMT is the format for writing integers.
+@@ SDKL_MAXINTEGER is the maximum value for a SDKL_INTEGER.
+@@ SDKL_MININTEGER is the minimum value for a SDKL_INTEGER.
+@@ SDKL_MAXUNSIGNED is the maximum value for a SDKL_UNSIGNED.
+@@ SDKL_UNSIGNEDBITS is the number of bits in a SDKL_UNSIGNED.
 @@ sdkl_integer2str converts an integer to a string.
 */
 
 
 /* The following definitions are good for most cases here */
 
-#define LUA_INTEGER_FMT		"%" LUA_INTEGER_FRMLEN "d"
+#define SDKL_INTEGER_FMT		"%" SDKL_INTEGER_FRMLEN "d"
 
-#define LUAI_UACINT		LUA_INTEGER
+#define SDKLI_UACINT		SDKL_INTEGER
 
 #define sdkl_integer2str(s,sz,n)  \
-	l_sprintf((s), sz, LUA_INTEGER_FMT, (LUAI_UACINT)(n))
+	l_sprintf((s), sz, SDKL_INTEGER_FMT, (SDKLI_UACINT)(n))
 
 /*
-** use LUAI_UACINT here to avoid problems with promotions (which
+** use SDKLI_UACINT here to avoid problems with promotions (which
 ** can turn a comparison between unsigneds into a signed comparison)
 */
-#define LUA_UNSIGNED		unsigned LUAI_UACINT
+#define SDKL_UNSIGNED		unsigned SDKLI_UACINT
 
 
-#define LUA_UNSIGNEDBITS	(sizeof(LUA_UNSIGNED) * CHAR_BIT)
+#define SDKL_UNSIGNEDBITS	(sizeof(SDKL_UNSIGNED) * CHAR_BIT)
 
 
 /* now the variable definitions */
 
-#if LUA_INT_TYPE == LUA_INT_INT		/* { int */
+#if SDKL_INT_TYPE == SDKL_INT_INT		/* { int */
 
-#define LUA_INTEGER		int
-#define LUA_INTEGER_FRMLEN	""
+#define SDKL_INTEGER		int
+#define SDKL_INTEGER_FRMLEN	""
 
-#define LUA_MAXINTEGER		INT_MAX
-#define LUA_MININTEGER		INT_MIN
+#define SDKL_MAXINTEGER		INT_MAX
+#define SDKL_MININTEGER		INT_MIN
 
-#define LUA_MAXUNSIGNED		UINT_MAX
+#define SDKL_MAXUNSIGNED		UINT_MAX
 
-#elif LUA_INT_TYPE == LUA_INT_LONG	/* }{ long */
+#elif SDKL_INT_TYPE == SDKL_INT_LONG	/* }{ long */
 
-#define LUA_INTEGER		long
-#define LUA_INTEGER_FRMLEN	"l"
+#define SDKL_INTEGER		long
+#define SDKL_INTEGER_FRMLEN	"l"
 
-#define LUA_MAXINTEGER		LONG_MAX
-#define LUA_MININTEGER		LONG_MIN
+#define SDKL_MAXINTEGER		LONG_MAX
+#define SDKL_MININTEGER		LONG_MIN
 
-#define LUA_MAXUNSIGNED		ULONG_MAX
+#define SDKL_MAXUNSIGNED		ULONG_MAX
 
-#elif LUA_INT_TYPE == LUA_INT_LONGLONG	/* }{ long long */
+#elif SDKL_INT_TYPE == SDKL_INT_LONGLONG	/* }{ long long */
 
 /* use presence of macro LLONG_MAX as proxy for C99 compliance */
 #if defined(LLONG_MAX)		/* { */
 /* use ISO C99 stuff */
 
-#define LUA_INTEGER		long long
-#define LUA_INTEGER_FRMLEN	"ll"
+#define SDKL_INTEGER		long long
+#define SDKL_INTEGER_FRMLEN	"ll"
 
-#define LUA_MAXINTEGER		LLONG_MAX
-#define LUA_MININTEGER		LLONG_MIN
+#define SDKL_MAXINTEGER		LLONG_MAX
+#define SDKL_MININTEGER		LLONG_MIN
 
-#define LUA_MAXUNSIGNED		ULLONG_MAX
+#define SDKL_MAXUNSIGNED		ULLONG_MAX
 
-#elif defined(LUA_USE_WINDOWS) /* }{ */
+#elif defined(SDKL_USE_WINDOWS) /* }{ */
 /* in Windows, can use specific Windows types */
 
-#define LUA_INTEGER		__int64
-#define LUA_INTEGER_FRMLEN	"I64"
+#define SDKL_INTEGER		__int64
+#define SDKL_INTEGER_FRMLEN	"I64"
 
-#define LUA_MAXINTEGER		_I64_MAX
-#define LUA_MININTEGER		_I64_MIN
+#define SDKL_MAXINTEGER		_I64_MAX
+#define SDKL_MININTEGER		_I64_MIN
 
-#define LUA_MAXUNSIGNED		_UI64_MAX
+#define SDKL_MAXUNSIGNED		_UI64_MAX
 
 #else				/* }{ */
 
-#error "Compiler does not support 'long long'. Use option '-DLUA_32BITS' \
-  or '-DLUA_C89_NUMBERS' (see file 'sdklconf.h' for details)"
+#error "Compiler does not support 'long long'. Use option '-DSDKL_32BITS' \
+  or '-DSDKL_C89_NUMBERS' (see file 'sdklconf.h' for details)"
 
 #endif				/* } */
 
@@ -582,7 +582,7 @@
 @@ l_sprintf is equivalent to 'snprintf' or 'sprintf' in C89.
 ** (All uses in SDKL have only one format item.)
 */
-#if !defined(LUA_USE_C89)
+#if !defined(SDKL_USE_C89)
 #define l_sprintf(s,sz,f,i)	snprintf(s,sz,f,i)
 #else
 #define l_sprintf(s,sz,f,i)	((void)(sz), sprintf(s,f,i))
@@ -595,7 +595,7 @@
 ** leave 'sdkl_strx2number' undefined and SDKL will provide its own
 ** implementation.
 */
-#if !defined(LUA_USE_C89)
+#if !defined(SDKL_USE_C89)
 #define sdkl_strx2number(s,p)		sdkl_str2number(s,p)
 #endif
 
@@ -613,9 +613,9 @@
 ** Otherwise, you can leave 'sdkl_number2strx' undefined and SDKL will
 ** provide its own implementation.
 */
-#if !defined(LUA_USE_C89)
+#if !defined(SDKL_USE_C89)
 #define sdkl_number2strx(L,b,sz,f,n)  \
-	((void)L, l_sprintf(b,sz,f,(LUAI_UACNUMBER)(n)))
+	((void)L, l_sprintf(b,sz,f,(SDKLI_UACNUMBER)(n)))
 #endif
 
 
@@ -625,7 +625,7 @@
 ** availability of these variants. ('math.h' is already included in
 ** all files that use these macros.)
 */
-#if defined(LUA_USE_C89) || (defined(HUGE_VAL) && !defined(HUGE_VALF))
+#if defined(SDKL_USE_C89) || (defined(HUGE_VAL) && !defined(HUGE_VALF))
 #undef l_mathop  /* variants not available */
 #undef sdkl_str2number
 #define l_mathop(op)		(sdkl_Number)op  /* no variant */
@@ -634,19 +634,19 @@
 
 
 /*
-@@ LUA_KCONTEXT is the type of the context ('ctx') for continuation
+@@ SDKL_KCONTEXT is the type of the context ('ctx') for continuation
 ** functions.  It must be a numerical type; SDKL will use 'intptr_t' if
 ** available, otherwise it will use 'ptrdiff_t' (the nearest thing to
 ** 'intptr_t' in C89)
 */
-#define LUA_KCONTEXT	ptrdiff_t
+#define SDKL_KCONTEXT	ptrdiff_t
 
-#if !defined(LUA_USE_C89) && defined(__STDC_VERSION__) && \
+#if !defined(SDKL_USE_C89) && defined(__STDC_VERSION__) && \
     __STDC_VERSION__ >= 199901L
 #include <stdint.h>
 #if defined(INTPTR_MAX)  /* even in C99 this type is optional */
-#undef LUA_KCONTEXT
-#define LUA_KCONTEXT	intptr_t
+#undef SDKL_KCONTEXT
+#define SDKL_KCONTEXT	intptr_t
 #endif
 #endif
 
@@ -664,12 +664,12 @@
 /*
 ** macros to improve jump prediction, used mostly for error handling
 ** and debug facilities. (Some macros in the SDKL API use these macros.
-** Define LUA_NOBUILTIN if you do not want '__builtin_expect' in your
+** Define SDKL_NOBUILTIN if you do not want '__builtin_expect' in your
 ** code.)
 */
 #if !defined(sdkli_likely)
 
-#if defined(__GNUC__) && !defined(LUA_NOBUILTIN)
+#if defined(__GNUC__) && !defined(SDKL_NOBUILTIN)
 #define sdkli_likely(x)		(__builtin_expect(((x) != 0), 1))
 #define sdkli_unlikely(x)	(__builtin_expect(((x) != 0), 0))
 #else
@@ -680,7 +680,7 @@
 #endif
 
 
-#if defined(LUA_CORE) || defined(LUA_LIB)
+#if defined(SDKL_CORE) || defined(SDKL_LIB)
 /* shorter names for SDKL's own use */
 #define l_likely(x)	sdkli_likely(x)
 #define l_unlikely(x)	sdkli_unlikely(x)
@@ -698,20 +698,20 @@
 */
 
 /*
-@@ LUA_NOCVTN2S/LUA_NOCVTS2N control how SDKL performs some
-** coercions. Define LUA_NOCVTN2S to turn off automatic coercion from
-** numbers to strings. Define LUA_NOCVTS2N to turn off automatic
+@@ SDKL_NOCVTN2S/SDKL_NOCVTS2N control how SDKL performs some
+** coercions. Define SDKL_NOCVTN2S to turn off automatic coercion from
+** numbers to strings. Define SDKL_NOCVTS2N to turn off automatic
 ** coercion from strings to numbers.
 */
-/* #define LUA_NOCVTN2S */
-/* #define LUA_NOCVTS2N */
+/* #define SDKL_NOCVTN2S */
+/* #define SDKL_NOCVTS2N */
 
 
 /*
-@@ LUA_USE_APICHECK turns on several consistency checks on the C API.
+@@ SDKL_USE_APICHECK turns on several consistency checks on the C API.
 ** Define it as a help when debugging C code.
 */
-#if defined(LUA_USE_APICHECK)
+#if defined(SDKL_USE_APICHECK)
 #include <assert.h>
 #define sdkli_apicheck(l,e)	assert(e)
 #endif
@@ -728,46 +728,46 @@
 */
 
 /*
-@@ LUAI_MAXSTACK limits the size of the SDKL stack.
+@@ SDKLI_MAXSTACK limits the size of the SDKL stack.
 ** CHANGE it if you need a different limit. This limit is arbitrary;
 ** its only purpose is to stop SDKL from consuming unlimited stack
 ** space (and to reserve some numbers for pseudo-indices).
 ** (It must fit into max(size_t)/32.)
 */
-#if LUAI_IS32INT
-#define LUAI_MAXSTACK		1000000
+#if SDKLI_IS32INT
+#define SDKLI_MAXSTACK		1000000
 #else
-#define LUAI_MAXSTACK		15000
+#define SDKLI_MAXSTACK		15000
 #endif
 
 
 /*
-@@ LUA_EXTRASPACE defines the size of a raw memory area associated with
+@@ SDKL_EXTRASPACE defines the size of a raw memory area associated with
 ** a SDKL state with very fast access.
 ** CHANGE it if you need a different size.
 */
-#define LUA_EXTRASPACE		(sizeof(void *))
+#define SDKL_EXTRASPACE		(sizeof(void *))
 
 
 /*
-@@ LUA_IDSIZE gives the maximum size for the description of the source
+@@ SDKL_IDSIZE gives the maximum size for the description of the source
 @@ of a function in debug information.
 ** CHANGE it if you want a different size.
 */
-#define LUA_IDSIZE	60
+#define SDKL_IDSIZE	60
 
 
 /*
-@@ LUAL_BUFFERSIZE is the buffer size used by the lauxlib buffer system.
+@@ SDKLL_BUFFERSIZE is the buffer size used by the lauxlib buffer system.
 */
-#define LUAL_BUFFERSIZE   ((int)(16 * sizeof(void*) * sizeof(sdkl_Number)))
+#define SDKLL_BUFFERSIZE   ((int)(16 * sizeof(void*) * sizeof(sdkl_Number)))
 
 
 /*
-@@ LUAI_MAXALIGN defines fields that, when used in a union, ensure
+@@ SDKLI_MAXALIGN defines fields that, when used in a union, ensure
 ** maximum alignment for the other items in that union.
 */
-#define LUAI_MAXALIGN  sdkl_Number n; double u; void *s; sdkl_Integer i; long l
+#define SDKLI_MAXALIGN  sdkl_Number n; double u; void *s; sdkl_Integer i; long l
 
 /* }================================================================== */
 

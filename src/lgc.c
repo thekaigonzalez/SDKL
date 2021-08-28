@@ -5,7 +5,7 @@
 */
 
 #define lgc_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
@@ -124,12 +124,12 @@ static void entersweep (sdkl_State *L);
 
 static GCObject **getgclist (GCObject *o) {
   switch (o->tt) {
-    case LUA_VTABLE: return &gco2t(o)->gclist;
-    case LUA_VLCL: return &gco2lcl(o)->gclist;
-    case LUA_VCCL: return &gco2ccl(o)->gclist;
-    case LUA_VTHREAD: return &gco2th(o)->gclist;
-    case LUA_VPROTO: return &gco2p(o)->gclist;
-    case LUA_VUSERDATA: {
+    case SDKL_VTABLE: return &gco2t(o)->gclist;
+    case SDKL_VLCL: return &gco2lcl(o)->gclist;
+    case SDKL_VCCL: return &gco2ccl(o)->gclist;
+    case SDKL_VTHREAD: return &gco2th(o)->gclist;
+    case SDKL_VPROTO: return &gco2p(o)->gclist;
+    case SDKL_VUSERDATA: {
       Udata *u = gco2u(o);
       sdkl_assert(u->nuvalue > 0);
       return &u->gclist;
@@ -184,7 +184,7 @@ static void clearkey (Node *n) {
 */
 static int iscleared (global_State *g, const GCObject *o) {
   if (o == NULL) return 0;  /* non-collectable value */
-  else if (novariant(o->tt) == LUA_TSTRING) {
+  else if (novariant(o->tt) == SDKL_TSTRING) {
     markobject(g, o);  /* strings are 'values', so are never weak */
     return 0;
   }
@@ -290,12 +290,12 @@ GCObject *sdklC_newobj (sdkl_State *L, int tt, size_t sz) {
 */
 static void reallymarkobject (global_State *g, GCObject *o) {
   switch (o->tt) {
-    case LUA_VSHRSTR:
-    case LUA_VLNGSTR: {
+    case SDKL_VSHRSTR:
+    case SDKL_VLNGSTR: {
       set2black(o);  /* nothing to visit */
       break;
     }
-    case LUA_VUPVAL: {
+    case SDKL_VUPVAL: {
       UpVal *uv = gco2upv(o);
       if (upisopen(uv))
         set2gray(uv);  /* open upvalues are kept gray */
@@ -304,7 +304,7 @@ static void reallymarkobject (global_State *g, GCObject *o) {
       markvalue(g, uv->v);  /* mark its content */
       break;
     }
-    case LUA_VUSERDATA: {
+    case SDKL_VUSERDATA: {
       Udata *u = gco2u(o);
       if (u->nuvalue == 0) {  /* no user values? */
         markobjectN(g, u->metatable);  /* mark its metatable */
@@ -313,8 +313,8 @@ static void reallymarkobject (global_State *g, GCObject *o) {
       }
       /* else... */
     }  /* FALLTHROUGH */
-    case LUA_VLCL: case LUA_VCCL: case LUA_VTABLE:
-    case LUA_VTHREAD: case LUA_VPROTO: {
+    case SDKL_VLCL: case SDKL_VCCL: case SDKL_VTABLE:
+    case SDKL_VTHREAD: case SDKL_VPROTO: {
       linkobjgclist(o, g->gray);  /* to be visited later */
       break;
     }
@@ -328,7 +328,7 @@ static void reallymarkobject (global_State *g, GCObject *o) {
 */
 static void markmt (global_State *g) {
   int i;
-  for (i=0; i < LUA_NUMTAGS; i++)
+  for (i=0; i < SDKL_NUMTAGS; i++)
     markobjectN(g, g->mt[i]);
 }
 
@@ -654,12 +654,12 @@ static lu_mem propagatemark (global_State *g) {
   nw2black(o);
   g->gray = *getgclist(o);  /* remove from 'gray' list */
   switch (o->tt) {
-    case LUA_VTABLE: return traversetable(g, gco2t(o));
-    case LUA_VUSERDATA: return traverseudata(g, gco2u(o));
-    case LUA_VLCL: return traverseLclosure(g, gco2lcl(o));
-    case LUA_VCCL: return traverseCclosure(g, gco2ccl(o));
-    case LUA_VPROTO: return traverseproto(g, gco2p(o));
-    case LUA_VTHREAD: return traversethread(g, gco2th(o));
+    case SDKL_VTABLE: return traversetable(g, gco2t(o));
+    case SDKL_VUSERDATA: return traverseudata(g, gco2u(o));
+    case SDKL_VLCL: return traverseLclosure(g, gco2lcl(o));
+    case SDKL_VCCL: return traverseCclosure(g, gco2ccl(o));
+    case SDKL_VPROTO: return traverseproto(g, gco2p(o));
+    case SDKL_VTHREAD: return traversethread(g, gco2th(o));
     default: sdkl_assert(0); return 0;
   }
 }
@@ -763,40 +763,40 @@ static void freeupval (sdkl_State *L, UpVal *uv) {
 
 static void freeobj (sdkl_State *L, GCObject *o) {
   switch (o->tt) {
-    case LUA_VPROTO:
+    case SDKL_VPROTO:
       sdklF_freeproto(L, gco2p(o));
       break;
-    case LUA_VUPVAL:
+    case SDKL_VUPVAL:
       freeupval(L, gco2upv(o));
       break;
-    case LUA_VLCL: {
+    case SDKL_VLCL: {
       LClosure *cl = gco2lcl(o);
       sdklM_freemem(L, cl, sizeLclosure(cl->nupvalues));
       break;
     }
-    case LUA_VCCL: {
+    case SDKL_VCCL: {
       CClosure *cl = gco2ccl(o);
       sdklM_freemem(L, cl, sizeCclosure(cl->nupvalues));
       break;
     }
-    case LUA_VTABLE:
+    case SDKL_VTABLE:
       sdklH_free(L, gco2t(o));
       break;
-    case LUA_VTHREAD:
+    case SDKL_VTHREAD:
       sdklE_freethread(L, gco2th(o));
       break;
-    case LUA_VUSERDATA: {
+    case SDKL_VUSERDATA: {
       Udata *u = gco2u(o);
       sdklM_freemem(L, o, sizeudata(u->nuvalue, u->len));
       break;
     }
-    case LUA_VSHRSTR: {
+    case SDKL_VSHRSTR: {
       TString *ts = gco2ts(o);
       sdklS_remove(L, ts);  /* remove it from hash table */
       sdklM_freemem(L, ts, sizelstring(ts->shrlen));
       break;
     }
-    case LUA_VLNGSTR: {
+    case SDKL_VLNGSTR: {
       TString *ts = gco2ts(o);
       sdklM_freemem(L, ts, sizelstring(ts->u.lnglen));
       break;
@@ -916,7 +916,7 @@ static void GCTM (sdkl_State *L) {
     L->ci->callstatus &= ~CIST_FIN;  /* not running a finalizer anymore */
     L->allowhook = oldah;  /* restore hooks */
     g->gcrunning = running;  /* restore state */
-    if (l_unlikely(status != LUA_OK)) {  /* error while running __gc? */
+    if (l_unlikely(status != SDKL_OK)) {  /* error while running __gc? */
       sdklE_warnerror(L, "__gc metamethod");
       L->top--;  /* pops error object */
     }
@@ -1060,11 +1060,11 @@ static void sweep2old (sdkl_State *L, GCObject **p) {
     }
     else {  /* all surviving objects become old */
       setage(curr, G_OLD);
-      if (curr->tt == LUA_VTHREAD) {  /* threads must be watched */
+      if (curr->tt == SDKL_VTHREAD) {  /* threads must be watched */
         sdkl_State *th = gco2th(curr);
         linkgclist(th, g->grayagain);  /* insert into 'grayagain' list */
       }
-      else if (curr->tt == LUA_VUPVAL && upisopen(gco2upv(curr)))
+      else if (curr->tt == SDKL_VUPVAL && upisopen(gco2upv(curr)))
         set2gray(curr);  /* open upvalues are always gray */
       else  /* everything else is black */
         nw2black(curr);
@@ -1154,7 +1154,7 @@ static GCObject **correctgraylist (GCObject **p) {
       changeage(curr, G_TOUCHED1, G_TOUCHED2);
       goto remain;  /* keep it in the list and go to next element */
     }
-    else if (curr->tt == LUA_VTHREAD) {
+    else if (curr->tt == SDKL_VTHREAD) {
       sdkl_assert(isgray(curr));
       goto remain;  /* keep non-white threads on the list */
     }

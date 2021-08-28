@@ -5,7 +5,7 @@
 */
 
 #define lfunc_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
@@ -25,7 +25,7 @@
 
 
 CClosure *sdklF_newCclosure (sdkl_State *L, int nupvals) {
-  GCObject *o = sdklC_newobj(L, LUA_VCCL, sizeCclosure(nupvals));
+  GCObject *o = sdklC_newobj(L, SDKL_VCCL, sizeCclosure(nupvals));
   CClosure *c = gco2ccl(o);
   c->nupvalues = cast_byte(nupvals);
   return c;
@@ -33,7 +33,7 @@ CClosure *sdklF_newCclosure (sdkl_State *L, int nupvals) {
 
 
 LClosure *sdklF_newLclosure (sdkl_State *L, int nupvals) {
-  GCObject *o = sdklC_newobj(L, LUA_VLCL, sizeLclosure(nupvals));
+  GCObject *o = sdklC_newobj(L, SDKL_VLCL, sizeLclosure(nupvals));
   LClosure *c = gco2lcl(o);
   c->p = NULL;
   c->nupvalues = cast_byte(nupvals);
@@ -48,7 +48,7 @@ LClosure *sdklF_newLclosure (sdkl_State *L, int nupvals) {
 void sdklF_initupvals (sdkl_State *L, LClosure *cl) {
   int i;
   for (i = 0; i < cl->nupvalues; i++) {
-    GCObject *o = sdklC_newobj(L, LUA_VUPVAL, sizeof(UpVal));
+    GCObject *o = sdklC_newobj(L, SDKL_VUPVAL, sizeof(UpVal));
     UpVal *uv = gco2upv(o);
     uv->v = &uv->u.value;  /* make it closed */
     setnilvalue(uv->v);
@@ -63,7 +63,7 @@ void sdklF_initupvals (sdkl_State *L, LClosure *cl) {
 ** open upvalues of 'L' after entry 'prev'.
 **/
 static UpVal *newupval (sdkl_State *L, int tbc, StkId level, UpVal **prev) {
-  GCObject *o = sdklC_newobj(L, LUA_VUPVAL, sizeof(UpVal));
+  GCObject *o = sdklC_newobj(L, SDKL_VUPVAL, sizeof(UpVal));
   UpVal *uv = gco2upv(o);
   UpVal *next = *prev;
   uv->v = s2v(level);  /* current value lives in the stack */
@@ -238,7 +238,7 @@ void sdklF_close (sdkl_State *L, StkId level, int status, int yy) {
 
 
 Proto *sdklF_newproto (sdkl_State *L) {
-  GCObject *o = sdklC_newobj(L, LUA_VPROTO, sizeof(Proto));
+  GCObject *o = sdklC_newobj(L, SDKL_VPROTO, sizeof(Proto));
   Proto *f = gco2p(o);
   f->k = NULL;
   f->sizek = 0;

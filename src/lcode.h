@@ -55,50 +55,50 @@ typedef enum UnOpr { OPR_MINUS, OPR_BNOT, OPR_NOT, OPR_LEN, OPR_NOUNOPR } UnOpr;
 #define getinstruction(fs,e)	((fs)->f->code[(e)->u.info])
 
 
-#define sdklK_setmultret(fs,e)	sdklK_setreturns(fs, e, LUA_MULTRET)
+#define sdklK_setmultret(fs,e)	sdklK_setreturns(fs, e, SDKL_MULTRET)
 
 #define sdklK_jumpto(fs,t)	sdklK_patchlist(fs, sdklK_jump(fs), t)
 
-LUAI_FUNC int sdklK_code (FuncState *fs, Instruction i);
-LUAI_FUNC int sdklK_codeABx (FuncState *fs, OpCode o, int A, unsigned int Bx);
-LUAI_FUNC int sdklK_codeAsBx (FuncState *fs, OpCode o, int A, int Bx);
-LUAI_FUNC int sdklK_codeABCk (FuncState *fs, OpCode o, int A,
+SDKLI_FUNC int sdklK_code (FuncState *fs, Instruction i);
+SDKLI_FUNC int sdklK_codeABx (FuncState *fs, OpCode o, int A, unsigned int Bx);
+SDKLI_FUNC int sdklK_codeAsBx (FuncState *fs, OpCode o, int A, int Bx);
+SDKLI_FUNC int sdklK_codeABCk (FuncState *fs, OpCode o, int A,
                                             int B, int C, int k);
-LUAI_FUNC int sdklK_isKint (expdesc *e);
-LUAI_FUNC int sdklK_exp2const (FuncState *fs, const expdesc *e, TValue *v);
-LUAI_FUNC void sdklK_fixline (FuncState *fs, int line);
-LUAI_FUNC void sdklK_nil (FuncState *fs, int from, int n);
-LUAI_FUNC void sdklK_reserveregs (FuncState *fs, int n);
-LUAI_FUNC void sdklK_checkstack (FuncState *fs, int n);
-LUAI_FUNC void sdklK_int (FuncState *fs, int reg, sdkl_Integer n);
-LUAI_FUNC void sdklK_dischargevars (FuncState *fs, expdesc *e);
-LUAI_FUNC int sdklK_exp2anyreg (FuncState *fs, expdesc *e);
-LUAI_FUNC void sdklK_exp2anyregup (FuncState *fs, expdesc *e);
-LUAI_FUNC void sdklK_exp2nextreg (FuncState *fs, expdesc *e);
-LUAI_FUNC void sdklK_exp2val (FuncState *fs, expdesc *e);
-LUAI_FUNC int sdklK_exp2RK (FuncState *fs, expdesc *e);
-LUAI_FUNC void sdklK_self (FuncState *fs, expdesc *e, expdesc *key);
-LUAI_FUNC void sdklK_indexed (FuncState *fs, expdesc *t, expdesc *k);
-LUAI_FUNC void sdklK_goiftrue (FuncState *fs, expdesc *e);
-LUAI_FUNC void sdklK_goiffalse (FuncState *fs, expdesc *e);
-LUAI_FUNC void sdklK_storevar (FuncState *fs, expdesc *var, expdesc *e);
-LUAI_FUNC void sdklK_setreturns (FuncState *fs, expdesc *e, int nresults);
-LUAI_FUNC void sdklK_setoneret (FuncState *fs, expdesc *e);
-LUAI_FUNC int sdklK_jump (FuncState *fs);
-LUAI_FUNC void sdklK_ret (FuncState *fs, int first, int nret);
-LUAI_FUNC void sdklK_patchlist (FuncState *fs, int list, int target);
-LUAI_FUNC void sdklK_patchtohere (FuncState *fs, int list);
-LUAI_FUNC void sdklK_concat (FuncState *fs, int *l1, int l2);
-LUAI_FUNC int sdklK_getlabel (FuncState *fs);
-LUAI_FUNC void sdklK_prefix (FuncState *fs, UnOpr op, expdesc *v, int line);
-LUAI_FUNC void sdklK_infix (FuncState *fs, BinOpr op, expdesc *v);
-LUAI_FUNC void sdklK_posfix (FuncState *fs, BinOpr op, expdesc *v1,
+SDKLI_FUNC int sdklK_isKint (expdesc *e);
+SDKLI_FUNC int sdklK_exp2const (FuncState *fs, const expdesc *e, TValue *v);
+SDKLI_FUNC void sdklK_fixline (FuncState *fs, int line);
+SDKLI_FUNC void sdklK_nil (FuncState *fs, int from, int n);
+SDKLI_FUNC void sdklK_reserveregs (FuncState *fs, int n);
+SDKLI_FUNC void sdklK_checkstack (FuncState *fs, int n);
+SDKLI_FUNC void sdklK_int (FuncState *fs, int reg, sdkl_Integer n);
+SDKLI_FUNC void sdklK_dischargevars (FuncState *fs, expdesc *e);
+SDKLI_FUNC int sdklK_exp2anyreg (FuncState *fs, expdesc *e);
+SDKLI_FUNC void sdklK_exp2anyregup (FuncState *fs, expdesc *e);
+SDKLI_FUNC void sdklK_exp2nextreg (FuncState *fs, expdesc *e);
+SDKLI_FUNC void sdklK_exp2val (FuncState *fs, expdesc *e);
+SDKLI_FUNC int sdklK_exp2RK (FuncState *fs, expdesc *e);
+SDKLI_FUNC void sdklK_self (FuncState *fs, expdesc *e, expdesc *key);
+SDKLI_FUNC void sdklK_indexed (FuncState *fs, expdesc *t, expdesc *k);
+SDKLI_FUNC void sdklK_goiftrue (FuncState *fs, expdesc *e);
+SDKLI_FUNC void sdklK_goiffalse (FuncState *fs, expdesc *e);
+SDKLI_FUNC void sdklK_storevar (FuncState *fs, expdesc *var, expdesc *e);
+SDKLI_FUNC void sdklK_setreturns (FuncState *fs, expdesc *e, int nresults);
+SDKLI_FUNC void sdklK_setoneret (FuncState *fs, expdesc *e);
+SDKLI_FUNC int sdklK_jump (FuncState *fs);
+SDKLI_FUNC void sdklK_ret (FuncState *fs, int first, int nret);
+SDKLI_FUNC void sdklK_patchlist (FuncState *fs, int list, int target);
+SDKLI_FUNC void sdklK_patchtohere (FuncState *fs, int list);
+SDKLI_FUNC void sdklK_concat (FuncState *fs, int *l1, int l2);
+SDKLI_FUNC int sdklK_getlabel (FuncState *fs);
+SDKLI_FUNC void sdklK_prefix (FuncState *fs, UnOpr op, expdesc *v, int line);
+SDKLI_FUNC void sdklK_infix (FuncState *fs, BinOpr op, expdesc *v);
+SDKLI_FUNC void sdklK_posfix (FuncState *fs, BinOpr op, expdesc *v1,
                             expdesc *v2, int line);
-LUAI_FUNC void sdklK_settablesize (FuncState *fs, int pc,
+SDKLI_FUNC void sdklK_settablesize (FuncState *fs, int pc,
                                   int ra, int asize, int hsize);
-LUAI_FUNC void sdklK_setlist (FuncState *fs, int base, int nelems, int tostore);
-LUAI_FUNC void sdklK_finish (FuncState *fs);
-LUAI_FUNC l_noret sdklK_semerror (LexState *ls, const char *msg);
+SDKLI_FUNC void sdklK_setlist (FuncState *fs, int base, int nelems, int tostore);
+SDKLI_FUNC void sdklK_finish (FuncState *fs);
+SDKLI_FUNC l_noret sdklK_semerror (LexState *ls, const char *msg);
 
 
 #endif

@@ -5,7 +5,7 @@
 */
 
 #define lstring_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
@@ -33,7 +33,7 @@
 */
 int sdklS_eqlngstr (TString *a, TString *b) {
   size_t len = a->u.lnglen;
-  sdkl_assert(a->tt == LUA_VLNGSTR && b->tt == LUA_VLNGSTR);
+  sdkl_assert(a->tt == SDKL_VLNGSTR && b->tt == SDKL_VLNGSTR);
   return (a == b) ||  /* same instance or... */
     ((len == b->u.lnglen) &&  /* equal length and ... */
      (memcmp(getstr(a), getstr(b), len) == 0));  /* equal contents */
@@ -49,7 +49,7 @@ unsigned int sdklS_hash (const char *str, size_t l, unsigned int seed) {
 
 
 unsigned int sdklS_hashlongstr (TString *ts) {
-  sdkl_assert(ts->tt == LUA_VLNGSTR);
+  sdkl_assert(ts->tt == SDKL_VLNGSTR);
   if (ts->extra == 0) {  /* no hash? */
     size_t len = ts->u.lnglen;
     ts->hash = sdklS_hash(getstr(ts), len, ts->hash);
@@ -155,7 +155,7 @@ static TString *createstrobj (sdkl_State *L, size_t l, int tag, unsigned int h) 
 
 
 TString *sdklS_createlngstrobj (sdkl_State *L, size_t l) {
-  TString *ts = createstrobj(L, l, LUA_VLNGSTR, G(L)->seed);
+  TString *ts = createstrobj(L, l, SDKL_VLNGSTR, G(L)->seed);
   ts->u.lnglen = l;
   return ts;
 }
@@ -205,7 +205,7 @@ static TString *internshrstr (sdkl_State *L, const char *str, size_t l) {
     growstrtab(L, tb);
     list = &tb->hash[lmod(h, tb->size)];  /* rehash with new size */
   }
-  ts = createstrobj(L, l, LUA_VSHRSTR, h);
+  ts = createstrobj(L, l, SDKL_VSHRSTR, h);
   memcpy(getstr(ts), str, l * sizeof(char));
   ts->shrlen = cast_byte(l);
   ts->u.hnext = *list;
@@ -219,7 +219,7 @@ static TString *internshrstr (sdkl_State *L, const char *str, size_t l) {
 ** new string (with explicit length)
 */
 TString *sdklS_newlstr (sdkl_State *L, const char *str, size_t l) {
-  if (l <= LUAI_MAXSHORTLEN)  /* short string? */
+  if (l <= SDKLI_MAXSHORTLEN)  /* short string? */
     return internshrstr(L, str, l);
   else {
     TString *ts;
@@ -261,7 +261,7 @@ Udata *sdklS_newudata (sdkl_State *L, size_t s, int nuvalue) {
   GCObject *o;
   if (l_unlikely(s > MAX_SIZE - udatamemoffset(nuvalue)))
     sdklM_toobig(L);
-  o = sdklC_newobj(L, LUA_VUSERDATA, sizeudata(nuvalue, s));
+  o = sdklC_newobj(L, SDKL_VUSERDATA, sizeudata(nuvalue, s));
   u = gco2u(o);
   u->len = s;
   u->nuvalue = nuvalue;

@@ -4,7 +4,7 @@
 PLAT= guess
 
 CC= gcc -std=gnu99
-CFLAGS=  -O2 -Wall -Wextra -DLUA_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
+CFLAGS=  -O2 -Wall -Wextra -DSDKL_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
 LDFLAGS=  $(SYSLDFLAGS) $(MYLDFLAGS)
 LIBS= -lreadline -lm $(SYSLIBS) $(MYLIBS)
 
@@ -29,20 +29,20 @@ CMCFLAGS=
 
 PLATS= guess aix bsd c89 freebsd generic linux linux-readline macosx mingw posix solaris
 
-LUA_A=	libsdkl.a
+SDKL_A=	libsdkl.a
 CORE_O=	lapi.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o lmem.o lobject.o lopcodes.o lparser.o lstate.o lstring.o ltable.o ltm.o lundump.o lvm.o lzio.o
 LIB_O=	sdklauxillary.o lbaselib.o lcorolib.o ldblib.o liolib.o lmathlib.o loadlib.o loslib.o lstrlib.o ltablib.o lutf8lib.o linit.o
 BASE_O= $(CORE_O) $(LIB_O) $(MYOBJS)
 
-LUA_T=	sdkl
-LUA_O=	sdkl.o
+SDKL_T=	sdkl
+SDKL_O=	sdkl.o
 
-LUAC_T=	sdkl-bytes
-LUAC_O=	luac.o
+SDKLC_T=	sdkl-bytes
+SDKLC_O=	luac.o
 
-ALL_O= $(BASE_O) $(LUA_O) $(LUAC_O)
-ALL_T= $(LUA_A) $(LUA_T) $(LUAC_T)
-ALL_A= $(LUA_A)
+ALL_O= $(BASE_O) $(SDKL_O) $(SDKLC_O)
+ALL_T= $(SDKL_A) $(SDKL_T) $(SDKLC_T)
+ALL_A= $(SDKL_A)
 
 # Targets start here.
 default: $(PLAT)
@@ -53,18 +53,18 @@ o:	$(ALL_O)
 
 a:	$(ALL_A)
 
-$(LUA_A): $(BASE_O)
+$(SDKL_A): $(BASE_O)
 	$(AR) $@ $(BASE_O)
 	$(RANLIB) $@
 
-$(LUA_T): $(LUA_O) $(LUA_A)
-	$(CC) -o $@ $(LDFLAGS) $(LUA_O) $(LUA_A) $(LIBS)
+$(SDKL_T): $(SDKL_O) $(SDKL_A)
+	$(CC) -o $@ $(LDFLAGS) $(SDKL_O) $(SDKL_A) $(LIBS)
 
-$(LUAC_T): $(LUAC_O) $(LUA_A)
-	$(CC) -o $@ $(LDFLAGS) $(LUAC_O) $(LUA_A) $(LIBS)
+$(SDKLC_T): $(SDKLC_O) $(SDKL_A)
+	$(CC) -o $@ $(LDFLAGS) $(SDKLC_O) $(SDKL_A) $(LIBS)
 
 test:
-	./$(LUA_T) -v
+	./$(SDKL_T) -v
 
 clean:
 	$(RM) $(ALL_T) $(ALL_O)
@@ -96,46 +96,46 @@ guess:
 	@$(MAKE) `$(UNAME)`
 
 AIX aix:
-	$(MAKE) $(ALL) CC="xlc" CFLAGS="-O2 -DLUA_USE_POSIX -DLUA_USE_DLOPEN" SYSLIBS="-ldl" SYSLDFLAGS="-brtl -bexpall"
+	$(MAKE) $(ALL) CC="xlc" CFLAGS="-O2 -DSDKL_USE_POSIX -DSDKL_USE_DLOPEN" SYSLIBS="-ldl" SYSLDFLAGS="-brtl -bexpall"
 
 bsd:
-	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN" SYSLIBS="-Wl,-E"
+	$(MAKE) $(ALL) SYSCFLAGS="-DSDKL_USE_POSIX -DSDKL_USE_DLOPEN" SYSLIBS="-Wl,-E"
 
 c89:
-	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_C89" CC="gcc -std=c89"
+	$(MAKE) $(ALL) SYSCFLAGS="-DSDKL_USE_C89" CC="gcc -std=c89"
 	@echo ''
 	@echo '*** C89 does not guarantee 64-bit integers for Lua.'
 	@echo '*** Make sure to compile all external Lua libraries'
-	@echo '*** with LUA_USE_C89 to ensure consistency'
+	@echo '*** with SDKL_USE_C89 to ensure consistency'
 	@echo ''
 
 FreeBSD NetBSD OpenBSD freebsd:
-	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_LINUX -DLUA_USE_READLINE -I/usr/include/edit" SYSLIBS="-Wl,-E -ledit" CC="cc"
+	$(MAKE) $(ALL) SYSCFLAGS="-DSDKL_USE_LINUX -DSDKL_USE_READLINE -I/usr/include/edit" SYSLIBS="-Wl,-E -ledit" CC="cc"
 
 generic: $(ALL)
 
 Linux linux:	linux-noreadline
 
 linux-noreadline:
-	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_LINUX" SYSLIBS="-Wl,-E -ldl"
+	$(MAKE) $(ALL) SYSCFLAGS="-DSDKL_USE_LINUX" SYSLIBS="-Wl,-E -ldl"
 
 linux-readline:
-	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_LINUX -DLUA_USE_READLINE" SYSLIBS="-Wl,-E -ldl -lreadline"
+	$(MAKE) $(ALL) SYSCFLAGS="-DSDKL_USE_LINUX -DSDKL_USE_READLINE" SYSLIBS="-Wl,-E -ldl -lreadline"
 
 Darwin macos macosx:
-	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_MACOSX -DLUA_USE_READLINE" SYSLIBS="-lreadline"
+	$(MAKE) $(ALL) SYSCFLAGS="-DSDKL_USE_MACOSX -DSDKL_USE_READLINE" SYSLIBS="-lreadline"
 
 mingw:
-	$(MAKE) "LUA_A=SDKL.dll" "LUA_T=sdkl.exe" \
+	$(MAKE) "SDKL_A=SDKL.dll" "SDKL_T=sdkl.exe" \
 	"AR=$(CC) -shared -o" "RANLIB=strip --strip-unneeded" \
-	"SYSCFLAGS=-DLUA_BUILD_AS_DLL" "SYSLIBS=" "SYSLDFLAGS=-s" sdkl.exe
-	$(MAKE) "LUAC_T=sdkl-bytes.exe" sdkl-bytes.exe
+	"SYSCFLAGS=-DSDKL_BUILD_AS_DLL" "SYSLIBS=" "SYSLDFLAGS=-s" sdkl.exe
+	$(MAKE) "SDKLC_T=sdkl-bytes.exe" sdkl-bytes.exe
 
 posix:
-	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_POSIX"
+	$(MAKE) $(ALL) SYSCFLAGS="-DSDKL_USE_POSIX"
 
 SunOS solaris:
-	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN -D_REENTRANT" SYSLIBS="-ldl"
+	$(MAKE) $(ALL) SYSCFLAGS="-DSDKL_USE_POSIX -DSDKL_USE_DLOPEN -D_REENTRANT" SYSLIBS="-ldl"
 
 # Targets that do not create files (not all makes understand .PHONY).
 .PHONY: all $(PLATS) help test clean default o a depend echo

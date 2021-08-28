@@ -5,7 +5,7 @@
 */
 
 #define ldebug_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
@@ -31,7 +31,7 @@
 
 
 
-#define noSDKLClosure(f)		((f) == NULL || (f)->c.tt == LUA_VCCL)
+#define noSDKLClosure(f)		((f) == NULL || (f)->c.tt == SDKL_VCCL)
 
 
 static const char *funcnamefromcode (sdkl_State *L, CallInfo *ci,
@@ -128,7 +128,7 @@ static void settraps (CallInfo *ci) {
 ** for all platforms where it runs). Moreover, 'hook' is always checked
 ** before being called (see 'sdklD_hook').
 */
-LUA_API void sdkl_sethook (sdkl_State *L, sdkl_Hook func, int mask, int count) {
+SDKL_API void sdkl_sethook (sdkl_State *L, sdkl_Hook func, int mask, int count) {
   if (func == NULL || mask == 0) {  /* turn off hooks? */
     mask = 0;
     func = NULL;
@@ -142,22 +142,22 @@ LUA_API void sdkl_sethook (sdkl_State *L, sdkl_Hook func, int mask, int count) {
 }
 
 
-LUA_API sdkl_Hook sdkl_gethook (sdkl_State *L) {
+SDKL_API sdkl_Hook sdkl_gethook (sdkl_State *L) {
   return L->hook;
 }
 
 
-LUA_API int sdkl_gethookmask (sdkl_State *L) {
+SDKL_API int sdkl_gethookmask (sdkl_State *L) {
   return L->hookmask;
 }
 
 
-LUA_API int sdkl_gethookcount (sdkl_State *L) {
+SDKL_API int sdkl_gethookcount (sdkl_State *L) {
   return L->basehookcount;
 }
 
 
-LUA_API int sdkl_getstack (sdkl_State *L, int level, sdkl_Debug *ar) {
+SDKL_API int sdkl_getstack (sdkl_State *L, int level, sdkl_Debug *ar) {
   int status;
   CallInfo *ci;
   if (level < 0) return 0;  /* invalid (negative) level */
@@ -217,7 +217,7 @@ const char *sdklG_findlocal (sdkl_State *L, CallInfo *ci, int n, StkId *pos) {
 }
 
 
-LUA_API const char *sdkl_getlocal (sdkl_State *L, const sdkl_Debug *ar, int n) {
+SDKL_API const char *sdkl_getlocal (sdkl_State *L, const sdkl_Debug *ar, int n) {
   const char *name;
   sdkl_lock(L);
   if (ar == NULL) {  /* information about non-active function? */
@@ -239,7 +239,7 @@ LUA_API const char *sdkl_getlocal (sdkl_State *L, const sdkl_Debug *ar, int n) {
 }
 
 
-LUA_API const char *sdkl_setlocal (sdkl_State *L, const sdkl_Debug *ar, int n) {
+SDKL_API const char *sdkl_setlocal (sdkl_State *L, const sdkl_Debug *ar, int n) {
   StkId pos = NULL;  /* to avoid warnings */
   const char *name;
   sdkl_lock(L);
@@ -379,7 +379,7 @@ static int auxgetinfo (sdkl_State *L, const char *what, sdkl_Debug *ar,
 }
 
 
-LUA_API int sdkl_getinfo (sdkl_State *L, const char *what, sdkl_Debug *ar) {
+SDKL_API int sdkl_getinfo (sdkl_State *L, const char *what, sdkl_Debug *ar) {
   int status;
   Closure *cl;
   CallInfo *ci;
@@ -518,7 +518,7 @@ static const char *gxf (const Proto *p, int pc, Instruction i, int isup) {
     name = upvalname(p, t);
   else
     getobjname(p, pc, t, &name);
-  return (name && strcmp(name, LUA_ENV) == 0) ? "global" : "field";
+  return (name && strcmp(name, SDKL_ENV) == 0) ? "global" : "field";
 }
 
 
@@ -733,7 +733,7 @@ l_noret sdklG_opinterror (sdkl_State *L, const TValue *p1,
 */
 l_noret sdklG_tointerror (sdkl_State *L, const TValue *p1, const TValue *p2) {
   sdkl_Integer temp;
-  if (!sdklV_tointegerns(p1, &temp, LUA_FLOORN2I))
+  if (!sdklV_tointegerns(p1, &temp, SDKL_FLOORN2I))
     p2 = p1;
   sdklG_runerror(L, "number%s has no integer representation", varinfo(L, p2));
 }
@@ -752,7 +752,7 @@ l_noret sdklG_ordererror (sdkl_State *L, const TValue *p1, const TValue *p2) {
 /* add src:line information to 'msg' */
 const char *sdklG_addinfo (sdkl_State *L, const char *msg, TString *src,
                                         int line) {
-  char buff[LUA_IDSIZE];
+  char buff[SDKL_IDSIZE];
   if (src)
     sdklO_chunkid(buff, getstr(src), tsslen(src));
   else {  /* no source available; use "?" instead */
@@ -771,7 +771,7 @@ l_noret sdklG_errormsg (sdkl_State *L) {
     L->top++;  /* assume EXTRA_STACK */
     sdklD_callnoyield(L, L->top - 2, 1);  /* call it */
   }
-  sdklD_throw(L, LUA_ERRRUN);
+  sdklD_throw(L, SDKL_ERRRUN);
 }
 
 
@@ -835,16 +835,16 @@ int sdklG_traceexec (sdkl_State *L, const Instruction *pc) {
   lu_byte mask = L->hookmask;
   const Proto *p = ci_func(ci)->p;
   int counthook;
-  if (!(mask & (LUA_MASKLINE | LUA_MASKCOUNT))) {  /* no hooks? */
+  if (!(mask & (SDKL_MASKLINE | SDKL_MASKCOUNT))) {  /* no hooks? */
     ci->u.l.trap = 0;  /* don't need to stop again */
     return 0;  /* turn off 'trap' */
   }
   pc++;  /* reference is always next instruction */
   ci->u.l.savedpc = pc;  /* save 'pc' */
-  counthook = (--L->hookcount == 0 && (mask & LUA_MASKCOUNT));
+  counthook = (--L->hookcount == 0 && (mask & SDKL_MASKCOUNT));
   if (counthook)
     resethookcount(L);  /* reset count */
-  else if (!(mask & LUA_MASKLINE))
+  else if (!(mask & SDKL_MASKLINE))
     return 1;  /* no line hook and count != 0; nothing to be done now */
   if (ci->callstatus & CIST_HOOKYIELD) {  /* called hook last time? */
     ci->callstatus &= ~CIST_HOOKYIELD;  /* erase mark */
@@ -853,24 +853,24 @@ int sdklG_traceexec (sdkl_State *L, const Instruction *pc) {
   if (!isIT(*(ci->u.l.savedpc - 1)))  /* top not being used? */
     L->top = ci->top;  /* correct top */
   if (counthook)
-    sdklD_hook(L, LUA_HOOKCOUNT, -1, 0, 0);  /* call count hook */
-  if (mask & LUA_MASKLINE) {
+    sdklD_hook(L, SDKL_HOOKCOUNT, -1, 0, 0);  /* call count hook */
+  if (mask & SDKL_MASKLINE) {
     /* 'L->oldpc' may be invalid; use zero in this case */
     int oldpc = (L->oldpc < p->sizecode) ? L->oldpc : 0;
     int npci = pcRel(pc, p);
     if (npci <= oldpc ||  /* call hook when jump back (loop), */
         changedline(p, oldpc, npci)) {  /* or when enter new line */
       int newline = sdklG_getfuncline(p, npci);
-      sdklD_hook(L, LUA_HOOKLINE, newline, 0, 0);  /* call line hook */
+      sdklD_hook(L, SDKL_HOOKLINE, newline, 0, 0);  /* call line hook */
     }
     L->oldpc = npci;  /* 'pc' of last call to line hook */
   }
-  if (L->status == LUA_YIELD) {  /* did hook yield? */
+  if (L->status == SDKL_YIELD) {  /* did hook yield? */
     if (counthook)
       L->hookcount = 1;  /* undo decrement to zero */
     ci->u.l.savedpc--;  /* undo increment (resume will increment it again) */
     ci->callstatus |= CIST_HOOKYIELD;  /* mark that it yielded */
-    sdklD_throw(L, LUA_YIELD);
+    sdklD_throw(L, SDKL_YIELD);
   }
   return 1;  /* keep 'trap' on */
 }

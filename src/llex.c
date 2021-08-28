@@ -5,7 +5,7 @@
 */
 
 #define llex_c
-#define LUA_CORE
+#define SDKL_CORE
 
 #include "lprefix.h"
 
@@ -69,7 +69,7 @@ static void save (LexState *ls, int c) {
 
 void sdklX_init (sdkl_State *L) {
   int i;
-  TString *e = sdklS_newliteral(L, LUA_ENV);  /* create env name */
+  TString *e = sdklS_newliteral(L, SDKL_ENV);  /* create env name */
   sdklC_fix(L, obj2gco(e));  /* never collect this name */
   for (i=0; i<NUM_RESERVED; i++) {
     TString *ts = sdklS_new(L, sdklX_tokens[i]);
@@ -112,7 +112,7 @@ static l_noret lexerror (LexState *ls, const char *msg, int token) {
   msg = sdklG_addinfo(ls->L, msg, ls->source, ls->linenumber);
   if (token)
     sdklO_pushfstring(ls->L, "%s near %s", msg, txtToken(ls, token));
-  sdklD_throw(ls->L, LUA_ERRSYNTAX);
+  sdklD_throw(ls->L, SDKL_ERRSYNTAX);
 }
 
 
@@ -175,8 +175,8 @@ void sdklX_setinput (sdkl_State *L, LexState *ls, ZIO *z, TString *source,
   ls->linenumber = 1;
   ls->lastline = 1;
   ls->source = source;
-  ls->envn = sdklS_newliteral(L, LUA_ENV);  /* get env name */
-  sdklZ_resizebuffer(ls->L, ls->buff, LUA_MINBUFFER);  /* initialize buffer */
+  ls->envn = sdklS_newliteral(L, SDKL_ENV);  /* get env name */
+  sdklZ_resizebuffer(ls->L, ls->buff, SDKL_MINBUFFER);  /* initialize buffer */
 }
 
 
@@ -211,7 +211,7 @@ static int check_next2 (LexState *ls, const char *set) {
 }
 
 
-/* LUA_NUMBER */
+/* SDKL_NUMBER */
 /*
 ** This function is quite liberal in what it accepts, as 'sdklO_str2num'
 ** will reject ill-formed numerals. Roughly, it accepts the following
