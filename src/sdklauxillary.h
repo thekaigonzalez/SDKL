@@ -231,7 +231,7 @@ SDKLLIB_API char *(sdklL_buffinitsize) (sdkl_State *L, sdklL_Buffer *B, size_t s
 ** after that initial structure).
 */
 
-#define SDKL_FILEHANDLE          "FILE*"
+#define SDKL_FILEHANDLE          "io.file"
 
 
 typedef struct sdklL_Stream {
