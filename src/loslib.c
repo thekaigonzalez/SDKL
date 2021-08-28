@@ -417,7 +417,7 @@ static int os_exit (sdkl_State *L) {
   return 0;
 }
 
-static int lsys_name(sdkl_State* L)
+static int os_name(sdkl_State* L)
 {
 #ifdef __linux__
   sdkl_pushstring(L, "Linux");
@@ -427,6 +427,8 @@ static int lsys_name(sdkl_State* L)
   sdkl_pushstring(L, "BSD");
 #elif _WIN32
   sdkl_pushstring(L, "Windows");
+#elif __ANDROID__
+  sdkl_pushstring(L, "Android");
 #endif
   return 1;
 }
@@ -450,7 +452,7 @@ static const sdklL_Reg syslib[] = {
   {"setlocale", os_setlocale},
   {"time",      os_time},
   {"tmpname",   os_tmpname},
-  {"name", lsys_name},
+  {"name", os_name},
   {"sleep", os_sleep},
   {NULL, NULL}
 };

@@ -29,7 +29,7 @@ static const char udatatypename[] = "userdata";
 
 SDKLI_DDEF const char *const sdklT_typenames_[SDKL_TOTALTYPES] = {
   "no value",
-  "nil", "boolean", udatatypename, "number",
+  "null", "boolean", udatatypename, "number",
   "string", "table", "function", udatatypename, "thread",
   "upvalue", "proto" /* these last cases are used for tests only */
 };

@@ -901,7 +901,7 @@ SDKLLIB_API const char *sdklL_tolstring (sdkl_State *L, int idx, size_t *len) {
         sdkl_pushstring(L, (sdkl_toboolean(L, idx) ? "true" : "false"));
         break;
       case SDKL_TNIL:
-        sdkl_pushliteral(L, "nil");
+        sdkl_pushliteral(L, "null");
         break;
       default: {
         int tt = sdklL_getmetafield(L, idx, "__name");  /* try name */
