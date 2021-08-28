@@ -159,6 +159,13 @@ static int os_execute (sdkl_State *L) {
   }
 }
 
+static int os_code(sdkl_State* L)
+{
+  int stat;
+  stat = system(sdklL_checkstring(L, 1));
+  sdkl_pushinteger(L, stat);
+  return 1;
+}
 
 static int os_remove (sdkl_State *L) {
   const char *filename = sdklL_checkstring(L, 1);
@@ -436,6 +443,7 @@ static const sdklL_Reg syslib[] = {
   {"difftime",  os_difftime},
   {"execute",   os_execute},
   {"exit",      os_exit},
+  {"code", os_code},
   {"getenv",    os_getenv},
   {"remove",    os_remove},
   {"rename",    os_rename},
