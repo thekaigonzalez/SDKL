@@ -30,7 +30,7 @@ PLATS= guess aix bsd c89 freebsd generic linux linux-readline macosx mingw posix
 
 # What to install.
 TO_BIN= sdkl sdkl-bytes
-TO_INC= sdkl.h sdklconf.h lualib.h lauxlib.h lua.hpp
+TO_INC= sdkl.h sdklconf.h sdkllib.h sdklauxillary.h sdkl.hpp
 TO_LIB= libsdkl.a
 TO_MAN= sdkl.1 sdkl-bytes.1
 
