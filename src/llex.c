@@ -474,10 +474,12 @@ static int llex (LexState *ls, SemInfo *seminfo) {
 	break;
       case '/': {  /* '-' or '--' (comment) */
         next(ls);
-        if (ls->current != '/') return '/';
-        /* else is a comment */
+	// long (current token is / = false (true))
+        if (ls->current != '/') return '/' ;
+        
+	/* else is a comment */
         next(ls);
-        if (ls->current == '*') {  /* long comment? */
+        if (ls->current == '/') {  /* long comment? */
           size_t sep = skip_sep(ls);
           sdklZ_resetbuffer(ls->buff);  /* 'skip_sep' may dirty the buffer */
           if (sep >= 2) {
@@ -485,7 +487,8 @@ static int llex (LexState *ls, SemInfo *seminfo) {
             sdklZ_resetbuffer(ls->buff);  /* previous call may dirty the buff. */
             break;
           }
-        }
+        
+	}
         /* else short comment */
         while (!currIsNewline(ls) && ls->current != EOZ)
           next(ls);  /* skip until end of line (or end of file) */
