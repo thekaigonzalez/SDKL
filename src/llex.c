@@ -1,6 +1,6 @@
 /*
 ** $Id: llex.c $
-** Lexical Analyzer
+w** Lexical Analyzer
 ** See Copyright Notice in sdkl.h
 */
 
@@ -485,8 +485,8 @@ static int llex (LexState *ls, SemInfo *seminfo) {
       }
       case '=': {
         next(ls);
-        if (check_next1(ls, '=')) return TK_EQ;  /* '==' */
-        else return '=';
+        if (check_next1(ls, '=') || check_next1(ls, '^')) return TK_EQ;  /* '==' (=^ */
+	else return '=';
       }
       case '<': {
         next(ls);
