@@ -16,9 +16,9 @@
 #include "sdklconf.h"
 
 
-#define SDKL_VERSION_MAJOR	"2"
-#define SDKL_VERSION_MINOR	"8"
-#define SDKL_VERSION_RELEASE	"10"
+#define SDKL_VERSION_MAJOR	"3"
+#define SDKL_VERSION_MINOR	"0"
+#define SDKL_VERSION_RELEASE	"11"
 
 #define SDKL_VERSION_NUM			504
 #define SDKL_VERSION_RELEASE_NUM		(SDKL_VERSION_NUM * 100 + 0)
