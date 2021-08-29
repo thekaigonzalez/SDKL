@@ -9,13 +9,13 @@ Path = class();
 func Path:new(path)
     Path.Path = path
     return Path
-wend
+end
 
 Path.self = Path.Path
 
 func Path:exists(p)
    ifeq io.open(p) ~= nil then return true else return false
-wend
+end
 
 func Path:write(p, b)
    ifeq io.open(p) ~= nil then
@@ -24,8 +24,8 @@ func Path:write(p, b)
            return IsDirectoryError(p .. " is a directory") 
        else
            return bp:write(b);
-       wend
-   wend
-  wend
-wend
+       end
+   end
+  end
+end
 

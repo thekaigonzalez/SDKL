@@ -38,8 +38,8 @@ w** Lexical Analyzer
 
 /* ORDER RESERVED */
 static const char *const sdklX_tokens [] = {
-    "and", "break", "do", "else", "elif",
-    "wend", "false", "for", "func", "goto", "if",
+    "and", "break", "do", "else", "elsif",
+    "end", "false", "for", "func", "goto", "if",
     "in", "local", "null", "not", "or", "repeat",
     "return", "then", "execute", "true", "until", "while",
     "//", "=^", "..", "...", "==", ">=", "<=", "~=",
